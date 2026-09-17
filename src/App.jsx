@@ -7293,6 +7293,124 @@ print(next_week.strftime("%d.%m.%Y"))</pre>
     related: [],
   },
 
+  "py-stdlib-os-sys": {
+    badge: "Python",
+    title: "os, sys, pathlib",
+    whatIsIt: "os надає взаємодію з операційною системою — файли, директорії, змінні середовища. sys — доступ до параметрів інтерпретатора (аргументи командного рядка, версія). pathlib — сучасний об'єктний спосіб роботи зі шляхами файлової системи.",
+    useCases: ["читання списку файлів у директорії", "читання аргументів, переданих скрипту з командного рядка", "побудова кросплатформних шляхів до файлів"],
+    syntax: `import os\nfrom pathlib import Path\nos.listdir(".")`,
+    attributes: [
+      { name: "os.listdir(path)", desc: "повертає список файлів/папок у вказаній директорії" },
+      { name: "os.path.join(a, b)", desc: "коректно з'єднує частини шляху для будь-якої ОС" },
+      { name: "os.environ", desc: "словник змінних середовища" },
+      { name: "sys.argv", desc: "список аргументів, переданих скрипту з командного рядка" },
+      { name: "Path(path)", desc: "об'єктний спосіб роботи зі шляхом — .exists(), .name, / для з'єднання" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from pathlib import Path
+
+p = Path("data") / "users.json"
+print(p)
+print(p.suffix)
+print(p.parent)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">data/users.json
+.json
+data</pre>`,
+    pitfalls: [
+      "Ручне з'єднання шляхів через + \"/\" замість os.path.join() чи Path — ламається на Windows, де роздільник інший (\\).",
+      "os.environ['KEY'] кидає помилку, якщо змінної немає — безпечніше os.environ.get('KEY', 'default').",
+    ],
+    related: ["py-files"],
+  },
+  "py-stdlib-json-csv": {
+    badge: "Python",
+    title: "json і csv",
+    whatIsIt: "Модуль json перетворює між Python-об'єктами й JSON-рядками — для роботи з API чи конфігураційними файлами. csv читає й записує табличні дані у форматі CSV (значення через кому).",
+    useCases: ["читання відповіді API у форматі JSON", "збереження даних застосунку у файл і назад", "імпорт/експорт табличних даних (напр. з Excel)"],
+    syntax: `import json\ndata = json.loads('{"name": "Оля"}')\njson.dumps(data)`,
+    attributes: [
+      { name: "json.loads(text)", desc: "розбирає JSON-рядок у Python-об'єкт (dict/list)" },
+      { name: "json.dumps(obj)", desc: "перетворює Python-об'єкт на JSON-рядок" },
+      { name: "json.load(file) / json.dump(obj, file)", desc: "ті самі операції, але напряму з файлом" },
+      { name: "csv.reader(file)", desc: "читає CSV-файл рядок за рядком як списки" },
+      { name: "csv.DictReader(file)", desc: "читає CSV, де кожен рядок — словник з іменами колонок як ключами" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import json
+
+data = {"name": "Оля", "age": 25, "langs": ["Python", "SQL"]}
+json_text = json.dumps(data, ensure_ascii=False)
+print(json_text)
+
+parsed = json.loads(json_text)
+print(parsed["langs"][0])</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">{"name": "Оля", "age": 25, "langs": ["Python", "SQL"]}
+Python</pre>`,
+    pitfalls: [
+      "Забутий ensure_ascii=False — кирилиця перетворюється на \\uXXXX escape-послідовності замість читабельного тексту.",
+      "json.loads() кидає JSONDecodeError на невалідному JSON — обгортай у try/except при розборі зовнішніх даних.",
+    ],
+    related: ["py-files"],
+  },
+  "py-stdlib-re": {
+    badge: "Python",
+    title: "re (регулярні вирази)",
+    whatIsIt: "Модуль re для пошуку, перевірки й заміни тексту за шаблоном — потужніший за прості string-методи для складних правил (email, телефони, витягування частин тексту).",
+    useCases: ["перевірка формату введених даних (email, телефон)", "витягування конкретних частин тексту за шаблоном", "масова заміна тексту за складним правилом"],
+    syntax: `import re\nre.findall(r"\\d+", "є 5 котів і 3 собаки")`,
+    attributes: [
+      { name: "re.match() / re.search()", desc: "match перевіряє з ПОЧАТКУ рядка, search шукає ДЕ ЗАВГОДНО в рядку" },
+      { name: "re.findall(pattern, text)", desc: "повертає список УСІХ знайдених збігів" },
+      { name: "re.sub(pattern, repl, text)", desc: "замінює всі знайдені збіги на repl" },
+      { name: "re.compile(pattern)", desc: "заздалегідь компілює шаблон для повторного використання (швидше)" },
+      { name: "\\\\d \\\\w \\\\s", desc: "цифра, буква/цифра/підкреслення, пробільний символ" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import re
+
+text = "Зв'яжіться: oksana@example.com або ivan@test.ua"
+emails = re.findall(r"[\\w.]+@[\\w.]+", text)
+print(emails)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">['oksana@example.com', 'ivan@test.ua']</pre>`,
+    pitfalls: [
+      "Рядок шаблону БЕЗ префікса r (raw string) — зворотні слеші можуть інтерпретуватись як escape-послідовності Python, а не regex; завжди пиши r\"pattern\".",
+      "re.match() перевіряє лише ПОЧАТОК рядка — для пошуку будь-де в тексті потрібен re.search().",
+    ],
+    related: ["py-strings"],
+  },
+  "py-stdlib-math-random": {
+    badge: "Python",
+    title: "math і random",
+    whatIsIt: "math надає математичні функції — корінь, тригонометрія, логарифми, константи (pi, e). random генерує випадкові числа, обирає випадковий елемент чи перемішує список.",
+    useCases: ["обчислення квадратного кореня, степеня, тригонометричних функцій", "випадковий вибір елемента чи число для гри", "перемішування списку (напр. питань у тесті)"],
+    syntax: `import math, random\nmath.sqrt(16)\nrandom.choice(["орел", "решка"])`,
+    attributes: [
+      { name: "math.sqrt() / math.pow()", desc: "квадратний корінь, піднесення до степеня" },
+      { name: "math.ceil() / math.floor()", desc: "округлення вгору/вниз до цілого" },
+      { name: "math.pi / math.e", desc: "математичні константи" },
+      { name: "random.randint(a, b)", desc: "випадкове ціле число від a до b ВКЛЮЧНО" },
+      { name: "random.choice(seq)", desc: "випадковий елемент з послідовності" },
+      { name: "random.shuffle(list)", desc: "перемішує список НА МІСЦІ" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import math, random
+
+print(math.sqrt(144))
+print(round(math.pi, 2))
+
+options = ["А", "Б", "В"]
+random.shuffle(options)
+print(options)  # порядок буде випадковим</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (порядок варіантів випадковий):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">12.0
+3.14
+['Б', 'А', 'В']</pre>`,
+    pitfalls: [
+      "random.randint(a, b) включає ОБИДВА краї діапазону, на відміну від range(), де кінець не включений — часта плутанина.",
+      "math.sqrt() кидає ValueError для від'ємних чисел — для комплексних результатів потрібен модуль cmath.",
+    ],
+    related: [],
+  },
+
 };
 
 const TERM_GUIDES = {
