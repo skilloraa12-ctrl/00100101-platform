@@ -1929,7 +1929,14 @@ const REF_NAV = {
     "Обмеження, бази даних, ORM": ["backend-rate-limiting", "backend-sql-vs-nosql", "backend-orm"],
     "Кеш, черги, сервери": ["backend-caching", "backend-message-queues", "backend-web-servers"],
   },
-  "Full Stack": {},
+  "Full Stack": {
+    "Git": ["fullstack-git-basics", "fullstack-git-branching", "fullstack-git-remote", "fullstack-git-history-undo"],
+    "GitHub": ["fullstack-github"],
+    "Docker": ["fullstack-docker-basics", "fullstack-docker-compose"],
+    "CI/CD та деплой": ["fullstack-cicd", "fullstack-deploy-platforms"],
+    "Термінал/Linux": ["fullstack-linux-navigation", "fullstack-linux-search-view", "fullstack-linux-permissions-process", "fullstack-linux-network-archive"],
+    "Архітектура": ["fullstack-client-server", "fullstack-microservices", "fullstack-load-balancing", "fullstack-dotenv"],
+  },
 };
 
 const TERM_PAGES_V2 = {
@@ -4455,7 +4462,7 @@ const TERM_PAGES_V2 = {
     pitfalls: [
       "«Follow up» пишеться окремо як дієслово (I'll follow up), але через дефіс як іменник/прикметник (a follow-up meeting) — часто плутають.",
     ],
-    related: ["eng-sync", "eng-fyi"],
+    related: ["eng-sync", "eng-asap-fyi"],
   },
   "eng-eta": {
     badge: "English",
@@ -7583,7 +7590,7 @@ async def hello(name: str):
       "Django ORM-запити в циклі без select_related/prefetch_related — проблема N+1 запитів, сильно сповільнює застосунок.",
       "Flask сам по собі не має вбудованої структури для великих проєктів — на відміну від Django, організацію коду треба продумувати самостійно.",
     ],
-    related: ["py-async", "sql-select"],
+    related: ["py-async", "sql-select-where"],
   },
   "py-venv-pip": {
     badge: "Python",
@@ -7641,7 +7648,7 @@ print(cur.fetchall())</pre>
       "Забутий conn.commit() — зміни (INSERT/UPDATE) виконуються, але не зберігаються в файл бази.",
       "SQLite не підходить для високого навантаження з багатьма одночасними записами — для цього потрібна повноцінна СУБД (PostgreSQL/MySQL).",
     ],
-    related: ["sql-select", "py-files"],
+    related: ["sql-select-where", "py-files"],
   },
 
   "sql-joins": {
@@ -9036,6 +9043,62 @@ GET /api/orders/17
       "Відсутність чіткого моніторингу й трасування запитів між сервісами — діагностика проблеми в розподіленій системі стає значно складнішою, ніж у моноліті.",
     ],
     related: ["fullstack-client-server", "fullstack-load-balancing"],
+  },
+  "fullstack-load-balancing": {
+    badge: "Full Stack",
+    title: "Load Balancing",
+    whatIsIt: "Балансування навантаження розподіляє вхідні запити між кількома копіями сервера замість того, щоб усе навантаження йшло на один. Це підвищує стабільність (сервер, що впав, просто виключається з ротації) і швидкодію під високим навантаженням.",
+    useCases: ["розподіл трафіку між кількома копіями застосунку для обробки більшої кількості користувачів", "стабільність: якщо один сервер падає, трафік автоматично йде на решту", "нульовий даунтайм при деплої — оновлення серверів по черзі, а не всіх одразу"],
+    syntax: `upstream backend {\n  server app1.internal:3000;\n  server app2.internal:3000;\n}\nserver {\n  location / { proxy_pass http://backend; }\n}`,
+    attributes: [
+      { name: "load balancer", desc: "проміжний сервер (напр. Nginx), що розподіляє запити між кількома серверами застосунку" },
+      { name: "round robin", desc: "найпростіша стратегія — запити розподіляються по черзі, по колу" },
+      { name: "health check", desc: "балансувальник періодично перевіряє, чи сервер досі відповідає, і виключає непрацюючі" },
+      { name: "горизонтальне масштабування", desc: "додавання БІЛЬШЕ серверів (замість одного потужнішого) для обробки зростаючого навантаження" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">upstream backend {
+  server app1.internal:3000;
+  server app2.internal:3000;
+  server app3.internal:3000;
+}</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (3 послідовні запити):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Запит 1 → app1.internal
+Запит 2 → app2.internal
+Запит 3 → app3.internal</pre>`,
+    pitfalls: [
+      "Серверні сесії, збережені в пам'яті ОДНОГО конкретного сервера — наступний запит користувача може потрапити на ІНШИЙ сервер, де сесії немає; потрібні спільні сесії (Redis) чи sticky sessions.",
+      "Балансування без health check — трафік продовжує йти на сервер, що вже впав чи не відповідає.",
+      "Один load balancer без резервування — сам стає єдиною точкою відмови (single point of failure) для всієї системи.",
+    ],
+    related: ["fullstack-microservices", "backend-web-servers"],
+  },
+  "fullstack-dotenv": {
+    badge: "Full Stack",
+    title: ".env файл",
+    whatIsIt: ".env — файл, що зберігає конфігурацію застосунку й секрети (паролі, ключі API, URL бази даних) окремо від коду. Значення з нього завантажуються як змінні середовища, доступні через process.env (Node.js) чи os.environ (Python).",
+    useCases: ["зберігання секретів (паролі БД, API-ключі) поза кодом і поза git", "різна конфігурація для розробки, тестування й продакшену без зміни коду", "легке налаштування нового середовища — просто заповнити .env за прикладом"],
+    syntax: `# .env\nDATABASE_URL=postgres://user:pass@localhost:5432/mydb\nJWT_SECRET=супертаємний_ключ\nPORT=3000`,
+    attributes: [
+      { name: ".env", desc: "файл з парами КЛЮЧ=значення, що завантажуються як змінні середовища" },
+      { name: ".env.example", desc: "шаблон .env БЕЗ реальних секретів, що комітиться в git для довідки" },
+      { name: "process.env.NAME (Node.js)", desc: "доступ до значення змінної середовища в коді" },
+      { name: "dotenv (бібліотека)", desc: "завантажує .env файл у process.env на старті застосунку" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">// .env
+PORT=4000
+API_KEY=abc123
+
+// app.js
+require('dotenv').config();
+console.log(process.env.PORT);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">4000</pre>`,
+    pitfalls: [
+      "Коміт .env файлу з реальними секретами в git — секрети потрапляють в історію репозиторію НАЗАВЖДИ, навіть якщо видалити файл пізніше.",
+      "Забутий .env у .gitignore — файл випадково потрапляє в публічний репозиторій.",
+      "Відсутній .env.example — новий розробник не знає, які змінні середовища взагалі потрібні застосунку для запуску.",
+    ],
+    related: ["backend-nodejs-modules", "fullstack-linux-network-archive"],
   },
 
 };
