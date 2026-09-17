@@ -5287,6 +5287,97 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-functions"],
   },
 
+  "js-arrays": {
+    badge: "JS",
+    title: "Методи масивів",
+    whatIsIt: "Масив — впорядкована колекція значень з багатим набором вбудованих методів: зміна вмісту (push, splice), трансформація (map, filter, reduce), пошук (find, includes) і сортування.",
+    useCases: ["перетворення списку даних з API в потрібний формат (map)", "фільтрація елементів за умовою (filter)", "підрахунок суми чи згортання в одне значення (reduce)"],
+    syntax: `const doubled = [1, 2, 3].map(x => x * 2);\nconst evens = [1, 2, 3, 4].filter(x => x % 2 === 0);`,
+    attributes: [
+      { name: "push() / pop() / shift() / unshift()", desc: "додають/видаляють елементи з кінця чи початку масиву" },
+      { name: "map()", desc: "створює новий масив, перетворивши кожен елемент" },
+      { name: "filter()", desc: "створює новий масив лише з елементів, що проходять умову" },
+      { name: "reduce()", desc: "згортає весь масив в одне значення (суму, об'єкт тощо)" },
+      { name: "find() / findIndex()", desc: "повертають перший елемент (чи індекс), що відповідає умові" },
+      { name: "includes() / indexOf()", desc: "перевіряють наявність значення чи повертають його індекс" },
+      { name: "sort() / reverse()", desc: "сортують чи розвертають масив НА МІСЦІ (змінюють оригінал)" },
+      { name: "slice() / splice()", desc: "slice — копія частини без зміни оригіналу, splice — видаляє/вставляє, змінюючи оригінал" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const nums = [5, 12, 8, 3, 20];
+  const doubled = nums.map(x => x * 2);
+  const big = nums.filter(x => x > 10);
+  const total = nums.reduce((sum, x) => sum + x, 0);
+  document.getElementById('out').innerHTML =
+    'подвоєні: ' + doubled.join(',') + '<br>більше 10: ' + big.join(',') + '<br>сума: ' + total;
+<\/script>`,
+    pitfalls: [
+      "sort() без функції-компаратора сортує ЯК РЯДКИ навіть для чисел (напр. [10, 2, 1] стане [1, 10, 2]) — потрібен (a,b) => a-b.",
+      "map()/filter() створюють НОВИЙ масив, forEach — ні; переплутати легко, якщо очікуєш результат від forEach.",
+      "splice() змінює оригінальний масив на місці — легко випадково зламати дані, які використовуються деінде.",
+    ],
+    related: ["js-destructuring", "js-objects"],
+  },
+  "js-objects": {
+    badge: "JS",
+    title: "Методи об'єктів",
+    whatIsIt: "Object.* — статичні методи для роботи з об'єктами: отримання ключів/значень, копіювання властивостей, заборона змін. Об'єкти — основна структура даних для пар ключ-значення в JS.",
+    useCases: ["перебір усіх властивостей об'єкта", "об'єднання кількох об'єктів в один (напр. налаштувань)", "незмінна конфігурація через Object.freeze"],
+    syntax: `const merged = Object.assign({}, defaults, options);\nObject.keys(obj).forEach(key => console.log(key));`,
+    attributes: [
+      { name: "Object.keys() / Object.values()", desc: "повертають масив ключів чи значень об'єкта" },
+      { name: "Object.entries()", desc: "повертає масив пар [ключ, значення] — зручно для перебору через for...of" },
+      { name: "Object.assign()", desc: "копіює властивості з одного чи кількох об'єктів у цільовий" },
+      { name: "Object.freeze()", desc: "забороняє будь-які зміни об'єкта (глибина — лише перший рівень)" },
+      { name: "Object.fromEntries()", desc: "створює об'єкт зі списку пар [ключ, значення] — зворотне до entries()" },
+      { name: "spread { ...obj }", desc: "розгортає властивості об'єкта — зручний спосіб копіювати чи об'єднувати" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const user = { name: 'Оля', age: 25 };
+  const updated = { ...user, age: 26, city: 'Київ' };
+  const entries = Object.entries(updated).map(([k, v]) => k + '=' + v).join(', ');
+  document.getElementById('out').textContent = entries;
+<\/script>`,
+    pitfalls: [
+      "Object.assign()/spread роблять ПОВЕРХНЕВУ копію — вкладені об'єкти все ще спільні між оригіналом і копією.",
+      "Object.freeze() забороняє зміни лише на першому рівні — вкладені об'єкти всередині можна змінювати.",
+      "Порядок властивостей у Object.keys() для числових ключів не завжди збігається з порядком додавання.",
+    ],
+    related: ["js-arrays", "js-destructuring"],
+  },
+  "js-strings": {
+    badge: "JS",
+    title: "Методи рядків і шаблонні літерали",
+    whatIsIt: "Рядки в JavaScript незмінні (immutable) — усі методи повертають НОВИЙ рядок, не змінюючи оригінал. Шаблонні літерали в зворотних лапках дозволяють вставляти змінні прямо в текст через ${}.",
+    useCases: ["форматування тексту з вставленими змінними (template literals)", "обробка користувацького вводу (trim, toLowerCase)", "розбиття рядка на частини чи пошук підрядка"],
+    syntax: `const msg = \`Привіт, \${name}! У тебе \${count} повідомлень.\`;`,
+    attributes: [
+      { name: "Template literal (у зворотних лапках)", desc: "шаблонний рядок з ${вираз} усередині — вставляє результат виразу прямо в текст" },
+      { name: "split() / join()", desc: "розбиває рядок на масив за роздільником / об'єднує масив у рядок" },
+      { name: "trim()", desc: "прибирає пробіли з обох країв рядка" },
+      { name: "includes() / startsWith() / endsWith()", desc: "перевіряють наявність підрядка чи початок/кінець рядка" },
+      { name: "replace() / replaceAll()", desc: "замінюють перше (чи з /g) або всі входження підрядка" },
+      { name: "slice() / substring()", desc: "вирізають частину рядка за індексами" },
+      { name: "toUpperCase() / toLowerCase()", desc: "змінюють регістр усього рядка" },
+      { name: "padStart() / padEnd()", desc: "доповнюють рядок символами до потрібної довжини" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const name = 'оля';
+  const formatted = name.charAt(0).toUpperCase() + name.slice(1);
+  const greeting = \`Привіт, \${formatted}! Сьогодні \${new Date().getDate()} число.\`;
+  document.getElementById('out').textContent = greeting;
+<\/script>`,
+    pitfalls: [
+      "Методи рядків НЕ змінюють оригінал (рядки незмінні) — результат треба зберегти в змінну, str.trim() саму str не змінить.",
+      "replace() без прапорця /g замінює лише ПЕРШЕ входження — для всіх потрібен replaceAll() чи regex з /g.",
+      "Порівняння рядків з різним регістром (===) завжди false — спочатку привести до одного регістру.",
+    ],
+    related: ["js-arrays", "js-regex"],
+  },
+
 };
 
 const TERM_GUIDES = {
