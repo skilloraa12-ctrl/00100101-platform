@@ -4230,6 +4230,82 @@ const TERM_PAGES_V2 = {
     related: ["css-animation-transition", "css-flexbox"],
   },
 
+  "css-position": {
+    badge: "CSS",
+    title: "position",
+    whatIsIt: "Властивість position визначає, як саме елемент позиціюється в макеті сторінки: за звичайним потоком документа чи за явними координатами top/right/bottom/left. Значення static, relative, absolute, fixed і sticky поводяться кардинально по-різному.",
+    useCases: ["спливаючі підказки й модальні вікна (absolute/fixed)", "шапка, що прилипає при скролі (sticky)", "невеликий зсув елемента без впливу на сусідів (relative)", "бейджі й лічильники поверх картки (absolute всередині relative-контейнера)"],
+    syntax: `.box {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n}`,
+    attributes: [
+      { name: "static", desc: "типова поведінка — елемент у звичайному потоці, top/left не діють" },
+      { name: "relative", desc: "зсувається відносно власного нормального положення, місце під нього лишається" },
+      { name: "absolute", desc: "позиціюється відносно найближчого предка з position, відмінним від static" },
+      { name: "fixed", desc: "позиціюється відносно вікна браузера, не рухається при скролі" },
+      { name: "sticky", desc: "поводиться як relative, поки не досягне заданого краю, потім «прилипає» як fixed" },
+      { name: "z-index", desc: "порядок накладання позиціонованих елементів по осі глибини" },
+    ],
+    example: `<div style="position:relative;height:100px;background:#f4f4f4;border-radius:6px;">
+  <div style="position:absolute;top:8px;right:8px;background:#ef4444;color:white;padding:2px 8px;border-radius:10px;font-size:12px;">NEW</div>
+  <p style="padding:12px;">Картка товару з бейджем у кутку.</p>
+</div>`,
+    pitfalls: [
+      "absolute без position: relative на батьку — елемент позиціюється відносно всієї сторінки, а не контейнера.",
+      "Забутий z-index при накладанні кількох позиціонованих елементів — порядок непередбачуваний.",
+      "sticky не спрацює, якщо в батька overflow: hidden/auto — липкість «зникає».",
+    ],
+    related: ["css-box-model", "css-display-overflow"],
+  },
+  "css-display-overflow": {
+    badge: "CSS",
+    title: "display і overflow",
+    whatIsIt: "display визначає, як елемент бере участь у макеті — блок, рядок, flex, grid чи взагалі не показується. overflow керує вмістом, що не влазить у задані розміри елемента — обрізати, показати скрол чи дозволити виходити за межі.",
+    useCases: ["приховати елемент повністю (display: none)", "зробити рядковий елемент блоковим для власних розмірів (inline-block)", "область з прокруткою для довгого списку (overflow: auto)", "обрізаний текст в один рядок з трьома крапками"],
+    syntax: `.box {\n  display: inline-block;\n  overflow-y: auto;\n  max-height: 150px;\n}`,
+    attributes: [
+      { name: "block / inline / inline-block", desc: "block — на весь рядок, inline — у потоці тексту, inline-block — у потоці, але з власними розмірами" },
+      { name: "flex / grid", desc: "вмикають flex/grid-контейнер для прямих дітей" },
+      { name: "none", desc: "повністю прибирає елемент з макету, без резервування місця" },
+      { name: "overflow: visible / hidden / scroll / auto", desc: "показати вихід за межі, обрізати, завжди показувати скрол чи лише за потреби" },
+      { name: "overflow-x / overflow-y", desc: "керують переповненням окремо по горизонталі й вертикалі" },
+      { name: "text-overflow: ellipsis", desc: "показує три крапки замість тексту, що не влазить у рядок (разом з white-space: nowrap)" },
+    ],
+    example: `<div style="max-height:80px;overflow-y:auto;border:1px solid #ccc;padding:8px;border-radius:6px;">
+  <p>Рядок 1</p><p>Рядок 2</p><p>Рядок 3</p><p>Рядок 4</p><p>Рядок 5</p>
+</div>
+<p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:150px;border:1px solid #ccc;padding:4px;margin-top:8px;">Дуже довгий текст, що обрізається</p>`,
+    pitfalls: [
+      "display: none прибирає елемент з дерева доступності — скрінрідери його теж не бачать, на відміну від visibility: hidden.",
+      "text-overflow: ellipsis не спрацює без white-space: nowrap і заданої ширини одночасно.",
+      "overflow: hidden на батьку може випадково обрізати tooltip/dropdown дитини.",
+    ],
+    related: ["css-position", "css-flexbox", "css-grid"],
+  },
+  "css-units": {
+    badge: "CSS",
+    title: "Одиниці виміру",
+    whatIsIt: "CSS підтримує кілька типів одиниць: абсолютні (px), відносні до батька чи шрифту (%, em, rem), відносні до вікна перегляду (vw, vh) і спеціальні (deg для кутів, s/ms для часу). Вибір одиниці впливає на те, як елемент масштабується в різних умовах.",
+    useCases: ["px для чіткого фіксованого розміру (рамки, тіні)", "rem для розмірів шрифту, що масштабуються разом з налаштуваннями користувача", "vw/vh для елементів на весь екран", "% для адаптивної ширини відносно контейнера"],
+    syntax: `.box {\n  width: 50%;\n  padding: 1rem;\n  font-size: 1.2em;\n  height: 100vh;\n}`,
+    attributes: [
+      { name: "px", desc: "фіксований піксель — не масштабується з налаштуваннями шрифту браузера" },
+      { name: "% ", desc: "відсоток від розміру батьківського елемента" },
+      { name: "em", desc: "відносно розміру шрифту ПОТОЧНОГО елемента — накопичується при вкладеності" },
+      { name: "rem", desc: "відносно розміру шрифту кореневого <html> — передбачуваніший за em" },
+      { name: "vw / vh", desc: "1% ширини/висоти вікна браузера відповідно" },
+      { name: "deg / s / ms", desc: "кути для transform/gradient, час для transition/animation" },
+    ],
+    example: `<div style="font-size:16px;">
+  <div style="font-size:1.5em;background:#ede9fe;padding:8px;border-radius:6px;">1.5em від батька (16px) = 24px</div>
+  <div style="font-size:1.5rem;background:#dbeafe;padding:8px;border-radius:6px;margin-top:6px;">1.5rem від кореня документа</div>
+</div>`,
+    pitfalls: [
+      "em накопичується при вкладених елементах з різним font-size — розмір стає непередбачуваним, rem безпечніший.",
+      "100vh на мобільних не враховує адресний рядок браузера — краще dvh для справжньої видимої висоти.",
+      "Змішування px і % в одному розрахунку розміру ускладнює передбачення підсумкового значення.",
+    ],
+    related: ["css-box-model", "css-calc-clamp"],
+  },
+
 };
 
 const TERM_GUIDES = {
