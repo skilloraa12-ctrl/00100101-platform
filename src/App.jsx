@@ -5562,6 +5562,135 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-dom-select", "js-dom-manipulate"],
   },
 
+  "js-promises": {
+    badge: "JS",
+    title: "Promise",
+    whatIsIt: "Promise представляє результат асинхронної операції, яка ще не завершилась — успішно (resolved) чи з помилкою (rejected). Дозволяє писати асинхронний код через .then()/.catch() замість вкладених callback-функцій.",
+    useCases: ["обгортка над асинхронною операцією (напр. таймер, запит)", "виконання кількох незалежних асинхронних операцій паралельно", "послідовний ланцюжок залежних асинхронних кроків"],
+    syntax: `fetch(url)\n  .then(res => res.json())\n  .then(data => console.log(data))\n  .catch(err => console.error(err));`,
+    attributes: [
+      { name: "new Promise((resolve, reject) => {})", desc: "створює проміс вручну — resolve() для успіху, reject() для помилки" },
+      { name: "then()", desc: "викликається, коли проміс успішно виконався, отримує результат" },
+      { name: "catch()", desc: "викликається при помилці/reject у будь-якому місці ланцюжка" },
+      { name: "finally()", desc: "виконується завжди, незалежно від успіху чи помилки" },
+      { name: "Promise.all()", desc: "чекає завершення ВСІХ промісів, падає якщо хоч один відхилений" },
+      { name: "Promise.race()", desc: "повертає результат НАЙШВИДШОГО з промісів" },
+    ],
+    example: `<p id="out">Завантаження...</p>
+<script>
+  function delay(ms, value) {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+  }
+  delay(1000, 'Готово!')
+    .then(result => { document.getElementById('out').textContent = result; })
+    .catch(err => { document.getElementById('out').textContent = 'Помилка: ' + err; });
+<\/script>`,
+    pitfalls: [
+      "Забутий .catch() — помилка проміса «губиться» мовчки (unhandled promise rejection).",
+      "Промісний ланцюжок без return усередині .then() ламає послідовність — наступний .then() отримає undefined замість результату.",
+      "Promise.all() падає одразу, щойно ОДИН проміс відхилений — навіть якщо решта успішні; для стійкості до часткових помилок краще allSettled().",
+    ],
+    related: ["js-async-await", "js-fetch"],
+  },
+  "js-async-await": {
+    badge: "JS",
+    title: "async / await",
+    whatIsIt: "Синтаксичний цукор над Promise — дозволяє писати асинхронний код так, ніби він синхронний, без ланцюжків .then(). async позначає функцію, що завжди повертає Promise; await призупиняє виконання до вирішення проміса.",
+    useCases: ["послідовні асинхронні кроки без вкладених .then()", "обробка помилок через звичний try/catch замість .catch()", "паралельне виконання кількох запитів через Promise.all з await"],
+    syntax: `async function loadUser() {\n  const res = await fetch('/api/user');\n  const data = await res.json();\n  return data;\n}`,
+    attributes: [
+      { name: "async function", desc: "позначає функцію як асинхронну — вона завжди повертає Promise" },
+      { name: "await", desc: "призупиняє виконання функції, поки Promise не вирішиться; доступний лише всередині async-функції" },
+      { name: "try / catch з await", desc: "ловить помилки await так само, як звичайні синхронні винятки" },
+    ],
+    example: `<p id="out">Завантаження...</p>
+<script>
+  function delay(ms, value) {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+  }
+  async function run() {
+    try {
+      const result = await delay(1000, 'Дані завантажено!');
+      document.getElementById('out').textContent = result;
+    } catch (e) {
+      document.getElementById('out').textContent = 'Помилка: ' + e.message;
+    }
+  }
+  run();
+<\/script>`,
+    pitfalls: [
+      "await поза async-функцією — SyntaxError (крім top-level await у сучасних ES-модулях).",
+      "Послідовні await для незалежних операцій виконуються по черзі, а не паралельно — для паралельності потрібен Promise.all з await.",
+      "Забутий await перед асинхронним викликом — функція повертає Promise замість реального значення.",
+    ],
+    related: ["js-promises", "js-fetch"],
+  },
+  "js-fetch": {
+    badge: "JS",
+    title: "fetch()",
+    whatIsIt: "Вбудована функція для виконання HTTP-запитів з браузера — заміна старому XMLHttpRequest. Повертає Promise з об'єктом Response, з якого потім асинхронно читається тіло (JSON, текст тощо).",
+    useCases: ["завантажити дані з API при завантаженні сторінки", "відправити дані форми на сервер (POST)", "завантажити й показати список товарів"],
+    syntax: `const res = await fetch('/api/users');\nconst users = await res.json();`,
+    attributes: [
+      { name: "fetch(url)", desc: "виконує GET-запит за замовчуванням, повертає Promise<Response>" },
+      { name: "fetch(url, { method, headers, body })", desc: "другий аргумент задає метод, заголовки й тіло запиту" },
+      { name: "response.ok / response.status", desc: "ok — true для статусів 200-299, status — числовий код відповіді" },
+      { name: "response.json() / response.text()", desc: "асинхронно читають тіло відповіді як JSON чи текст" },
+    ],
+    example: `<button id="load">Завантажити дані</button>
+<pre id="out" style="font-size:12px;"></pre>
+<script>
+  document.getElementById('load').onclick = async () => {
+    document.getElementById('out').textContent = 'Завантаження...';
+    try {
+      const res = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+      const data = await res.json();
+      document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      document.getElementById('out').textContent = 'Помилка мережі: ' + e.message;
+    }
+  };
+<\/script>`,
+    pitfalls: [
+      "fetch() НЕ кидає помилку на статуси 404/500 — лише на справжні мережеві збої; статус треба перевіряти через response.ok самостійно.",
+      "Забутий await перед .json() — отримаєш Promise замість реальних даних.",
+      "POST-запит без Content-Type: application/json у headers — сервер може не розпізнати JSON у тілі.",
+    ],
+    related: ["js-promises", "js-async-await", "js-json"],
+  },
+  "js-timers": {
+    badge: "JS",
+    title: "setTimeout, setInterval, requestAnimationFrame",
+    whatIsIt: "Функції для запланованого виконання коду: setTimeout — один раз через заданий час, setInterval — повторно через рівні проміжки, requestAnimationFrame — синхронізовано з частотою оновлення екрана, ідеально для плавних анімацій.",
+    useCases: ["затримка перед виконанням дії", "оновлення лічильника чи годинника щосекунди", "плавна JS-анімація без «розривів» кадрів"],
+    syntax: `const id = setTimeout(() => console.log('Привіт'), 1000);\nclearTimeout(id);`,
+    attributes: [
+      { name: "setTimeout(fn, ms)", desc: "виконує fn один раз через ms мілісекунд, повертає id для скасування" },
+      { name: "clearTimeout(id)", desc: "скасовує заплановане setTimeout виконання" },
+      { name: "setInterval(fn, ms)", desc: "повторно виконує fn кожні ms мілісекунд, поки не зупинено" },
+      { name: "clearInterval(id)", desc: "зупиняє повторення setInterval" },
+      { name: "requestAnimationFrame(fn)", desc: "плавно синхронізує виконання з частотою кадрів браузера — краще за setInterval для анімацій" },
+    ],
+    example: `<p id="clock">00:00</p>
+<script>
+  let seconds = 0;
+  const clockEl = document.getElementById('clock');
+  const id = setInterval(() => {
+    seconds++;
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    clockEl.textContent = m + ':' + s;
+    if (seconds >= 5) clearInterval(id);
+  }, 1000);
+<\/script>`,
+    pitfalls: [
+      "Забутий clearInterval() — таймер продовжує працювати навіть після того, як елемент чи компонент видалено (витік пам'яті).",
+      "setTimeout(fn, 0) не виконується миттєво — стає в чергу після поточного синхронного коду й мікрозадач.",
+      "Анімації через setInterval сіпаються на слабких пристроях — для плавності краще requestAnimationFrame.",
+    ],
+    related: ["js-promises"],
+  },
+
 };
 
 const TERM_GUIDES = {
