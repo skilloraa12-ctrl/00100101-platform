@@ -5051,6 +5051,150 @@ const TERM_PAGES_V2 = {
     related: ["css-pseudo-classes", "css-cursor-interaction"],
   },
 
+  "js-variables": {
+    badge: "JS",
+    title: "let, const, var",
+    whatIsIt: "Три способи оголосити змінну в JavaScript. let і const мають блокову область видимості (доступні лише всередині { } де оголошені), var — застарілий спосіб із функціональною областю видимості, що часто призводить до несподіваних багів.",
+    useCases: ["const для значень, що не будуть перепризначені (більшість випадків)", "let для лічильників циклів і значень, що змінюються", "var — уникати в новому коді, лишається лише в старій кодовій базі"],
+    syntax: `let count = 0;\nconst PI = 3.14;\nvar old = "уникай";`,
+    attributes: [
+      { name: "const", desc: "не можна перепризначити змінну (сам об'єкт/масив усередині все ще можна змінювати)" },
+      { name: "let", desc: "можна перепризначувати, блокова область видимості" },
+      { name: "var", desc: "функціональна область видимості, підіймається (hoisting) з undefined — джерело багів" },
+      { name: "TDZ (temporal dead zone)", desc: "let/const недоступні до рядка оголошення, на відміну від var" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const out = document.getElementById('out');
+  const arr = [1, 2, 3];
+  arr.push(4); // масив можна змінювати, навіть якщо оголошений const
+  let count = 0;
+  count += 1;
+  out.textContent = 'arr: ' + arr.join(',') + ' | count: ' + count;
+<\/script>`,
+    pitfalls: [
+      "const не робить значення незмінним — забороняє лише перепризначення самої змінної, вміст масиву/об'єкта можна міняти.",
+      "var у циклі з setTimeout/замиканнями дає однакове значення для всіх ітерацій — let вирішує цю проблему.",
+      "Використання змінної до let/const оголошення (навіть у тому ж блоці) — ReferenceError через temporal dead zone.",
+    ],
+    related: ["js-destructuring", "js-functions"],
+  },
+  "js-control-flow": {
+    badge: "JS",
+    title: "if/else, switch, цикли",
+    whatIsIt: "Конструкції керування потоком виконання коду: умовні розгалуження (if/else, switch) і цикли (for, for...of, for...in, while, do...while) для повторення дій.",
+    useCases: ["умовний рендер чи логіка залежно від стану", "перебір масиву чи об'єкта", "повторення дії, поки виконується умова"],
+    syntax: `for (const item of arr) {\n  if (item > 5) continue;\n  console.log(item);\n}`,
+    attributes: [
+      { name: "if / else if / else", desc: "виконує блок залежно від умови" },
+      { name: "switch / case / default", desc: "порівнює значення з кількома варіантами" },
+      { name: "for", desc: "класичний цикл з лічильником: ініціалізація; умова; крок" },
+      { name: "for...of", desc: "перебирає ЗНАЧЕННЯ ітерованого об'єкта (масив, рядок, Map, Set)" },
+      { name: "for...in", desc: "перебирає перелічувані КЛЮЧІ об'єкта (для масивів краще for...of)" },
+      { name: "while / do...while", desc: "виконують блок, поки умова істинна; do...while виконає хоча б раз" },
+      { name: "break / continue", desc: "break зупиняє цикл повністю, continue пропускає поточну ітерацію" },
+    ],
+    example: `<ul id="list"></ul>
+<script>
+  const nums = [1, 2, 3, 4, 5];
+  const list = document.getElementById('list');
+  for (const n of nums) {
+    if (n % 2 === 0) continue;
+    const li = document.createElement('li');
+    li.textContent = 'Непарне: ' + n;
+    list.appendChild(li);
+  }
+<\/script>`,
+    pitfalls: [
+      "for...in для масивів перебирає індекси як рядки й може захопити успадковані властивості — для масивів завжди краще for...of.",
+      "Забутий break у switch — виконання «провалюється» в наступний case (fall-through), часто ненавмисно.",
+      "Нескінченний цикл через забуту зміну умови (напр. забутий i++ у while).",
+    ],
+    related: ["js-variables", "js-functions"],
+  },
+  "js-functions": {
+    badge: "JS",
+    title: "Функції та стрілкові функції",
+    whatIsIt: "Функції — багаторазово використовувані блоки коду. function оголошує класичну функцію зі своїм this, стрілкова функція => коротша й не має власного this — бере його з навколишнього контексту.",
+    useCases: ["виділення повторюваної логіки в одну назву", "callback-функції для методів масивів (map, filter)", "стрілкові функції для коротких однорядкових операцій"],
+    syntax: `function sum(a, b) {\n  return a + b;\n}\nconst double = x => x * 2;`,
+    attributes: [
+      { name: "function name() {}", desc: "класичне оголошення функції, піднімається (можна викликати до оголошення)" },
+      { name: "=> (стрілкова функція)", desc: "коротший синтаксис, немає власного this/arguments" },
+      { name: "return", desc: "завершує функцію й повертає значення (без return — повертає undefined)" },
+      { name: "параметри за замовчуванням", desc: "function f(x = 10) {} — значення, якщо аргумент не переданий" },
+      { name: "async function", desc: "функція, що повертає Promise, дозволяє використовувати await усередині" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const greet = (name = 'Гостю') => \`Привіт, \${name}!\`;
+  function double(x) { return x * 2; }
+  document.getElementById('out').textContent = greet('Оля') + ' | double(5) = ' + double(5);
+<\/script>`,
+    pitfalls: [
+      "Стрілкова функція як метод об'єкта втрачає доступ до this цього об'єкта — тоді потрібна звичайна function.",
+      "Забутий return у функції — вона мовчки поверне undefined замість очікуваного значення.",
+      "Плутанина arguments (доступний лише у звичайних function) з rest-параметрами (...args, працюють скрізь).",
+    ],
+    related: ["js-variables", "js-classes"],
+  },
+  "js-operators": {
+    badge: "JS",
+    title: "Оператори (порівняння, логічні, ??, ?.)",
+    whatIsIt: "JavaScript має кілька категорій операторів: порівняння (== vs ===), логічні (&&, ||, !), оператор нульового злиття (??) для запасних значень, і опціональне звертання (?.) для безпечного доступу до вкладених властивостей.",
+    useCases: ["строге порівняння значень без зведення типів (===)", "значення за замовчуванням лише для null/undefined (??)", "безпечне читання глибоко вкладеної властивості без помилки (?.)"],
+    syntax: `const city = user?.address?.city ?? 'Невідомо';`,
+    attributes: [
+      { name: "== / ===", desc: "== порівнює зі зведенням типів, === строго без зведення — завжди обирай ===" },
+      { name: "&& / || / !", desc: "логічне і / або / заперечення" },
+      { name: "?? (nullish coalescing)", desc: "запасне значення лише якщо ліве null/undefined (0 і '' лишаються як є, на відміну від ||)" },
+      { name: "?. (optional chaining)", desc: "безпечно звертається до вкладеної властивості, повертає undefined замість помилки" },
+      { name: "?: (ternary)", desc: "скорочений if/else в одному виразі: умова ? так : ні" },
+      { name: "... (spread/rest)", desc: "розгортає масив/об'єкт (spread) чи збирає аргументи в масив (rest)" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const user = { name: 'Оля', address: null };
+  const city = user.address?.city ?? 'Місто не вказане';
+  const age = 0;
+  const shownAge = age ?? 18; // 0, бо ?? реагує лише на null/undefined
+  document.getElementById('out').textContent = city + ' | вік: ' + shownAge;
+<\/script>`,
+    pitfalls: [
+      "Використання || замість ?? для запасних значень — 0, '', false помилково замінюються запасним значенням.",
+      "== замість === — несподівані результати зведення типів (напр. '' == 0 дає true).",
+      "Забутий ?. перед зверненням до потенційно відсутньої вкладеної властивості — TypeError у рантаймі.",
+    ],
+    related: ["js-destructuring", "js-variables"],
+  },
+  "js-destructuring": {
+    badge: "JS",
+    title: "Деструктуризація { } та [ ]",
+    whatIsIt: "Деструктуризація дозволяє витягти властивості об'єкта чи елементи масиву в окремі змінні одним рядком, замість звернення до кожної властивості окремо через крапку чи індекс.",
+    useCases: ["витягнути кілька властивостей об'єкта відповіді API", "розпакувати параметри функції прямо в сигнатурі", "поміняти місцями значення двох змінних"],
+    syntax: `const { name, age } = user;\nconst [first, second] = arr;`,
+    attributes: [
+      { name: "const { a, b } = obj", desc: "витягує властивості a і b з об'єкта obj у змінні з такими самими іменами" },
+      { name: "const { a: newName } = obj", desc: "перейменовує змінну при деструктуризації" },
+      { name: "const [a, b] = arr", desc: "витягує елементи масиву за позицією" },
+      { name: "const { a = 10 } = obj", desc: "значення за замовчуванням, якщо властивості немає" },
+      { name: "...rest", desc: "збирає решту властивостей/елементів в новий об'єкт/масив" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const user = { name: 'Оля', age: 25, city: 'Київ' };
+  const { name, age, ...rest } = user;
+  const [first, , third] = ['a', 'b', 'c'];
+  document.getElementById('out').textContent =
+    name + ', ' + age + ' | rest: ' + JSON.stringify(rest) + ' | third: ' + third;
+<\/script>`,
+    pitfalls: [
+      "Деструктуризація властивості, якої немає в об'єкті, дає undefined, а не помилку — легко пропустити помилку в назві.",
+      "Деструктуризація null/undefined напряму (const {a} = null) кидає TypeError.",
+    ],
+    related: ["js-operators", "js-arrays"],
+  },
+
 };
 
 const TERM_GUIDES = {
