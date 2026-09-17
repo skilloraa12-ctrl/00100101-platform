@@ -5378,6 +5378,91 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-arrays", "js-regex"],
   },
 
+  "js-numbers-math": {
+    badge: "JS",
+    title: "Number і Math",
+    whatIsIt: "Number.* методи перевіряють і форматують числа, Math.* — вбудований об'єкт з математичними функціями: округлення, випадкові числа, тригонометрія, корінь і степінь.",
+    useCases: ["округлення ціни до 2 знаків після коми", "випадкове число для гри чи випадкового вибору елемента", "перевірка, чи введене значення дійсно число"],
+    syntax: `Math.round(4.5); // 5\nNumber.isInteger(5); // true\n(3.14159).toFixed(2); // "3.14"`,
+    attributes: [
+      { name: "Math.round() / floor() / ceil()", desc: "округлення: за правилами, завжди вниз, завжди вгору" },
+      { name: "Math.max() / Math.min()", desc: "найбільше/найменше з переданих чисел" },
+      { name: "Math.random()", desc: "випадкове число від 0 (включно) до 1 (виключно)" },
+      { name: "Math.abs() / Math.pow() / Math.sqrt()", desc: "модуль, степінь, квадратний корінь" },
+      { name: "Number.isInteger() / Number.isNaN()", desc: "надійні перевірки типу числа (краще за глобальний isNaN)" },
+      { name: "parseInt() / parseFloat()", desc: "перетворюють рядок на число, ігноруючи текст після числа" },
+      { name: "toFixed()", desc: "округлює до N знаків після коми, повертає РЯДОК" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const price = 19.999;
+  const rounded = price.toFixed(2);
+  const randomItem = Math.floor(Math.random() * 3); // 0, 1 або 2
+  document.getElementById('out').textContent =
+    'Ціна: $' + rounded + ' | Випадковий індекс: ' + randomItem;
+<\/script>`,
+    pitfalls: [
+      "0.1 + 0.2 !== 0.3 через особливості представлення дробових чисел у пам'яті — для грошей краще працювати в копійках (цілих числах).",
+      "toFixed() повертає РЯДОК, а не число — '5.00' + 1 дасть '5.001' замість очікуваного додавання.",
+      "parseInt('08') без другого аргументу (системи числення) інколи давав несподівані результати в старих рушіях — краще завжди parseInt(x, 10).",
+    ],
+    related: ["js-strings"],
+  },
+  "js-dates": {
+    badge: "JS",
+    title: "Date",
+    whatIsIt: "Вбудований об'єкт Date для роботи з датою й часом — створення, читання окремих частин (рік, місяць, день), обчислення різниці, форматування для показу користувачу.",
+    useCases: ["показати поточну дату чи час на сторінці", "обчислити кількість днів між двома датами", "форматувати дату у зручний для читання вигляд"],
+    syntax: `const now = new Date();\nconst formatted = now.toLocaleDateString('uk-UA');`,
+    attributes: [
+      { name: "new Date()", desc: "створює об'єкт поточної дати/часу; можна передати рядок чи числа для конкретної дати" },
+      { name: "Date.now()", desc: "повертає поточний час у мілісекундах з 1 січня 1970 (timestamp), як число" },
+      { name: "getFullYear() / getMonth() / getDate()", desc: "рік, місяць (0-11!) і число місяця" },
+      { name: "getHours() / getMinutes() / getSeconds()", desc: "години, хвилини, секунди" },
+      { name: "toLocaleDateString() / toLocaleTimeString()", desc: "форматують дату/час відповідно до локалі (напр. 'uk-UA')" },
+      { name: "getTime()", desc: "повертає timestamp у мілісекундах — зручно для обчислення різниці між датами" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const now = new Date();
+  const birthday = new Date('2000-01-01');
+  const daysDiff = Math.floor((now - birthday) / (1000 * 60 * 60 * 24));
+  document.getElementById('out').textContent =
+    'Сьогодні: ' + now.toLocaleDateString('uk-UA') + ' | Днів з 2000 року: ' + daysDiff;
+<\/script>`,
+    pitfalls: [
+      "getMonth() повертає місяць від 0 (січень) до 11 (грудень) — часта помилка «off by one» при показі місяця.",
+      "Віднімання двох Date напряму (date2 - date1) дає різницю в мілісекундах, а не в зручних одиницях — треба ділити.",
+      "new Date('рядок') залежить від формату рядка — надійніше передавати ISO-формат 'YYYY-MM-DD'.",
+    ],
+    related: ["js-numbers-math"],
+  },
+  "js-json": {
+    badge: "JS",
+    title: "JSON.parse() і JSON.stringify()",
+    whatIsIt: "JSON (JavaScript Object Notation) — текстовий формат обміну даними. stringify() перетворює JS-об'єкт/масив на JSON-рядок (для відправки на сервер чи збереження), parse() робить зворотне — перетворює JSON-рядок назад на об'єкт.",
+    useCases: ["відправка даних форми на сервер через fetch", "збереження об'єкта в localStorage (яке зберігає лише рядки)", "читання відповіді API у форматі JSON"],
+    syntax: `const json = JSON.stringify(user);\nconst obj = JSON.parse(json);`,
+    attributes: [
+      { name: "JSON.stringify(value)", desc: "перетворює об'єкт/масив на JSON-рядок" },
+      { name: "JSON.stringify(value, null, 2)", desc: "третій аргумент — відступ для читабельного форматування" },
+      { name: "JSON.parse(text)", desc: "розбирає JSON-рядок назад в об'єкт/масив JavaScript" },
+    ],
+    example: `<pre id="out" style="font-size:13px;"></pre>
+<script>
+  const user = { name: 'Оля', age: 25, hobbies: ['код', 'книги'] };
+  const json = JSON.stringify(user, null, 2);
+  const parsed = JSON.parse(json);
+  document.getElementById('out').textContent = json + '\\n\\nparsed.name = ' + parsed.name;
+<\/script>`,
+    pitfalls: [
+      "JSON.stringify() пропускає функції, undefined і Symbol — вони просто зникають з результату.",
+      "JSON.parse() кидає SyntaxError на невалідному JSON — обгортай у try/catch при розборі зовнішніх даних.",
+      "Дати перетворюються stringify() на рядок, а parse() НЕ перетворює їх назад на Date автоматично.",
+    ],
+    related: ["js-objects", "js-fetch"],
+  },
+
 };
 
 const TERM_GUIDES = {
