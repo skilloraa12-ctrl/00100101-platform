@@ -1015,6 +1015,7 @@ const REF_NAV = {
   "Таблиці": ["table", "tr", "th", "td"],
   "Медіа": ["img", "video", "audio", "picture"],
   "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
+  "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
 };
 
 const TERM_PAGES_V2 = {
@@ -1926,6 +1927,201 @@ const TERM_PAGES_V2 = {
     pitfalls: ["Використання для тексту, що не є цитатою, лише заради відступу — тоді краще CSS margin."],
     related: ["cite", "q"],
   },
+  html: {
+    badge: "HTML",
+    title: "<html>",
+    whatIsIt: "Кореневий елемент кожного HTML-документа — усі інші елементи вкладені в нього. Атрибут lang повідомляє браузеру, скрінрідерам і пошуковим системам, якою мовою написаний вміст сторінки.",
+    useCases: ["обов'язковий корінь будь-якого HTML-документа", "вказує мову сторінки через lang (доступність, SEO, перевірка орфографії)"],
+    syntax: `<html lang="uk">...</html>`,
+    attributes: [
+      { name: "lang", desc: "мова вмісту сторінки, напр. \"uk\", \"en\" — важливо для скрінрідерів і пошукових систем" },
+      { name: "dir", desc: "напрямок тексту: ltr (типово) або rtl" },
+    ],
+    example: `<p>Кожна HTML-сторінка має таку структуру:</p>
+<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">&lt;!DOCTYPE html&gt;
+&lt;html lang="uk"&gt;
+  &lt;head&gt;...&lt;/head&gt;
+  &lt;body&gt;...&lt;/body&gt;
+&lt;/html&gt;</pre>`,
+    pitfalls: [
+      "Забутий lang — гірша доступність для скрінрідерів і неправильна перевірка орфографії браузером.",
+      "Контент, розміщений поза <html> (до чи після) — браузер сам виправить, але це помилка розмітки.",
+    ],
+    related: ["head", "meta", "title"],
+  },
+  head: {
+    badge: "HTML",
+    title: "<head>",
+    whatIsIt: "Контейнер для метаданих документа — інформації, яка не відображається безпосередньо на сторінці: заголовок вкладки, підключення стилів і скриптів, favicon, налаштування для пошукових систем і соцмереж.",
+    useCases: ["підключення CSS-файлів і скриптів", "налаштування title, favicon, viewport", "метадані для SEO та соцмереж"],
+    syntax: `<head>\n  <meta charset="UTF-8">\n  <title>Назва сторінки</title>\n</head>`,
+    attributes: [],
+    example: `<p>Типовий вміст &lt;head&gt;:</p>
+<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width"&gt;
+  &lt;title&gt;Моя сторінка&lt;/title&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;</pre>`,
+    pitfalls: [
+      "Вміст, який має бути видимим (текст, зображення), випадково поставлений у <head> — браузер його не покаже.",
+      "Відсутній <meta charset> — можливі проблеми з кодуванням кирилиці.",
+    ],
+    related: ["html", "title", "meta", "link"],
+  },
+  title: {
+    badge: "HTML",
+    title: "<title>",
+    whatIsIt: "Задає назву документа, яка показується в заголовку вкладки браузера, у результатах пошуку та при додаванні сторінки в закладки. Обов'язковий елемент у <head>, може містити лише текст.",
+    useCases: ["назва вкладки браузера", "заголовок у результатах пошукової видачі", "назва при збереженні в закладки"],
+    syntax: `<title>Назва сторінки</title>`,
+    attributes: [],
+    example: `<div style="border:1px solid #ccc;border-radius:8px 8px 0 0;overflow:hidden;max-width:260px;font-family:sans-serif;">
+  <div style="background:#e5e5e5;padding:6px 10px;font-size:12px;display:flex;align-items:center;gap:6px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#ccc;"></span>
+    Про нас — 00100101
+  </div>
+  <div style="padding:14px;font-size:13px;color:#555;">&lt;title&gt;Про нас — 00100101&lt;/title&gt;</div>
+</div>
+<p style="font-size:13px;color:#666;">Так виглядає вкладка браузера з таким &lt;title&gt;.</p>`,
+    pitfalls: [
+      "Занадто довгий title — пошукові системи обрізають його в видачі.",
+      "Однаковий title на всіх сторінках сайту — погано для SEO і навігації користувача.",
+      "HTML-теги всередині <title> — вони не обробляються, покажуться як текст.",
+    ],
+    related: ["head", "meta"],
+  },
+  base: {
+    badge: "HTML",
+    title: "<base>",
+    whatIsIt: "Задає базову URL-адресу, відносно якої браузер обчислює всі відносні посилання (href, src) на сторінці. Може бути лише один <base> у документі, розміщується в <head>.",
+    useCases: ["один базовий шлях для всіх відносних посилань сторінки", "зручно, коли сторінка переміщується між середовищами (dev/prod)"],
+    syntax: `<base href="https://example.com/docs/">`,
+    attributes: [
+      { name: "href", desc: "базова URL-адреса для всіх відносних посилань" },
+      { name: "target", desc: "типовий target для всіх посилань і форм (напр. \"_blank\")" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">&lt;head&gt;
+  &lt;base href="https://example.com/docs/"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- реально веде на https://example.com/docs/page2 --&gt;
+  &lt;a href="page2"&gt;Сторінка 2&lt;/a&gt;
+&lt;/body&gt;</pre>`,
+    pitfalls: [
+      "Два <base> в документі — браузер врахує лише перший.",
+      "Забутий <base>, коли на нього розраховують відносні шляхи — посилання ламаються при переміщенні сторінки.",
+    ],
+    related: ["a", "link"],
+  },
+  link: {
+    badge: "HTML",
+    title: "<link>",
+    whatIsIt: "Підключає до документа зовнішній ресурс: найчастіше CSS-файл, а також favicon, шрифти чи попереднє завантаження ресурсів. Розміщується в <head>, не має закриваючого тегу.",
+    useCases: ["підключення файлу стилів", "favicon сайту", "підключення шрифтів (напр. Google Fonts)", "preload/prefetch ресурсів"],
+    syntax: `<link rel="stylesheet" href="style.css">`,
+    attributes: [
+      { name: "rel", desc: "тип зв'язку: stylesheet, icon, preload, canonical тощо" },
+      { name: "href", desc: "шлях до підключеного ресурсу" },
+      { name: "type", desc: "MIME-тип ресурсу, напр. \"text/css\"" },
+      { name: "media", desc: "для яких пристроїв застосовувати стиль, напр. \"print\"" },
+      { name: "crossorigin", desc: "режим CORS-запиту для ресурсу" },
+    ],
+    example: `<link rel="stylesheet" href="data:text/css,.box{width:60px;height:60px;background:#0ea5e9;border-radius:8px}">
+<div class="box"></div>
+<p style="font-size:13px;color:#666;">Стиль підключено через &lt;link&gt; (тут — data-URL замість файлу).</p>`,
+    pitfalls: [
+      "Неправильний rel (напр. \"style\" замість \"stylesheet\") — браузер проігнорує ресурс.",
+      "Підключення favicon без rel=\"icon\" — деякі браузери не підхоплять іконку.",
+    ],
+    related: ["head", "meta", "style"],
+  },
+  meta: {
+    badge: "HTML",
+    title: "<meta>",
+    whatIsIt: "Задає метадані документа, які не мають візуального представлення: кодування символів, опис для пошукових систем, налаштування масштабування на мобільних, теги для соцмереж (Open Graph). Розміщується в <head>.",
+    useCases: ["вказати кодування (charset)", "адаптивність на мобільних (viewport)", "опис сторінки для SEO", "превʼю для соцмереж (Open Graph)"],
+    syntax: `<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">`,
+    attributes: [
+      { name: "charset", desc: "кодування символів документа, майже завжди \"UTF-8\"" },
+      { name: "name", desc: "тип метаданих: viewport, description, author тощо" },
+      { name: "content", desc: "значення метаданих, вказаних у name або http-equiv" },
+      { name: "http-equiv", desc: "емулює HTTP-заголовок, напр. refresh чи content-security-policy" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+&lt;meta name="description" content="Навчальна платформа програмування"&gt;</pre>
+<p style="font-size:13px;color:#666;">Ці рядки не видно на сторінці, але вони критично важливі для коректного відображення й SEO.</p>`,
+    pitfalls: [
+      "Відсутній viewport — на мобільних сторінка масштабується як десктопна, дрібний текст.",
+      "Неправильний або відсутній charset — кирилиця показується «кракозябрами».",
+      "Занадто довгий description — пошукові системи обрізають його в результатах.",
+    ],
+    related: ["head", "title", "link"],
+  },
+  script: {
+    badge: "HTML",
+    title: "<script>",
+    whatIsIt: "Вбудовує або підключає JavaScript-код, який виконується браузером. Може містити код прямо всередині тега або посилатись на зовнішній файл через src.",
+    useCases: ["додати інтерактивність сторінці", "підключити зовнішню бібліотеку чи файл скрипта", "маніпуляції з DOM після завантаження сторінки"],
+    syntax: `<script src="app.js" defer></script>`,
+    attributes: [
+      { name: "src", desc: "шлях до зовнішнього файлу скрипта" },
+      { name: "type", desc: "тип скрипта, напр. \"module\" для ES-модулів" },
+      { name: "defer", desc: "виконати скрипт після парсингу HTML, у порядку підключення" },
+      { name: "async", desc: "завантажити й виконати скрипт асинхронно, як тільки готовий" },
+    ],
+    example: `<p id="out">Завантаження...</p>
+<script>
+  document.getElementById('out').textContent = 'Скрипт виконався і змінив текст!';
+<\/script>`,
+    pitfalls: [
+      "<script> без defer/async у <head> блокує рендеринг сторінки до його завантаження.",
+      "Звернення до DOM-елемента, якого ще немає (скрипт до елемента в розмітці) — елемент буде null.",
+      "Підключення скрипта з ненадійного джерела — ризик XSS.",
+    ],
+    related: ["style", "noscript"],
+  },
+  style: {
+    badge: "HTML",
+    title: "<style>",
+    whatIsIt: "Вбудовує CSS-правила прямо в документ, без окремого файлу. Зазвичай розміщується в <head>, застосовується до всієї сторінки за вказаними селекторами.",
+    useCases: ["локальні стилі для однієї сторінки", "швидкий прототип без окремого CSS-файлу", "критичні стилі, вбудовані для швидшого першого рендеру"],
+    syntax: `<style>\n  .box { width: 60px; height: 60px; background: #7c3aed; }\n</style>`,
+    attributes: [
+      { name: "media", desc: "для яких пристроїв застосовувати стилі, напр. \"print\"" },
+      { name: "type", desc: "тип вмісту, типово \"text/css\" (можна не вказувати)" },
+    ],
+    example: `<style>
+  .box { width: 60px; height: 60px; background: #7c3aed; border-radius: 8px; transition: transform 0.2s; }
+  .box:hover { transform: rotate(20deg); }
+</style>
+<div class="box"></div>`,
+    pitfalls: [
+      "Багато <style> блоків розкидано по сторінці — важко підтримувати, краще один файл CSS.",
+      "Однакові селектори в різних <style> — правило, яке йде пізніше, переможе (каскад).",
+    ],
+    related: ["link", "css-flexbox"],
+  },
+  noscript: {
+    badge: "HTML",
+    title: "<noscript>",
+    whatIsIt: "Показує альтернативний вміст, якщо в браузері користувача вимкнено або не підтримується JavaScript. Якщо скрипти працюють — вміст <noscript> просто ігнорується.",
+    useCases: ["повідомлення \"увімкніть JavaScript\" для сторінок, що без нього не працюють", "запасний вміст для пошукових ботів без JS"],
+    syntax: `<noscript>Для роботи сайту потрібен JavaScript.</noscript>`,
+    attributes: [],
+    example: `<p>У цьому браузері JavaScript увімкнено, тому вміст нижче звичайно НЕ показується:</p>
+<noscript>
+  <p style="color:red;">Будь ласка, увімкніть JavaScript для роботи сайту.</p>
+</noscript>
+<p style="font-size:13px;color:#666;">(Перевірити можна, вимкнувши JS у налаштуваннях браузера.)</p>`,
+    pitfalls: [
+      "Покладатись, що <noscript> побачить хтось із увімкненим JS — він призначений саме для випадку, коли JS вимкнено.",
+      "Забутий <noscript> на SPA-сайтах — користувач без JS бачить порожню сторінку без пояснень.",
+    ],
+    related: ["script"],
+  },
+
 };
 
 const TERM_GUIDES = {
