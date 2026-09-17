@@ -2064,6 +2064,236 @@ const CSS_LESSONS = [
     type: "css",
     tests: [{ re: /\.content\s*{[^}]*width\s*:\s*calc\([^)]+\)\s*;/i, msg: "Потрібен width: calc(...) у .content." }],
   },
+  {
+    id: "css-31",
+    title: "Transition: плавні переходи",
+    theory:
+      "transition каже браузеру плавно анімувати ЗМІНУ властивості замість миттєвого стрибка. transition: background-color 0.3s означає: якщо background-color зміниться (наприклад, на :hover), анімуй цю зміну за 0.3 секунди, а не застосовуй миттєво.\n\ntransition пишеться на САМОМУ елементі в звичайному стані, а не в :hover — типова помилка новачків. Логіка проста: transition означає «якщо ця властивість КОЛИ-НЕБУДЬ зміниться — анімуй перехід», тому правило належить базовому стилю, а :hover лише задає НОВЕ значення, до якого відбудеться плавний перехід.\n\ntransition: all 0.3s анімує зміну БУДЬ-ЯКОЇ властивості елемента одним рядком — зручно для швидких прототипів, але на реальних сайтах частіше перелічують конкретні властивості (background-color, transform), бо all іноді анімує зайве й витрачає більше ресурсів браузера, ніж потрібно.\n\nОкрім тривалості, transition приймає «криву прискорення» (timing function): ease (типова, плавний старт і фініш), linear (рівномірно), ease-in-out. Це впливає на те, як САМЕ відчувається рух — різка чи м'яка анімація.",
+    previewHTML: `<button class="btn2">Наведи</button>`,
+    examples: [
+      { title: "Плавна зміна кольору кнопки", code: `.btn2 {\n  background-color: #334155;\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}`, explain: "Зміна кольору стане плавною за 0.3 секунди, а не миттєвою." },
+      { title: "Кілька властивостей одразу", code: `.card {\n  transition: transform 0.2s, box-shadow 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 8px 16px rgba(0,0,0,0.15);\n}`, explain: "Картка плавно «піднімається» й отримує тінь при наведенні — обидві властивості анімуються одночасно." },
+    ],
+    presentation: [
+      { title: "Як працює transition", points: ["Плавно анімує ЗМІНУ властивості замість стрибка", "Пишеться на базовому стилі, не в :hover", ":hover лише задає нове значення для переходу"] },
+      { title: "Деталі", points: ["transition: all 0.3s анімує будь-яку зміну одним рядком", "Краще перелічувати конкретні властивості на реальних сайтах", "timing function (ease, linear) впливає на характер руху"] },
+    ],
+    task: "Додай .btn2 з transition (будь-яка властивість і тривалість) і .btn2:hover, що змінює якусь властивість.",
+    starter: "",
+    hints: ["transition пишеться в .btn2, а не в :hover.", "Формат: transition: властивість тривалість;", ".btn2 {\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}"],
+    solution: `.btn2 {\n  background-color: #334155;\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.btn2\s*{[^}]*transition\s*:\s*[^;]+;/i, msg: "Потрібен transition у .btn2." },
+      { re: /\.btn2:hover\s*{[^}]*:\s*[^;]+;/i, msg: "Потрібне правило .btn2:hover з якоюсь властивістю." },
+    ],
+  },
+  {
+    id: "css-32",
+    title: "Animation: @keyframes",
+    theory:
+      "transition анімує перехід МІЖ двома станами (звичайний і :hover), а @keyframes дозволяє описати ПОВНОЦІННУ анімацію з кількома проміжними кроками, яка може запускатись сама, без взаємодії користувача — наприклад, індикатор завантаження, що обертається безперервно.\n\n@keyframes оголошується окремим блоком з назвою (@keyframes spin { ... }), усередині якого відсотками (0%, 50%, 100%) чи ключовими словами from/to описують вигляд елемента в кожній точці анімації. Браузер сам плавно інтерполює проміжні кадри між заданими точками.\n\nЩоб анімація застосувалась, елементу задають властивість animation, що посилається на назву @keyframes: animation: spin 2s linear infinite — назва анімації, тривалість одного циклу, крива прискорення, і infinite означає «повторювати нескінченно» (замість конкретного числа повторень).\n\nAnimation відрізняється від transition головним: вона НЕ потребує зміни стану (:hover, кліку) — може крутитись сама по собі одразу після завантаження сторінки, з довільною кількістю проміжних кроків, а не лише «від» і «до».",
+    previewHTML: `<div class="spinner"></div>`,
+    examples: [
+      { title: "Індикатор завантаження", code: `@keyframes spin {\n  from { transform: rotate(0deg); }\n  to { transform: rotate(360deg); }\n}\n.spinner {\n  animation: spin 2s linear infinite;\n}`, explain: "Елемент обертається безперервно, без жодної взаємодії користувача." },
+      { title: "Пульсація з кількома кроками", code: `@keyframes pulse {\n  0% { opacity: 1; }\n  50% { opacity: 0.5; }\n  100% { opacity: 1; }\n}\n.badge {\n  animation: pulse 1.5s ease-in-out infinite;\n}`, explain: "Три проміжні точки (0%, 50%, 100%) створюють ефект плавного мерехтіння." },
+    ],
+    presentation: [
+      { title: "@keyframes проти transition", points: ["transition — перехід МІЖ двома станами (потребує :hover тощо)", "@keyframes — повноцінна анімація з кроками, запускається сама", "0%/50%/100% чи from/to — точки анімації"] },
+      { title: "Властивість animation", points: ["animation: назва тривалість крива повторення", "infinite — нескінченне повторення замість числа", "Типово для індикаторів завантаження, пульсації, значків"] },
+    ],
+    task: "Створи @keyframes spin (from/to з rotate) і застосуй animation до .spinner.",
+    starter: "",
+    hints: ["@keyframes spin { from {...} to {...} }", "animation: spin тривалість крива infinite;", "@keyframes spin {\n  from { transform: rotate(0deg); }\n  to { transform: rotate(360deg); }\n}\n.spinner {\n  animation: spin 2s linear infinite;\n}"],
+    solution: `@keyframes spin {\n  from { transform: rotate(0deg); }\n  to { transform: rotate(360deg); }\n}\n.spinner {\n  animation: spin 2s linear infinite;\n}`,
+    type: "css",
+    tests: [
+      { re: /@keyframes\s+spin\s*{/i, msg: "Потрібен блок @keyframes spin." },
+      { re: /\.spinner\s*{[^}]*animation\s*:\s*spin[^;]+;/i, msg: "Потрібна властивість animation: spin ... у .spinner." },
+    ],
+  },
+  {
+    id: "css-33",
+    title: "Transform: translate, rotate, scale",
+    theory:
+      "transform дозволяє переміщувати, обертати й масштабувати елемент, НЕ впливаючи на розташування сусідніх елементів (на відміну від зміни margin чи top/left, які зсувають і навколишній вміст). Це робить transform «дешевим» для браузера й ідеальним для плавних анімацій.\n\ntranslate(x, y) зсуває елемент на вказану відстань від його ЗВИЧАЙНОГО місця: translateY(-4px) підіймає елемент на 4px вгору — типовий прийом для ефекту «картка піднімається» при наведенні.\n\nrotate(кут) обертає елемент навколо його центру (за замовчуванням): rotate(45deg) повертає на 45 градусів за годинниковою стрілкою. scale(число) масштабує розмір: scale(1.1) збільшує на 10%, scale(0.9) зменшує на 10% — часто застосовують до кнопок чи карток при :hover для «живого» відчуття інтерфейсу.\n\nМожна комбінувати кілька трансформацій в одному значенні через пробіл: transform: translateY(-4px) scale(1.02) одночасно підіймає елемент і трохи збільшує його. Порядок трансформацій у списку МАЄ значення — вони застосовуються послідовно, а не одночасно.",
+    previewHTML: `<div class="card">Наведи на картку</div>`,
+    examples: [
+      { title: "Картка «піднімається» при наведенні", code: `.card {\n  transition: transform 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n}`, explain: "translateY(-4px) зсуває картку на 4px вгору, не впливаючи на сусідні елементи." },
+      { title: "Обертання іконки", code: `.icon {\n  transform: rotate(45deg);\n}`, explain: "Іконка повертається на 45 градусів навколо свого центру." },
+      { title: "Збільшення при наведенні", code: `.thumbnail:hover {\n  transform: scale(1.05);\n}`, explain: "Зображення трохи збільшується — популярний ефект для галерей і карток товарів." },
+    ],
+    presentation: [
+      { title: "Три базові трансформації", points: ["translate(x, y) — зсув від звичайного місця", "rotate(кут) — обертання навколо центру", "scale(число) — масштабування розміру"] },
+      { title: "Чому transform ефективний", points: ["Не впливає на розташування сусідніх елементів", "«Дешевий» для браузера — плавні анімації без гальмувань", "Кілька трансформацій можна комбінувати через пробіл"] },
+    ],
+    task: "Стилізуй .card:hover з transform: translateY(-4px).",
+    starter: "",
+    hints: ["Селектор — .card:hover (стан наведення).", "translateY(-4px) — від'ємне значення підіймає елемент.", ".card:hover {\n  transform: translateY(-4px);\n}"],
+    solution: `.card {\n  transition: transform 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n}`,
+    type: "css",
+    tests: [{ re: /\.card:hover\s*{[^}]*transform\s*:\s*translateY\([^)]+\)\s*;/i, msg: "Потрібне правило .card:hover з transform: translateY(...)." }],
+  },
+  {
+    id: "css-34",
+    title: "Стилізуй зображення сайту",
+    theory:
+      "Зображення без стилів може вилізти за межі свого контейнера, якщо його реальний розмір більший за доступний простір. max-width: 100% обмежує ширину картинки шириною БАТЬКІВСЬКОГО елемента, дозволяючи їй зменшуватись на вузьких екранах, але ніколи не «вилазити» за межі.\n\nheight: auto у парі з max-width: 100% зберігає ПРОПОРЦІЇ зображення при зміні ширини — без цього картинка могла б спотворитись (розтягнутись по вертикалі), якщо задати лише ширину.\n\ndisplay: block на img прибирає невеликий, майже непомітний відступ знизу зображення, що з'являється через те, що img типово inline-елемент (рядки тексту лишають місце для «хвостиків» літер на кшталт «у», «р» — той самий простір лишається й під картинкою).\n\nborder-radius працює для img так само, як для будь-якого блока — заокруглені зображення (аватарки, картки товарів) стали одним з найпоширеніших прийомів сучасного вебдизайну.",
+    previewHTML: `<img class="responsive-img" src="photo.jpg" alt="Приклад зображення">`,
+    examples: [
+      { title: "Адаптивне зображення", code: `.responsive-img {\n  max-width: 100%;\n  height: auto;\n  display: block;\n}`, explain: "Картинка ніколи не вилізе за межі контейнера й збереже пропорції на будь-якому екрані." },
+      { title: "Заокруглене зображення товару", code: `.product-img {\n  max-width: 100%;\n  border-radius: 12px;\n}`, explain: "border-radius на img заокруглює кути так само, як і для будь-якого іншого блока." },
+    ],
+    presentation: [
+      { title: "Адаптивні зображення", points: ["max-width: 100% не дає картинці вилізти за межі", "height: auto зберігає пропорції при зміні ширини", "display: block прибирає зайвий відступ знизу"] },
+      { title: "Візуальне оформлення", points: ["border-radius працює для img так само, як для div", "Заокруглені зображення — популярний прийом дизайну", "Разом ці властивості — базовий стандарт для будь-якого img"] },
+    ],
+    task: "Стилізуй зображення свого сайту (селектор main img): max-width: 100%, height: auto, border-radius.",
+    starter: "",
+    hints: ["Селектор — main img (через пробіл).", "max-width: 100% і height: auto йдуть парою.", "main img {\n  max-width: 100%;\n  height: auto;\n  border-radius: 8px;\n}"],
+    solution: `main img {\n  max-width: 100%;\n  height: auto;\n  display: block;\n  border-radius: 8px;\n}`,
+    type: "css",
+    tests: [
+      { re: /main\s+img\s*{[^}]*max-width\s*:\s*100%\s*;/i, msg: "Потрібен max-width: 100% у правилі main img." },
+      { re: /main\s+img\s*{[^}]*height\s*:\s*auto\s*;/i, msg: "Потрібен height: auto у правилі main img." },
+    ],
+  },
+  {
+    id: "css-35",
+    title: "Overflow та прокрутка",
+    theory:
+      "overflow визначає, що робити з вмістом, який НЕ поміщається в задані розміри елемента (наприклад, текст довший за фіксовану висоту блока). overflow: visible (типово) дозволяє вмісту вилазити за межі; overflow: hidden обрізає зайве, ховаючи його повністю; overflow: scroll завжди показує смуги прокрутки; overflow: auto показує смуги ЛИШЕ якщо вміст справді не поміщається.\n\noverflow-x і overflow-y дозволяють керувати горизонтальною й вертикальною прокруткою окремо — наприклад, горизонтальна стрічка карток товарів (overflow-x: auto) без вертикальної прокрутки всередині неї.\n\noverflow: hidden часто застосовують у парі з border-radius: коли зображення чи інший вміст усередині заокругленого контейнера мав би прямокутні кути, hidden «обрізає» його точно за заокругленою межею контейнера.\n\nтекст, довший за контейнер фіксованої ширини, можна акуратно обрізати з трьома крапками через комбінацію white-space: nowrap, overflow: hidden і text-overflow: ellipsis — типовий прийом для заголовків карток товарів однакової висоти.",
+    previewHTML: `<div class="scroll-box">Дуже довгий текст, який не поміщається в невеликий контейнер з фіксованою висотою і потребує прокрутки, щоб побачити все повністю.</div>`,
+    examples: [
+      { title: "Прокрутка при потребі", code: `.scroll-box {\n  max-height: 100px;\n  overflow-y: auto;\n}`, explain: "Смуга прокрутки з'явиться, лише якщо текст справді не поміщається у 100px висоти." },
+      { title: "Обрізання за заокругленою межею", code: `.avatar {\n  border-radius: 50%;\n  overflow: hidden;\n}`, explain: "Зображення всередині обрізається точно за колом, а не лишається прямокутним." },
+      { title: "Текст в один рядок з трьома крапками", code: `.title {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}`, explain: "Довгий заголовок акуратно обрізається з ... замість переносу чи виходу за межі картки." },
+    ],
+    presentation: [
+      { title: "Значення overflow", points: ["visible (типово) — вміст вилазить за межі", "hidden — обрізає зайве повністю", "scroll/auto — смуги прокрутки (завжди / лише за потреби)"] },
+      { title: "Типові прийоми", points: ["overflow-x/overflow-y — окремо для кожного напрямку", "hidden + border-radius — обрізання за заокругленою межею", "nowrap + hidden + ellipsis — текст в один рядок з ..."] },
+    ],
+    task: "Стилізуй .scroll-box: max-height і overflow-y: auto.",
+    starter: "",
+    hints: ["max-height обмежує висоту блока.", "overflow-y: auto показує прокрутку лише за потреби.", ".scroll-box {\n  max-height: 100px;\n  overflow-y: auto;\n}"],
+    solution: `.scroll-box {\n  max-height: 100px;\n  overflow-y: auto;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.scroll-box\s*{[^}]*max-height\s*:\s*[^;]+;/i, msg: "Потрібен max-height у .scroll-box." },
+      { re: /\.scroll-box\s*{[^}]*overflow-y\s*:\s*auto\s*;/i, msg: "Потрібен overflow-y: auto у .scroll-box." },
+    ],
+  },
+  {
+    id: "css-36",
+    title: "Медіазапити: основи адаптивності",
+    theory:
+      "Медіазапит (@media) дозволяє застосувати CSS-правила ЛИШЕ за певних умов — найчастіше залежно від ширини екрана. @media (max-width: 768px) { ... } означає: усе всередині фігурних дужок діє ЛИШЕ коли ширина вікна браузера 768px або менше.\n\nЦе основа адаптивної (responsive) верстки: той самий сайт може мати трьохколонковий макет на широкому моніторі й одноколонковий на телефоні, використовуючи ОДИН HTML-файл і трохи різних CSS-правил під різні розміри екрана.\n\nВсередині медіазапиту можна перевизначити БУДЬ-ЯКУ властивість, заново оголосивши той самий селектор: якщо .row мала display: flex, то всередині @media (max-width: 600px) { .row { flex-direction: column; } } перемкне на вертикальне розташування лише на вузьких екранах, а на широких лишиться горизонтальне.\n\nТипові «брейкпоінти» (порогові ширини) для медіазапитів: близько 480px (телефони), 768px (планшети), 1024px (невеликі ноутбуки) — хоча конкретні числа завжди залежать від дизайну сайту, а не є жорстким стандартом.",
+    previewHTML: `<div class="row"><div class="col">Колонка 1</div><div class="col">Колонка 2</div></div>`,
+    examples: [
+      { title: "Одна колонка на вузькому екрані", code: `.row {\n  display: flex;\n  gap: 16px;\n}\n@media (max-width: 600px) {\n  .row {\n    flex-direction: column;\n  }\n}`, explain: "На широкому екрані колонки в ряд, на вузькому (до 600px) — одна під одною." },
+      { title: "Менший розмір шрифту на телефоні", code: `h1 {\n  font-size: 32px;\n}\n@media (max-width: 480px) {\n  h1 {\n    font-size: 24px;\n  }\n}`, explain: "Заголовок стає меншим на екранах до 480px завширшки, щоб не займати завелику частку екрана телефону." },
+    ],
+    presentation: [
+      { title: "Що таке медіазапит", points: ["@media (max-width: Npx) { ... } — умовні правила", "Діють лише за певної ширини екрана", "Дозволяють різний вигляд на одному HTML"] },
+      { title: "Типові брейкпоінти", points: ["~480px — телефони", "~768px — планшети", "~1024px — невеликі ноутбуки (орієнтовно, залежить від дизайну)"] },
+    ],
+    task: "Додай медіазапит @media (max-width: 600px), що змінює .row на flex-direction: column.",
+    starter: "",
+    hints: ["Формат: @media (max-width: 600px) { .row { ... } }", "Усередині — те саме селектор .row з новими властивостями.", "@media (max-width: 600px) {\n  .row {\n    flex-direction: column;\n  }\n}"],
+    solution: `.row {\n  display: flex;\n  gap: 16px;\n}\n@media (max-width: 600px) {\n  .row {\n    flex-direction: column;\n  }\n}`,
+    type: "css",
+    tests: [{ re: /@media\s*\(max-width:\s*600px\)\s*{[^}]*\.row\s*{[^}]*flex-direction\s*:\s*column\s*;/i, msg: "Потрібен @media (max-width: 600px) з .row { flex-direction: column; } усередині." }],
+  },
+  {
+    id: "css-37",
+    title: "Mobile-first підхід",
+    theory:
+      "Mobile-first — стратегія, за якою базові (не обгорнуті в медіазапит) стилі пишуться СПОЧАТКУ для найвужчого екрана (телефону), а потім через min-width медіазапити ДОДАЮТЬ складніші макети для ширших екранів. Це протилежність до «десктоп-спочатку», де базові стилі — для широкого екрана, а max-width звужує макет для телефону.\n\nПереваги mobile-first: телефони частіше мають повільніше з'єднання, тому логічно, щоб БАЗОВІ (без жодного медіазапиту) стилі, які завантажуються завжди, були найпростішими — саме тими, що потрібні найслабшому пристрою. Складніші, «важчі» правила довантажуються лише для потужніших екранів.\n\nmin-width у медіазапиті працює навпаки до max-width: @media (min-width: 768px) означає «застосуй, коли ширина екрана 768px АБО БІЛЬШЕ» — типово для mobile-first підходу, де кожен наступний медіазапит «додає» щось для ширших екранів.\n\nНа практиці багато реальних проєктів комбінують обидва підходи, але mobile-first вважається сучаснішою й рекомендованою практикою — особливо відколи більшість трафіку в інтернеті йде саме з мобільних пристроїв.",
+    previewHTML: `<div class="grid-cards">Картки товарів</div>`,
+    examples: [
+      { title: "Mobile-first: одна колонка → три колонки", code: `.grid-cards {\n  display: grid;\n  grid-template-columns: 1fr;\n}\n@media (min-width: 768px) {\n  .grid-cards {\n    grid-template-columns: repeat(3, 1fr);\n  }\n}`, explain: "Базово (для телефону) — одна колонка; від 768px і ширше — три колонки." },
+    ],
+    presentation: [
+      { title: "Mobile-first проти Desktop-first", points: ["Mobile-first: базові стилі для телефону, min-width додає складність", "Desktop-first: базові стилі для широкого екрана, max-width спрощує", "Mobile-first — сучасніша, рекомендована практика"] },
+      { title: "min-width у медіазапиті", points: ["Застосовується від заданої ширини І БІЛЬШЕ", "Кожен наступний медіазапит «додає» для ширших екранів", "Логічно для пристроїв з повільнішим з'єднанням спочатку"] },
+    ],
+    task: "Створи .grid-cards з однією колонкою базово, і @media (min-width: 768px) з трьома колонками.",
+    starter: "",
+    hints: ["Базовий стиль — без медіазапиту, одна колонка.", "min-width, а не max-width — це mobile-first.", ".grid-cards {\n  display: grid;\n  grid-template-columns: 1fr;\n}\n@media (min-width: 768px) {\n  .grid-cards {\n    grid-template-columns: repeat(3, 1fr);\n  }\n}"],
+    solution: `.grid-cards {\n  display: grid;\n  grid-template-columns: 1fr;\n}\n@media (min-width: 768px) {\n  .grid-cards {\n    grid-template-columns: repeat(3, 1fr);\n  }\n}`,
+    type: "css",
+    tests: [{ re: /@media\s*\(min-width:\s*768px\)\s*{[^}]*\.grid-cards\s*{[^}]*grid-template-columns\s*:\s*[^;]+;/i, msg: "Потрібен @media (min-width: 768px) з .grid-cards { grid-template-columns: ...; } усередині." }],
+  },
+  {
+    id: "css-38",
+    title: "Каскад і специфічність",
+    theory:
+      "Коли кілька правил CSS претендують на той самий елемент з різними значеннями однієї властивості, браузер вирішує конфлікт за СПЕЦИФІЧНІСТЮ — своєрідним «рахунком балів» для кожного селектора. id важить більше за клас, клас важить більше за тег: #title переб'є .title, який переб'є просто title.\n\nЯкщо специфічність ОДНАКОВА (два правила з однаковим типом селектора), перемагає те, що написане ПІЗНІШЕ у файлі — тому порядок правил у CSS теж має значення, не лише сама специфічність.\n\n!important — «аварійний важіль», який перебиває ВСІ звичайні правила специфічності, хай там що: color: red !important переможе навіть #id-селектор, написаний після нього. Через це !important вважається поганою практикою «на постійній основі» — він ламає передбачувану логіку каскаду, і подальші спроби перевизначити стиль вимагають ще одного !important, створюючи «гонку озброєнь» у коді.\n\nСпадкування (inheritance) — інший механізм: деякі властивості (color, font-family) автоматично переходять від батька до дитини, якщо дитина не задає власного значення. Інші (border, padding, background) НЕ успадковуються за замовчуванням — кожен елемент починає з чистого аркуша щодо них.",
+    previewHTML: `<p id="unique" class="text">Абзац з класом і id одночасно.</p>`,
+    examples: [
+      { title: "id переб'є клас", code: `.text { color: blue; }\n#unique { color: red; }`, explain: "Текст стане червоним — #id має вищу специфічність за .клас, незалежно від порядку правил." },
+      { title: "Однакова специфічність — перемагає останній", code: `.text { color: blue; }\n.text { color: green; }`, explain: "Текст стане зеленим — обидва правила однакової специфічності, тому діє те, що написано ПІЗНІШЕ." },
+      { title: "!important — уникай на постійній основі", code: `.text {\n  color: red !important;\n}`, explain: "Перебиває навіть #id-селектори — корисно рідко й тимчасово, шкідливо як звичка." },
+    ],
+    presentation: [
+      { title: "Специфічність селекторів", points: ["id > клас > тег — приблизний порядок «ваги»", "Однакова специфічність — перемагає останнє правило", "Порядок правил у файлі теж впливає на результат"] },
+      { title: "!important і спадкування", points: ["!important перебиває майже все — уникай на постійній основі", "color, font-family успадковуються від батька", "border, padding, background — НЕ успадковуються"] },
+    ],
+    task: "Напиши два правила для .text з РІЗНИМ color — переконайся, що розумієш: перемагає останнє.",
+    starter: "",
+    hints: ["Два окремих правила з однаковим селектором .text.", "Різні значення color в кожному.", ".text {\n  color: blue;\n}\n.text {\n  color: green;\n}"],
+    solution: `.text {\n  color: blue;\n}\n.text {\n  color: green;\n}`,
+    type: "css",
+    tests: [{ re: /\.text\s*{[^}]*color\s*:\s*[^;]+;[\s\S]*\.text\s*{[^}]*color\s*:\s*[^;]+;/i, msg: "Потрібні два окремих правила .text з color у кожному." }],
+  },
+  {
+    id: "css-39",
+    title: "Фінальний проєкт: картка товару",
+    theory:
+      "Об'єднай усе з цього курсу в одному компоненті: box model, border-radius, box-shadow, flexbox чи grid для внутрішнього розташування, transition для hover-ефекту. Картка товару — один з найпоширеніших UI-елементів у вебі, і саме на ній добре видно, як окремі властивості CSS складаються в цілісний, продуманий дизайн.\n\nТипова структура картки: зображення зверху (з border-radius на верхніх кутах чи всій картці), назва й опис усередині з відповідним padding, ціна й кнопка знизу. Тінь (box-shadow) відділяє картку від фону сторінки, а transition + :hover додають легку інтерактивність (підняття чи збільшення тіні при наведенні).\n\nСаме тому цей урок — «фінальний проєкт», а не черговий новий матеріал: тут немає нових властивостей, лише практика комбінування вже вивченого в один продуманий, реалістичний результат.",
+    previewHTML: `<div class="product-card"><img src="item.jpg" alt="Товар"><h3>Назва товару</h3><p>Короткий опис</p></div>`,
+    examples: [
+      { title: "Картка товару", code: `.product-card {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n  padding: 16px;\n  transition: transform 0.2s;\n}\n.product-card:hover {\n  transform: translateY(-4px);\n}`, explain: "Об'єднує border-radius, box-shadow, padding і transition з попередніх уроків в один компонент." },
+    ],
+    presentation: [
+      { title: "Картка товару — підсумок курсу", points: ["Box model, border-radius, box-shadow — базовий вигляд", "flexbox/grid — внутрішнє розташування вмісту", "transition + :hover — легка інтерактивність"] },
+      { title: "Це практика, не новий матеріал", points: ["Жодної нової властивості в цьому уроці", "Мета — побачити, як усе разом складається в дизайн", "Картка товару — один з найпоширеніших UI-елементів вебу"] },
+    ],
+    task: "Створи .product-card: border-radius, box-shadow, padding, і .product-card:hover з transform.",
+    starter: "",
+    hints: ["Потрібні border-radius, box-shadow, padding у .product-card.", ":hover з transform окремим правилом.", ".product-card {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n  padding: 16px;\n}\n.product-card:hover {\n  transform: translateY(-4px);\n}"],
+    solution: `.product-card {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n  padding: 16px;\n  transition: transform 0.2s;\n}\n.product-card:hover {\n  transform: translateY(-4px);\n}`,
+    type: "css",
+    tests: [
+      { re: /\.product-card\s*{[^}]*border-radius\s*:\s*[^;]+;/i, msg: "Потрібен border-radius у .product-card." },
+      { re: /\.product-card\s*{[^}]*box-shadow\s*:\s*[^;]+;/i, msg: "Потрібен box-shadow у .product-card." },
+      { re: /\.product-card:hover\s*{[^}]*transform\s*:\s*[^;]+;/i, msg: "Потрібне правило .product-card:hover з transform." },
+    ],
+  },
+  {
+    id: "css-40",
+    title: "Фінальний проєкт 2: стилізуй footer",
+    theory:
+      "Об'єднай усе, що вивчила в цьому курсі, застосувавши це до footer свого сайту — останнього блоку, який ще не стилізований.\n\nfooter зазвичай отримує візуально інший, часто темніший фон, ніж основний вміст сторінки — це підказує користувачу «ти дійшла до кінця сторінки», ще до того, як вона прочитає сам текст підвалу.\n\ntext-align: center у footer — поширений прийом, коли підвал містить лише коротку інформацію (копірайт, кілька посилань): центрування виглядає охайніше за вирівнювання по лівому краю для такого короткого, самодостатнього блоку.\n\nЦе останній урок 40-уроковового курсу CSS: за весь курс ти стилізувала body, main, посилання меню, hover-ефекти, списки, форми, зображення, позиціонування, адаптивність і, нарешті, footer. Разом усе це перетворює структуру, зібрану в курсі HTML, на візуально цілісний, продуманий сайт — далі в курсі JavaScript цей самий сайт отримає інтерактивність.",
+    previewHTML: `<footer><p>© 2025 Приклад сайту</p></footer>`,
+    examples: [
+      { title: "Стилізований footer", code: `footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}`, explain: "Темний фон і центрований текст — типовий вигляд підвалу сайту." },
+    ],
+    presentation: [
+      { title: "footer — фінальний штрих", points: ["Часто темніший фон, ніж основний вміст", "text-align: center — типово для короткого підвалу", "Завершує візуальну стилізацію всього сайту"] },
+      { title: "Курс CSS завершено", points: ["body → main → меню → списки → форми → зображення → footer", "40 уроків: від селекторів до адаптивної верстки", "Далі — JavaScript оживить цей самий сайт інтерактивністю"] },
+    ],
+    task: "Стилізуй footer свого сайту: padding, background (будь-який темніший колір), і text-align: center.",
+    starter: "",
+    hints: ["Селектор — footer, без крапки й решітки.", "Потрібні три властивості: padding, background, text-align.", "footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}"],
+    solution: `footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}`,
+    type: "css",
+    tests: [
+      { re: /footer\s*{[^}]*padding\s*:\s*[^;]+;/i, msg: "Потрібен padding у правилі footer." },
+      { re: /footer\s*{[^}]*background\s*:\s*[^;]+;/i, msg: "Потрібен background у правилі footer." },
+      { re: /footer\s*{[^}]*text-align\s*:\s*center\s*;/i, msg: "Потрібен text-align: center у правилі footer." },
+    ],
+  },
 ];
 
 const JS_LESSONS = [
@@ -2346,6 +2576,15 @@ function defaultProject() {
 // Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
 const HEADER_MILESTONE = "html-17";
 const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-8"];
+
+// Milestone CSS lessons whose submitted rules style the same growing site —
+// order is the order they're concatenated into project.css.
+const CSS_MILESTONES = ["css-3", "css-4", "css-21", "css-9", "css-14", "css-17", "css-19", "css-20", "css-34", "css-40"];
+
+function renderProjectCss(project) {
+  const blocks = project.blocks || {};
+  return CSS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
+}
 
 // Produces the FULL document — DOCTYPE, <html lang>, <head> with the meta
 // tags taught in html-2/html-14, and <body> with the growing header/main/footer —
@@ -12907,7 +13146,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       const r = firstFail ? { pass: false, message: firstFail } : { pass: true, message: "Кожне правило застосовується саме до того селектора, який ти вказала — так CSS і працює." };
       setResult(r);
       runCss();
-      if (r.pass) onComplete(lesson.id);
+      if (r.pass) onComplete(lesson.id, code);
       return;
     }
     if (lesson.type === "vocab") {
@@ -13594,9 +13833,12 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
     .replace("</head>", `<style>${project.css || ""}</style></head>`)
     .replace("</body>", `<script>${project.js || ""}<\/script></body>`);
 
-  const milestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
-  const doneIds = progress?.completed?.html || [];
-  const doneCount = milestoneIds.filter((id) => doneIds.includes(id)).length;
+  const htmlMilestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
+  const htmlDoneIds = progress?.completed?.html || [];
+  const htmlDoneCount = htmlMilestoneIds.filter((id) => htmlDoneIds.includes(id)).length;
+
+  const cssDoneIds = progress?.completed?.css || [];
+  const cssDoneCount = CSS_MILESTONES.filter((id) => cssDoneIds.includes(id)).length;
 
   return (
     <div className="max-w-5xl">
@@ -13612,18 +13854,40 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
         {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
       </p>
 
-      {doneCount < milestoneIds.length && (
-        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
-          <div className="text-xs text-stone-500 mb-2">Блоки сайту з уроків HTML ({doneCount}/{milestoneIds.length}):</div>
+      {htmlDoneCount < htmlMilestoneIds.length && (
+        <div className="mb-3 border border-stone-800 rounded-md p-3 bg-stone-950">
+          <div className="text-xs text-stone-500 mb-2">Блоки сайту з уроків HTML ({htmlDoneCount}/{htmlMilestoneIds.length}):</div>
           <div className="flex flex-wrap gap-2">
-            {milestoneIds.map((id) => {
+            {htmlMilestoneIds.map((id) => {
               const lesson = HTML_LESSONS.find((l) => l.id === id);
-              const done = doneIds.includes(id);
+              const done = htmlDoneIds.includes(id);
               return (
                 <button
                   key={id}
                   disabled={done}
-                  onClick={() => onGoLesson?.(id)}
+                  onClick={() => onGoLesson?.("html", id)}
+                  className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
+                >
+                  {done ? "✓ " : ""}{lesson?.title || id}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {cssDoneCount < CSS_MILESTONES.length && (
+        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
+          <div className="text-xs text-stone-500 mb-2">Стилі сайту з уроків CSS ({cssDoneCount}/{CSS_MILESTONES.length}):</div>
+          <div className="flex flex-wrap gap-2">
+            {CSS_MILESTONES.map((id) => {
+              const lesson = CSS_LESSONS.find((l) => l.id === id);
+              const done = cssDoneIds.includes(id);
+              return (
+                <button
+                  key={id}
+                  disabled={done}
+                  onClick={() => onGoLesson?.("css", id)}
                   className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
                 >
                   {done ? "✓ " : ""}{lesson?.title || id}
@@ -14019,13 +14283,17 @@ export default function App() {
       saveProgress(next);
       return next;
     });
-    if (code !== undefined && (id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id))) {
+    const isHtmlMilestone = id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id);
+    const isCssMilestone = CSS_MILESTONES.includes(id);
+    if (code !== undefined && (isHtmlMilestone || isCssMilestone)) {
       setProject((prev) => {
         if (!prev.themeId) return prev;
         const theme = PROJECT_THEMES.find((t) => t.id === prev.themeId);
         if (!theme) return prev;
         const blocks = { ...(prev.blocks || {}), [id]: code };
-        const next = { ...prev, blocks, html: renderProjectHtml({ ...prev, blocks }, theme) };
+        const next = { ...prev, blocks };
+        if (isHtmlMilestone) next.html = renderProjectHtml({ ...prev, blocks }, theme);
+        if (isCssMilestone) next.css = renderProjectCss({ ...prev, blocks });
         saveProject(next);
         return next;
       });
@@ -14094,7 +14362,7 @@ export default function App() {
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
           {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} />}
           {view === "myproject" && (project.themeId
-            ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(lId) => goCourse("html", lId)} />
+            ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(cId, lId) => goCourse(cId, lId)} />
             : <ProjectSetup onCreate={handleCreateProject} />)}
           {view === "library" && <LibraryPage />}
           {view === "reference" && <ReferencePage />}
