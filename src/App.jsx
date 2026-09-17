@@ -7891,6 +7891,99 @@ FROM employees;</pre>
     ],
     related: ["sql-cte", "sql-aggregation-grouping"],
   },
+  "sql-case-coalesce": {
+    badge: "SQL",
+    title: "CASE WHEN, COALESCE, NULLIF",
+    whatIsIt: "CASE WHEN — умовний вираз у SQL, схожий на if/else, що повертає різне значення залежно від умови. COALESCE повертає перше НЕ-NULL значення зі списку. NULLIF повертає NULL, якщо два значення рівні.",
+    useCases: ["перетворення числового кода в читабельний текст (напр. статус замовлення)", "підстановка значення за замовчуванням замість NULL (COALESCE)", "уникнення ділення на нуль (NULLIF)"],
+    syntax: `SELECT name,\n  CASE WHEN age >= 18 THEN 'дорослий' ELSE 'неповнолітній' END as category\nFROM users;`,
+    attributes: [
+      { name: "CASE WHEN ... THEN ... ELSE ... END", desc: "умовний вираз — повертає значення залежно від першої істинної умови" },
+      { name: "COALESCE(a, b, c)", desc: "повертає перше НЕ-NULL значення зі списку аргументів" },
+      { name: "NULLIF(a, b)", desc: "повертає NULL, якщо a дорівнює b, інакше повертає a" },
+      { name: "CASE col WHEN val THEN ...", desc: "коротка форма CASE для порівняння однієї колонки з кількома значеннями" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT name,
+  COALESCE(nickname, name) as display_name,
+  CASE
+    WHEN age < 18 THEN 'дитина'
+    WHEN age < 65 THEN 'дорослий'
+    ELSE 'пенсіонер'
+  END as category
+FROM users;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">display_name</th><th style="border:1px solid #ccc;padding:4px 10px;">category</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">дорослий</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">Ол</td><td style="border:1px solid #ccc;padding:4px 10px;">дорослий</td></tr>
+</table>`,
+    pitfalls: [
+      "Забутий ELSE в CASE — рядки, що не потрапили в жодну умову, отримують NULL замість очікуваного значення.",
+      "Порівняння з NULL через звичайне = замість IS NULL всередині WHEN — умова ніколи не спрацює.",
+      "COALESCE перевіряє аргументи по черзі й зупиняється на першому НЕ-NULL — порядок аргументів важливий.",
+    ],
+    related: ["sql-filtering"],
+  },
+  "sql-string-functions": {
+    badge: "SQL",
+    title: "CONCAT, UPPER, LOWER, TRIM, SUBSTRING",
+    whatIsIt: "Вбудовані функції для обробки текстових значень прямо в запиті — об'єднання рядків, зміна регістру, видалення пробілів, вирізання підрядка, заміна тексту.",
+    useCases: ["об'єднання імені й прізвища в одне поле (CONCAT)", "нормалізація регістру перед порівнянням (UPPER/LOWER)", "видалення зайвих пробілів з введених користувачем даних (TRIM)"],
+    syntax: `SELECT CONCAT(first_name, ' ', last_name) as full_name,\n  UPPER(email) as email_upper\nFROM users;`,
+    attributes: [
+      { name: "CONCAT(a, b, ...) / ||", desc: "об'єднує кілька рядків в один" },
+      { name: "UPPER() / LOWER()", desc: "переводить текст у верхній/нижній регістр" },
+      { name: "TRIM() / LTRIM() / RTRIM()", desc: "видаляє пробіли з обох боків / зліва / справа" },
+      { name: "SUBSTRING(str, start, length)", desc: "вирізає частину рядка з позиції start довжиною length" },
+      { name: "REPLACE(str, from, to)", desc: "замінює всі входження підрядка from на to" },
+      { name: "LENGTH() / CHAR_LENGTH()", desc: "довжина рядка в символах" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT
+  CONCAT(UPPER(LEFT(name, 1)), LOWER(SUBSTRING(name, 2))) as formatted,
+  LENGTH(name) as len
+FROM users;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (вхід: 'ОЛЯ'):</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">formatted</th><th style="border:1px solid #ccc;padding:4px 10px;">len</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">3</td></tr>
+</table>`,
+    pitfalls: [
+      "Позиції в SUBSTRING рахуються з 1, а не з 0, на відміну від більшості мов програмування.",
+      "Різні СУБД мають різний синтаксис конкатенації: || у PostgreSQL/SQLite, CONCAT() у MySQL, + у SQL Server.",
+      "Порівняння рядків без нормалізації регістру (UPPER/LOWER) — 'Оля' і 'оля' вважаються різними значеннями.",
+    ],
+    related: ["sql-filtering"],
+  },
+  "sql-number-functions": {
+    badge: "SQL",
+    title: "ROUND, CEIL, FLOOR, ABS, MOD",
+    whatIsIt: "Вбудовані математичні функції для обробки числових значень прямо в запиті — округлення, знаходження залишку від ділення, модуля, найближчого цілого вгору чи вниз.",
+    useCases: ["округлення ціни до 2 знаків після коми (ROUND)", "пагінація через залишок від ділення (MOD)", "гарантія додатного значення незалежно від знаку (ABS)"],
+    syntax: `SELECT ROUND(price, 2) as rounded,\n  CEIL(price) as ceiling,\n  FLOOR(price) as floor\nFROM products;`,
+    attributes: [
+      { name: "ROUND(num, decimals)", desc: "округлює число до вказаної кількості знаків після коми" },
+      { name: "CEIL() / CEILING()", desc: "округлює вгору до найближчого цілого" },
+      { name: "FLOOR()", desc: "округлює вниз до найближчого цілого" },
+      { name: "ABS()", desc: "повертає модуль (абсолютне значення) числа" },
+      { name: "MOD(a, b) / a % b", desc: "залишок від цілочисельного ділення a на b" },
+      { name: "POWER(base, exp) / SQRT()", desc: "піднесення до степеня й квадратний корінь" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT name, price,
+  ROUND(price, 0) as rounded,
+  price % 10 as remainder
+FROM products;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">price</th><th style="border:1px solid #ccc;padding:4px 10px;">rounded</th><th style="border:1px solid #ccc;padding:4px 10px;">remainder</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Книга</td><td style="border:1px solid #ccc;padding:4px 10px;">149.99</td><td style="border:1px solid #ccc;padding:4px 10px;">150</td><td style="border:1px solid #ccc;padding:4px 10px;">9.99</td></tr>
+</table>`,
+    pitfalls: [
+      "ROUND без другого аргументу округлює до цілого — легко забути й отримати неочікувану втрату точності.",
+      "Ділення двох цілих чисел (INTEGER / INTEGER) у деяких СУБД повертає ціле число без залишку — потрібно явно привести один з операндів до дробового типу.",
+      "Плаваюча точка (FLOAT) не гарантує точності для грошових розрахунків — для цього краще NUMERIC/DECIMAL.",
+    ],
+    related: ["sql-data-types"],
+  },
 
 };
 
