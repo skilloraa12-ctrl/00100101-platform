@@ -7630,6 +7630,95 @@ print(cur.fetchall())</pre>
     related: ["sql-select", "py-files"],
   },
 
+  "sql-joins": {
+    badge: "SQL",
+    title: "INNER, LEFT, RIGHT, FULL, CROSS JOIN",
+    whatIsIt: "JOIN об'єднує рядки з двох чи більше таблиць за спільним ключем. Різні типи JOIN визначають, які рядки лишаються в результаті, якщо відповідності немає в одній з таблиць.",
+    useCases: ["показ замовлень разом з ім'ям клієнта (з іншої таблиці)", "показ УСІХ клієнтів, включно з тими, хто ще не зробив замовлення (LEFT JOIN)", "об'єднання кожного рядка з кожним для комбінацій (CROSS JOIN)"],
+    syntax: `SELECT users.name, orders.total\nFROM users\nLEFT JOIN orders ON users.id = orders.user_id;`,
+    attributes: [
+      { name: "INNER JOIN", desc: "лише рядки, що мають відповідність В ОБОХ таблицях" },
+      { name: "LEFT JOIN", desc: "усі рядки лівої таблиці, навіть без відповідності (NULL замість даних з правої)" },
+      { name: "RIGHT JOIN", desc: "усі рядки правої таблиці, навіть без відповідності зліва" },
+      { name: "FULL JOIN", desc: "усі рядки з ОБОХ таблиць, з NULL там, де немає відповідності" },
+      { name: "CROSS JOIN", desc: "декартів добуток — кожен рядок однієї таблиці з кожним рядком іншої" },
+      { name: "ON умова", desc: "задає, за якою колонкою пов'язуються таблиці" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT users.name, orders.total
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (Марія ще не робила замовлень):</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">total</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">450</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">1200</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Марія</td><td style="border:1px solid #ccc;padding:4px 10px;">NULL</td></tr>
+</table>`,
+    pitfalls: [
+      "INNER JOIN замість LEFT JOIN, коли потрібні ВСІ рядки лівої таблиці — рядки без відповідності просто зникають з результату.",
+      "Забута умова ON — випадковий CROSS JOIN (декартів добуток) з величезною кількістю рядків результату.",
+      "JOIN за колонкою без індексу на великих таблицях — суттєво сповільнює запит.",
+    ],
+    related: ["sql-select-where"],
+  },
+  "sql-set-operators": {
+    badge: "SQL",
+    title: "UNION, INTERSECT, EXCEPT",
+    whatIsIt: "Об'єднують результати ДВОХ ОКРЕМИХ запитів (з однаковою кількістю й типами колонок) в один результат — за принципом теорії множин: об'єднання, перетин, різниця.",
+    useCases: ["об'єднання даних з двох схожих таблиць (напр. архівних і поточних замовлень)", "знаходження спільних записів у двох вибірках", "знаходження записів, що є в одній вибірці, але відсутні в іншій"],
+    syntax: `SELECT city FROM customers\nUNION\nSELECT city FROM suppliers;`,
+    attributes: [
+      { name: "UNION", desc: "об'єднує результати двох запитів, прибираючи дублікати" },
+      { name: "UNION ALL", desc: "те саме, але БЕЗ прибирання дублікатів — швидше" },
+      { name: "INTERSECT", desc: "лише рядки, що є в ОБОХ результатах одночасно" },
+      { name: "EXCEPT", desc: "рядки з першого запиту, яких НЕМАЄ в другому" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT city FROM customers
+INTERSECT
+SELECT city FROM suppliers;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (міста, де є і клієнти, і постачальники):</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">city</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Київ</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Одеса</td></tr>
+</table>`,
+    pitfalls: [
+      "Кількість і ТИПИ колонок в обох запитах мають ЗБІГАТИСЯ — інакше помилка.",
+      "UNION (не ALL) прибирає дублікати, що вимагає додаткового сортування/порівняння — на великих даних UNION ALL значно швидший, якщо дублікати не проблема.",
+    ],
+    related: ["sql-joins"],
+  },
+  "sql-cte": {
+    badge: "SQL",
+    title: "WITH (Common Table Expression)",
+    whatIsIt: "CTE — іменований тимчасовий результат запиту, що існує лише в межах одного запиту. Дозволяє розбити складний запит на читабельні логічні частини, кожна з яких може посилатись на попередню.",
+    useCases: ["розбиття складного запиту на кілька читабельних кроків", "перевикористання одного підзапиту кілька разів в основному запиті", "рекурсивні запити (напр. ієрархія категорій)"],
+    syntax: `WITH recent_orders AS (\n  SELECT * FROM orders WHERE created_at > '2024-01-01'\n)\nSELECT * FROM recent_orders WHERE total > 100;`,
+    attributes: [
+      { name: "WITH name AS (запит)", desc: "оголошує іменований тимчасовий результат" },
+      { name: "WITH RECURSIVE", desc: "дозволяє CTE посилатись на саму себе — для ієрархічних даних (дерева, графи)" },
+      { name: "кілька CTE через кому", desc: "можна оголосити декілька CTE в одному WITH, розділених комою" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">WITH big_orders AS (
+  SELECT user_id, total
+  FROM orders
+  WHERE total > 500
+)
+SELECT users.name, big_orders.total
+FROM users
+JOIN big_orders ON users.id = big_orders.user_id;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">total</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">1200</td></tr>
+</table>`,
+    pitfalls: [
+      "CTE в більшості СУБД не кешується автоматично — якщо запит важкий і використовується кілька разів, іноді ефективніша тимчасова таблиця.",
+      "WITH RECURSIVE без умови зупинки (WHERE, що обмежує глибину) може призвести до нескінченного циклу.",
+    ],
+    related: ["sql-select-where", "sql-window-functions"],
+  },
+
 };
 
 const TERM_GUIDES = {
