@@ -755,6 +755,141 @@ const HTML_LESSONS = [
       return { pass: true, message: "Вбудована валідація HTML — перший, найпростіший рівень захисту від некоректних даних, ще до JavaScript чи сервера." };
     },
   },
+  {
+    id: "html-31",
+    title: "Атрибути форми: action і method",
+    theory:
+      "action — адреса, куди форма надсилає дані при відправці. method визначає, ЯК саме: \"get\" додає дані прямо в URL (видно в адресному рядку, підходить для пошуку), \"post\" передає їх у тілі запиту, приховано (для паролів, файлів, будь-яких чутливих чи великих даних).",
+    example: { code: `<form action="/search" method="get">\n  <input type="text" name="q">\n</form>`, explain: "Пошук через GET — параметр q потрапить прямо в URL: /search?q=..." },
+    task: 'Створи form з action="/submit" і method="post", усередині — input type="text" name="query", і button type="submit" з текстом "Надіслати".',
+    starter: "",
+    hints: [
+      "action і method — атрибути відкриваючого тега <form>.",
+      "button type=\"submit\" усередині form відправляє форму при кліку.",
+      'Приклад: <form action="/submit" method="post"><input type="text" name="query"><button type="submit">Надіслати</button></form>',
+    ],
+    solution: `<form action="/submit" method="post">\n  <input type="text" name="query">\n  <button type="submit">Надіслати</button>\n</form>`,
+    type: "html",
+    check: (doc) => {
+      const form = doc.querySelector("form");
+      if (!form) return { pass: false, message: "Потрібен тег <form>." };
+      if (form.getAttribute("action") !== "/submit") return { pass: false, message: 'action має дорівнювати "/submit".' };
+      if ((form.getAttribute("method") || "").toLowerCase() !== "post") return { pass: false, message: 'method має дорівнювати "post".' };
+      if (!form.querySelector('input[name="query"]')) return { pass: false, message: 'Потрібен input з name="query".' };
+      const btn = form.querySelector('button[type="submit"]');
+      if (!btn || btn.textContent.trim() !== "Надіслати") return { pass: false, message: 'Потрібна <button type="submit"> з текстом "Надіслати".' };
+      return { pass: true, message: "GET для читання/пошуку, POST для зміни даних чи чутливої інформації — базове правило вибору методу." };
+    },
+  },
+  {
+    id: "html-32",
+    title: "audio і video",
+    theory:
+      "<video> і <audio> вбудовують медіа прямо в сторінку, без сторонніх плагінів. Атрибут controls показує стандартну панель керування (плей, гучність, перемотка). Усередині — один чи кілька <source> з різними файлами/форматами; браузер сам обирає перший підтримуваний.",
+    example: { code: `<video width="320" controls>\n  <source src="movie.mp4" type="video/mp4">\n</video>`, explain: "controls — без значення, просто вмикає панель керування відтворенням." },
+    task: 'Створи video з controls, width="320", і source src="movie.mp4" type="video/mp4" усередині. Окремо створи audio з controls і source src="song.mp3" type="audio/mpeg" усередині.',
+    starter: "",
+    hints: [
+      "controls пишеться без значення, як окреме слово в тегу.",
+      "source лежить УСЕРЕДИНІ video чи audio, не поруч.",
+      'Приклад: <video width="320" controls><source src="movie.mp4" type="video/mp4"></video><audio controls><source src="song.mp3" type="audio/mpeg"></audio>',
+    ],
+    solution: `<video width="320" controls>\n  <source src="movie.mp4" type="video/mp4">\n</video>\n<audio controls>\n  <source src="song.mp3" type="audio/mpeg">\n</audio>`,
+    type: "html",
+    check: (doc) => {
+      const video = doc.querySelector("video");
+      if (!video) return { pass: false, message: "Потрібен тег <video>." };
+      if (!video.hasAttribute("controls")) return { pass: false, message: "video має мати атрибут controls." };
+      if (video.getAttribute("width") !== "320") return { pass: false, message: 'video має мати width="320".' };
+      const vsource = video.querySelector('source[src="movie.mp4"][type="video/mp4"]');
+      if (!vsource) return { pass: false, message: 'Усередині video потрібен source src="movie.mp4" type="video/mp4".' };
+      const audio = doc.querySelector("audio");
+      if (!audio || !audio.hasAttribute("controls")) return { pass: false, message: "Потрібен <audio controls>." };
+      const asource = audio.querySelector('source[src="song.mp3"][type="audio/mpeg"]');
+      if (!asource) return { pass: false, message: 'Усередині audio потрібен source src="song.mp3" type="audio/mpeg".' };
+      return { pass: true, message: "Кілька <source> дають браузеру вибір формату — корисно, бо не всі браузери підтримують усі кодеки." };
+    },
+  },
+  {
+    id: "html-33",
+    title: "iframe",
+    theory:
+      "<iframe> вбудовує ІНШУ повноцінну HTML-сторінку всередину поточної — так вставляють карти Google Maps, відео з YouTube, платіжні форми. Атрибут title обов'язковий для доступності — описує, ЩО саме вбудовано, для людей, що користуються скрінрідером.",
+    example: { code: `<iframe src="https://example.com" title="Вбудована сторінка" width="600" height="400"></iframe>`, explain: "title — не видно на сторінці, але критично для скрінрідерів." },
+    task: 'Створи iframe з src="https://example.com", title="Приклад вбудованої сторінки", width="600" і height="400".',
+    starter: "",
+    hints: [
+      "iframe МАЄ закриваючий тег </iframe>, навіть якщо всередині порожньо.",
+      "Усі чотири атрибути пишуться у відкриваючому тезі.",
+      'Приклад: <iframe src="https://example.com" title="Приклад вбудованої сторінки" width="600" height="400"></iframe>',
+    ],
+    solution: `<iframe src="https://example.com" title="Приклад вбудованої сторінки" width="600" height="400"></iframe>`,
+    type: "html",
+    check: (doc) => {
+      const iframe = doc.querySelector("iframe");
+      if (!iframe) return { pass: false, message: "Потрібен тег <iframe>." };
+      if (iframe.getAttribute("src") !== "https://example.com") return { pass: false, message: 'src має дорівнювати "https://example.com".' };
+      if (iframe.getAttribute("title") !== "Приклад вбудованої сторінки") return { pass: false, message: 'title має дорівнювати "Приклад вбудованої сторінки".' };
+      if (iframe.getAttribute("width") !== "600" || iframe.getAttribute("height") !== "400") return { pass: false, message: 'width має бути "600", height — "400".' };
+      return { pass: true, message: "title у iframe — не декорація, а обов'язковий опис вмісту для тих, хто не бачить сторінку." };
+    },
+  },
+  {
+    id: "html-34",
+    title: "figure і figcaption",
+    theory:
+      "<figure> групує медіа-контент (зображення, схему, код) РАЗОМ з його підписом — семантично пов'язує їх в одне ціле. <figcaption> — сам підпис, зазвичай останній елемент усередині figure.",
+    example: { code: `<figure>\n  <img src="cat.jpg" alt="Кіт">\n  <figcaption>Мій кіт Барсик</figcaption>\n</figure>`, explain: "figcaption лишається пов'язаним із зображенням, навіть якщо його винести окремим CSS-стилем." },
+    task: 'Створи figure з img (src="cat.jpg", alt="Кіт") усередині, і figcaption з текстом "Мій кіт Барсик".',
+    starter: "",
+    hints: [
+      "img і figcaption обидва лежать усередині figure.",
+      "figcaption зазвичай пишеться ПІСЛЯ img.",
+      'Приклад: <figure><img src="cat.jpg" alt="Кіт"><figcaption>Мій кіт Барсик</figcaption></figure>',
+    ],
+    solution: `<figure>\n  <img src="cat.jpg" alt="Кіт">\n  <figcaption>Мій кіт Барсик</figcaption>\n</figure>`,
+    type: "html",
+    check: (doc) => {
+      const figure = doc.querySelector("figure");
+      if (!figure) return { pass: false, message: "Потрібен тег <figure>." };
+      const img = figure.querySelector('img[src="cat.jpg"][alt="Кіт"]');
+      if (!img) return { pass: false, message: 'Усередині figure потрібен img src="cat.jpg" alt="Кіт".' };
+      const figcaption = figure.querySelector("figcaption");
+      if (!figcaption || figcaption.textContent.trim() !== "Мій кіт Барсик") return { pass: false, message: 'figcaption має містити текст "Мій кіт Барсик".' };
+      return { pass: true, message: "figure+figcaption — семантично правильний спосіб підписати зображення, схему чи блок коду." };
+    },
+  },
+  {
+    id: "html-35",
+    title: "Якорі на сторінці, mailto, tel, target",
+    theory:
+      "Посилання a вміє більше, ніж переходити на інший сайт. href=\"#id\" веде до елемента з таким id НА ЦІЙ САМІЙ сторінці (плавний перехід донизу/догори). href=\"mailto:...\" відкриває поштовий клієнт, href=\"tel:...\" — дзвінок на мобільному. target=\"_blank\" відкриває посилання в новій вкладці — разом з ним завжди додавай rel=\"noopener noreferrer\" з міркувань безпеки.",
+    example: { code: `<a href="#contacts">До контактів</a>\n...\n<h2 id="contacts">Контакти</h2>`, explain: "Клік по посиланню прокрутить сторінку до елемента з id=\"contacts\"." },
+    task: 'Створи посилання-якір a href="#contacts" з текстом "До контактів", і десь нижче h2 з id="contacts" і текстом "Контакти". Додай посилання mailto: (href="mailto:hello@example.com", текст "Написати нам"), посилання tel: (href="tel:+380001112233", текст "Подзвонити"), і зовнішнє посилання a href="https://example.com" з target="_blank" і rel="noopener noreferrer", текст "Зовнішній сайт".',
+    starter: "",
+    hints: [
+      "href якоря починається з # і збігається з id елемента-цілі (без #).",
+      "mailto: і tel: пишуться прямо в href, без додаткових атрибутів.",
+      "Зовнішнє посилання з target=\"_blank\" завжди супроводжуй rel=\"noopener noreferrer\".",
+    ],
+    solution: `<a href="#contacts">До контактів</a>\n<h2 id="contacts">Контакти</h2>\n<a href="mailto:hello@example.com">Написати нам</a>\n<a href="tel:+380001112233">Подзвонити</a>\n<a href="https://example.com" target="_blank" rel="noopener noreferrer">Зовнішній сайт</a>`,
+    type: "html",
+    check: (doc) => {
+      const anchor = doc.querySelector('a[href="#contacts"]');
+      if (!anchor || anchor.textContent.trim() !== "До контактів") return { pass: false, message: 'Потрібне посилання a href="#contacts" з текстом "До контактів".' };
+      const target = doc.getElementById("contacts");
+      if (!target) return { pass: false, message: 'Потрібен елемент з id="contacts" (напр. h2).' };
+      const mail = doc.querySelector('a[href="mailto:hello@example.com"]');
+      if (!mail) return { pass: false, message: 'Потрібне посилання href="mailto:hello@example.com".' };
+      const tel = doc.querySelector('a[href="tel:+380001112233"]');
+      if (!tel) return { pass: false, message: 'Потрібне посилання href="tel:+380001112233".' };
+      const ext = doc.querySelector('a[href="https://example.com"]');
+      if (!ext || ext.getAttribute("target") !== "_blank") return { pass: false, message: 'Потрібне зовнішнє посилання з target="_blank".' };
+      const rel = (ext.getAttribute("rel") || "");
+      if (!rel.includes("noopener")) return { pass: false, message: 'Посилання з target="_blank" має мати rel з "noopener".' };
+      return { pass: true, message: "rel=\"noopener\" закриває діру безпеки: без нього нова вкладка могла б керувати вихідною сторінкою через window.opener." };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
