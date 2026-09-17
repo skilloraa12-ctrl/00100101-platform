@@ -1612,6 +1612,22 @@ const SYMBOLS = [
   { cat: "Backend: API", sym: "WebSocket", en: "WebSocket protocol", ua: "Протокол WebSocket", langs: "Backend", example: "new WebSocket('wss://...')", explain: "Постійне двостороннє з'єднання для обміну даними в реальному часі (чати, ігри)." },
   { cat: "Backend: API", sym: "Webhook", en: "Webhook", ua: "Вебхук", langs: "Backend", example: "POST https://mysite.com/webhook", explain: "Сервер сам відправляє HTTP-запит іншому сервісу, коли трапляється подія." },
 
+  { cat: "Backend: Node.js", sym: "require() / module.exports", en: "CommonJS modules", ua: "Модулі CommonJS", langs: "Node.js", example: "module.exports = router;", explain: "Старіша система модулів Node.js для підключення й експорту коду між файлами." },
+  { cat: "Backend: Node.js", sym: "process.env", en: "Environment variables", ua: "Змінні середовища", langs: "Node.js", example: "process.env.PORT", explain: "Доступ до змінних середовища — конфігурації, секретів, що не повинні бути в коді." },
+  { cat: "Backend: Node.js", sym: "fs / path", en: "Filesystem/path modules", ua: "Модулі файлової системи/шляхів", langs: "Node.js", example: "fs.readFileSync('data.json');", explain: "Вбудовані модулі для роботи з файлами й побудови коректних шляхів." },
+  { cat: "Backend: Express", sym: "app.get() / app.post()", en: "Express route methods", ua: "Методи маршрутів Express", langs: "Node.js", example: "app.get('/users', (req, res) => { });", explain: "Реєструють обробник для запитів певного HTTP-методу на вказаному шляху." },
+  { cat: "Backend: Express", sym: "req / res", en: "Request/response objects", ua: "Об'єкти запиту/відповіді", langs: "Node.js", example: "res.json({ ok: true });", explain: "req містить дані вхідного запиту, res — методи для формування відповіді." },
+  { cat: "Backend: Express", sym: "req.params / req.query / req.body", en: "Request data sources", ua: "Джерела даних запиту", langs: "Node.js", example: "const { id } = req.params;", explain: "params — частини URL (/users/:id), query — параметри після ?, body — дані з тіла запиту." },
+  { cat: "Backend: Express", sym: "res.json() / res.status()", en: "Response methods", ua: "Методи відповіді", langs: "Node.js", example: "res.status(404).json({ error: 'Not found' });", explain: "Відправляють JSON-відповідь і задають HTTP-код статусу." },
+  { cat: "Backend: Express", sym: "middleware / next()", en: "Middleware pattern", ua: "Патерн middleware", langs: "Node.js", example: "app.use((req, res, next) => { next(); });", explain: "Функція, що обробляє запит перед основним обробником і передає керування далі через next()." },
+  { cat: "Backend: Автентифікація", sym: "JWT (JSON Web Token)", en: "JWT", ua: "JSON Web Token", langs: "Backend", example: "Authorization: Bearer eyJhbGc...", explain: "Самодостатній підписаний токен для передачі перевіреної інформації про користувача без сесії на сервері." },
+  { cat: "Backend: Автентифікація", sym: "OAuth 2.0", en: "OAuth protocol", ua: "Протокол OAuth", langs: "Backend", example: "—", explain: "Стандартний протокол делегованої авторизації — вхід через Google/GitHub без передачі пароля сайту." },
+  { cat: "Backend: Автентифікація", sym: "session / cookie", en: "Session-based auth", ua: "Автентифікація через сесії", langs: "Backend", example: "Set-Cookie: sessionId=abc123", explain: "Сервер зберігає стан сесії, клієнт лише передає ідентифікатор через cookie." },
+  { cat: "Backend: Безпека паролів", sym: "bcrypt / argon2", en: "Password hashing", ua: "Хешування паролів", langs: "Backend", example: "bcrypt.hash(password, 10);", explain: "Односторонньо хешують паролі перед збереженням у БД — навіть при витоку бази паролі неможливо відновити напряму." },
+  { cat: "Backend: Безпека", sym: "CORS", en: "Cross-origin resource sharing", ua: "Обмін ресурсами між доменами", langs: "Backend", example: "app.use(cors());", explain: "Механізм, що дозволяє чи забороняє браузеру робити запити з одного домену до API іншого." },
+  { cat: "Backend: Безпека", sym: "CSRF / XSS", en: "Common web vulnerabilities", ua: "Поширені веб-вразливості", langs: "Backend", example: "—", explain: "CSRF — підроблений запит від імені авторизованого користувача, XSS — впровадження шкідливого скрипта на сторінку." },
+  { cat: "Backend: Безпека", sym: "Rate Limiting", en: "Rate limiting", ua: "Обмеження частоти запитів", langs: "Backend", example: "express-rate-limit", explain: "Обмежує кількість запитів від одного клієнта за проміжок часу — захист від зловживань і DDoS." },
+
 ];
 
 const LIBRARY_HTML = [
