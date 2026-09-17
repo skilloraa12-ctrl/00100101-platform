@@ -1666,6 +1666,27 @@ const SYMBOLS = [
   { cat: "GitHub", sym: "Fork", en: "Fork repository", ua: "Форк репозиторію", langs: "GitHub", example: "—", explain: "Особиста копія чужого репозиторію для внесення змін без прямого доступу до оригіналу." },
   { cat: "GitHub", sym: "GitHub Actions", en: "GitHub Actions workflow", ua: "Робочий процес GitHub Actions", langs: "GitHub", example: "on: push", explain: "Автоматизує тести, збірку й деплой при подіях у репозиторії (push, pull request)." },
 
+  { cat: "Термінал/Linux", sym: "pwd / cd", en: "Navigation commands", ua: "Команди навігації", langs: "Linux", example: "cd projects/app", explain: "pwd показує поточну директорію, cd переходить в іншу." },
+  { cat: "Термінал/Linux", sym: "ls", en: "List directory", ua: "Список файлів", langs: "Linux", example: "ls -la", explain: "Показує вміст директорії; -la показує все, включно з прихованими файлами, у детальному форматі." },
+  { cat: "Термінал/Linux", sym: "mkdir / touch", en: "Create commands", ua: "Команди створення", langs: "Linux", example: "mkdir new-folder", explain: "mkdir створює директорію, touch — порожній файл." },
+  { cat: "Термінал/Linux", sym: "cp / mv", en: "Copy/move commands", ua: "Команди копіювання/переміщення", langs: "Linux", example: "cp file.txt backup/", explain: "cp копіює файл/папку, mv переміщує чи перейменовує." },
+  { cat: "Термінал/Linux", sym: "rm", en: "Remove command", ua: "Команда видалення", langs: "Linux", example: "rm -rf old-folder", explain: "Видаляє файли; -r для директорій рекурсивно, -f без підтвердження (обережно!)." },
+  { cat: "Термінал/Linux", sym: "cat / less / head / tail", en: "File view commands", ua: "Команди перегляду файлу", langs: "Linux", example: "tail -f log.txt", explain: "cat виводить весь файл, less — з прокруткою, head/tail — перші/останні рядки." },
+  { cat: "Термінал/Linux", sym: "grep", en: "Grep command", ua: "Команда пошуку тексту", langs: "Linux", example: "grep 'error' log.txt", explain: "Шукає рядки, що відповідають шаблону, у файлах чи виводі команди." },
+  { cat: "Термінал/Linux", sym: "find", en: "Find command", ua: "Команда пошуку файлів", langs: "Linux", example: "find . -name '*.js'", explain: "Шукає файли й директорії за іменем, типом чи іншими критеріями." },
+  { cat: "Термінал/Linux", sym: "chmod / chown", en: "Permission commands", ua: "Команди прав доступу", langs: "Linux", example: "chmod +x script.sh", explain: "chmod змінює права доступу до файлу, chown — власника." },
+  { cat: "Термінал/Linux", sym: "sudo", en: "Sudo command", ua: "Команда підвищення прав", langs: "Linux", example: "sudo apt install curl", explain: "Виконує команду з правами адміністратора (root)." },
+  { cat: "Термінал/Linux", sym: "curl / wget", en: "Download commands", ua: "Команди завантаження", langs: "Linux", example: "curl -O https://example.com/file.zip", explain: "Виконують HTTP-запити з командного рядка чи завантажують файли." },
+  { cat: "Термінал/Linux", sym: "ssh / scp", en: "Remote connection commands", ua: "Команди віддаленого з'єднання", langs: "Linux", example: "ssh user@server.com", explain: "ssh підключається до віддаленого сервера, scp копіює файли через таке з'єднання." },
+  { cat: "Термінал/Linux", sym: "ps / kill / top", en: "Process management commands", ua: "Команди керування процесами", langs: "Linux", example: "kill -9 1234", explain: "ps показує процеси, kill завершує за id, top показує їх у реальному часі з використанням ресурсів." },
+  { cat: "Термінал/Linux", sym: "tar / zip / unzip", en: "Archive commands", ua: "Команди архівації", langs: "Linux", example: "tar -xzf archive.tar.gz", explain: "Створюють і розпаковують архіви файлів." },
+  { cat: "Термінал/Linux", sym: "env / export", en: "Environment commands", ua: "Команди середовища", langs: "Linux", example: "export PATH=$PATH:/new/dir", explain: "env показує змінні середовища, export задає нову змінну для поточної сесії." },
+  { cat: "Full Stack: Архітектура", sym: "Client-Server", en: "Client-server model", ua: "Модель клієнт-сервер", langs: "Full Stack", example: "—", explain: "Браузер (клієнт) надсилає запити серверу, сервер обробляє й повертає дані." },
+  { cat: "Full Stack: Архітектура", sym: "Frontend ↔ Backend ↔ Database", en: "Full stack layers", ua: "Шари повного стеку", langs: "Full Stack", example: "—", explain: "Класична схема: інтерфейс користувача → серверна логіка й API → зберігання даних." },
+  { cat: "Full Stack: Архітектура", sym: "Microservices", en: "Microservices architecture", ua: "Мікросервісна архітектура", langs: "Full Stack", example: "—", explain: "Розбиває застосунок на незалежні маленькі сервіси замість одного великого (моноліту)." },
+  { cat: "Full Stack: Архітектура", sym: "Load Balancing", en: "Load balancing", ua: "Балансування навантаження", langs: "Full Stack", example: "—", explain: "Розподіляє вхідні запити між кількома серверами для стабільності й швидкодії." },
+  { cat: "Full Stack: Середовище", sym: ".env", en: "Environment file", ua: "Файл змінних середовища", langs: "Full Stack", example: "DATABASE_URL=postgres://...", explain: "Зберігає конфігурацію й секрети окремо від коду, не потрапляє в git (додається в .gitignore)." },
+
 ];
 
 const LIBRARY_HTML = [
