@@ -6922,6 +6922,102 @@ city: Київ
     related: ["py-lists", "py-comprehensions"],
   },
 
+  "py-sets-tuples": {
+    badge: "Python",
+    title: "set і tuple",
+    whatIsIt: "set — колекція УНІКАЛЬНИХ елементів без певного порядку, з методами теоретико-множинних операцій (об'єднання, перетин). tuple — впорядкована НЕЗМІНЮВАНА послідовність, схожа на список, але після створення її не можна змінити.",
+    useCases: ["видалення дублікатів зі списку (через set)", "перевірка спільних/унікальних елементів двох колекцій", "незмінювані координати чи пари значень (tuple), напр. (x, y)"],
+    syntax: `unique = set([1, 2, 2, 3])\npoint = (10, 20)`,
+    attributes: [
+      { name: "set(iterable)", desc: "створює множину, прибираючи дублікати" },
+      { name: "union() / intersection() / difference()", desc: "об'єднання, перетин, різниця двох множин" },
+      { name: "add() / remove()", desc: "додають чи видаляють елемент з множини" },
+      { name: "(a, b, c)", desc: "літерал кортежу — круглі дужки (часто опціональні)" },
+      { name: "розпакування", desc: "x, y = point — розпаковує кортеж в окремі змінні" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+print(a & b)  # перетин
+print(a | b)  # об'єднання
+
+point = (10, 20)
+x, y = point
+print(f"x={x}, y={y}")</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">{3, 4}
+{1, 2, 3, 4, 5, 6}
+x=10, y=20</pre>`,
+    pitfalls: [
+      "Порожній {} створює СЛОВНИК, а не множину — для порожньої множини потрібен явний виклик set().",
+      "Спроба змінити елемент tuple (point[0] = 5) — TypeError, кортежі незмінювані.",
+      "Множини не зберігають порядок і не підтримують індексацію (set[0] — помилка).",
+    ],
+    related: ["py-lists", "py-dicts"],
+  },
+  "py-strings": {
+    badge: "Python",
+    title: "Методи рядків (str)",
+    whatIsIt: "Рядки в Python незмінні (immutable) — усі методи повертають НОВИЙ рядок, не змінюючи оригінал. Багатий набір методів для розбиття, пошуку, заміни й форматування тексту.",
+    useCases: ["обробка й очищення користувацького вводу", "розбиття рядка на частини за роздільником", "перевірка формату чи вмісту рядка"],
+    syntax: `text = "  Привіт, Світ!  "\ncleaned = text.strip().lower()`,
+    attributes: [
+      { name: "strip() / lstrip() / rstrip()", desc: "прибирають пробіли з обох країв, зліва чи справа" },
+      { name: "split(sep) / join(list)", desc: "split розбиває рядок на список, join об'єднує список у рядок" },
+      { name: "lower() / upper() / capitalize()", desc: "змінюють регістр рядка" },
+      { name: "replace(old, new)", desc: "замінює всі входження підрядка" },
+      { name: "startswith() / endswith()", desc: "перевіряють початок/кінець рядка" },
+      { name: "in", desc: "оператор перевірки наявності підрядка: 'кіт' in 'кошеня'" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">text = "html,css,javascript"
+langs = text.split(",")
+print(langs)
+print(", ".join(langs).upper())
+print("css" in text)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">['html', 'css', 'javascript']
+HTML, CSS, JAVASCRIPT
+True</pre>`,
+    pitfalls: [
+      "Методи рядків НЕ змінюють оригінал (рядки незмінні) — text.strip() саму text не змінить, треба присвоїти результат.",
+      "'5' + 5 кидає TypeError — Python не робить автоматичне зведення типів, як JavaScript; потрібно явно str(5) чи int('5').",
+    ],
+    related: ["py-fstrings"],
+  },
+  "py-builtin-functions": {
+    badge: "Python",
+    title: "Вбудовані функції (len, range, enumerate, zip...)",
+    whatIsIt: "Функції, доступні в Python завжди, без import — базовий інструментарій для роботи з довжиною, послідовностями чисел, перебором з індексом, об'єднанням кількох ітерованих об'єктів.",
+    useCases: ["отримання довжини колекції", "генерація послідовності чисел для циклу", "перебір з одночасним індексом і значенням", "паралельний перебір двох списків"],
+    syntax: `for i, name in enumerate(names):\n    print(i, name)`,
+    attributes: [
+      { name: "len(x)", desc: "кількість елементів у послідовності чи колекції" },
+      { name: "range(start, stop, step)", desc: "генерує послідовність чисел для циклу" },
+      { name: "enumerate(iterable)", desc: "додає індекс до кожного елемента при переборі" },
+      { name: "zip(a, b)", desc: "об'єднує кілька ітерованих об'єктів попарно" },
+      { name: "sorted(iterable, key=...)", desc: "повертає новий відсортований список" },
+      { name: "sum() / min() / max()", desc: "сума, мінімум, максимум значень послідовності" },
+      { name: "map() / filter()", desc: "застосовують функцію до кожного елемента / лишають елементи за умовою" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">names = ["Оля", "Іван", "Марія"]
+ages = [25, 30, 28]
+
+for name, age in zip(names, ages):
+    print(f"{name}: {age}")
+
+print(sorted(ages, reverse=True))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Оля: 25
+Іван: 30
+Марія: 28
+[30, 28, 25]</pre>`,
+    pitfalls: [
+      "range(5) НЕ включає 5 — генерує 0,1,2,3,4, часте джерело помилок «off by one».",
+      "zip() зупиняється на КОРОТШОМУ з переданих ітерованих об'єктів — якщо списки різної довжини, зайві елементи просто відкидаються.",
+      "map()/filter() у Python 3 повертають ІТЕРАТОР, а не список — для списку потрібно обгорнути в list(...).",
+    ],
+    related: ["py-comprehensions", "py-lists"],
+  },
+
 };
 
 const TERM_GUIDES = {
