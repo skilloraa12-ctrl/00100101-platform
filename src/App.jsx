@@ -1897,7 +1897,10 @@ const REF_NAV = {
     "Зустрічі та командна робота": ["eng-standup", "eng-sync", "eng-follow-up", "eng-eta"],
     "Email, Slack і терміни": ["eng-asap-fyi", "eng-per-my-last", "eng-false-friends", "eng-boilerplate", "eng-edge-case", "eng-tech-debt", "eng-rubber-duck", "eng-spaghetti-code"],
   },
-  Frontend: {},
+  Frontend: {
+    "Архітектура": ["fe-spa-mpa", "fe-rendering-strategies", "fe-virtual-dom"],
+    "React": ["fe-react-basics", "fe-react-hooks", "fe-state-management"],
+  },
   Python: {},
   SQL: {},
   Backend: {},
@@ -6325,6 +6328,105 @@ console.log(square(4), PI); // 16 3.14</pre>`,
 </p>`,
     pitfalls: ["Термін неформальний — не варто використовувати в офіційній документації чи звітах, лише в розмовному контексті з командою."],
     related: ["eng-tech-debt"],
+  },
+
+  "fe-react-basics": {
+    badge: "Frontend",
+    title: "React: компоненти, JSX, props",
+    whatIsIt: "React будує інтерфейс з незалежних, перевикористовуваних компонентів — функцій, що повертають розмітку через JSX (HTML-подібний синтаксис прямо в JS). Дані передаються «згори вниз» через props — властивості, доступні лише для читання всередині компонента.",
+    useCases: ["розбиття складного UI на менші перевикористовувані частини", "передача даних від батьківського компонента до дочірнього", "побудова інтерфейсу цієї самої платформи (написана на React)"],
+    syntax: `function Greeting({ name }) {\n  return <h1>Привіт, {name}!</h1>;\n}\n<Greeting name="Оля" />`,
+    attributes: [
+      { name: "Компонент", desc: "функція, що повертає JSX — «шматочок» інтерфейсу" },
+      { name: "JSX", desc: "синтаксичне розширення, що дозволяє писати HTML-подібну розмітку в JS-файлі" },
+      { name: "Props", desc: "дані, передані батьківським компонентом — лише для читання" },
+      { name: "{вираз}", desc: "фігурні дужки в JSX вставляють результат будь-якого JS-виразу" },
+      { name: "children", desc: "спеціальний prop — вміст, вкладений МІЖ відкриваючим і закриваючим тегом компонента" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:12px;">function Card({ title, children }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+&lt;Card title="Приклад картки"&gt;
+  Вміст картки через children
+&lt;/Card&gt;</pre>
+<p style="font-size:12px;color:#666;margin:6px 0;">↓ що це рендерить на сторінці:</p>
+<div style="border:1px solid #ccc;padding:10px;border-radius:6px;max-width:220px;">
+  <h3 style="margin:0 0 6px;">Приклад картки</h3>
+  Вміст картки через children
+</div>`,
+    pitfalls: [
+      "Спроба ЗМІНИТИ props усередині дочірнього компонента — вони лише для читання, для змінюваного стану потрібен useState.",
+      "Забутий унікальний key при рендері списку компонентів через map() — React попереджає в консолі й може неправильно оновлювати список.",
+      "JSX вимагає ОДИН кореневий елемент (чи Fragment <></>) — два сусідні теги без обгортки викличуть помилку.",
+    ],
+    related: ["fe-react-hooks", "fe-virtual-dom"],
+  },
+  "fe-react-hooks": {
+    badge: "Frontend",
+    title: "React Hooks: useState, useEffect",
+    whatIsIt: "Хуки дозволяють функціональним компонентам мати власний стан і побічні ефекти (запити, підписки) — до їх появи це було можливо лише в класових компонентах. useState додає локальний стан, useEffect виконує код після рендеру.",
+    useCases: ["зберігання значення поля вводу чи лічильника (useState)", "завантаження даних з API при монтуванні компонента (useEffect)", "підписка на подію з відпискою при розмонтуванні"],
+    syntax: `const [count, setCount] = useState(0);\nuseEffect(() => {\n  document.title = \`Кліків: \${count}\`;\n}, [count]);`,
+    attributes: [
+      { name: "useState(initial)", desc: "повертає [значення, функція-сеттер]; виклик сеттера викликає повторний рендер" },
+      { name: "useEffect(fn, deps)", desc: "виконує fn після рендеру; deps — масив залежностей, що визначає коли повторно запускати" },
+      { name: "useEffect(fn, [])", desc: "порожній масив залежностей — ефект виконається лише один раз, при монтуванні" },
+      { name: "return () => {}", desc: "функція очищення всередині useEffect — виконується перед наступним ефектом чи розмонтуванням" },
+      { name: "useContext / useRef / useMemo", desc: "інші поширені хуки: читання контексту, мутабельне значення, кешування обчислення" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:12px;">function Counter() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    console.log('Змінилось на', count);
+  }, [count]);
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+    Клікнуто: {count}
+  &lt;/button&gt;;
+}</pre>
+<p style="font-size:12px;color:#666;margin:6px 0;">↓ той самий результат (тут без React, для наочності):</p>
+<button id="btn" style="padding:8px 16px;border:1px solid #ccc;border-radius:6px;background:white;cursor:pointer;">Клікнуто: 0</button>
+<script>
+  let count = 0;
+  document.getElementById('btn').onclick = function() {
+    count++;
+    this.textContent = 'Клікнуто: ' + count;
+    console.log('Змінилось на', count);
+  };
+<\/script>`,
+    pitfalls: [
+      "Виклик хуків усередині if/for/вкладених функцій — заборонено; хуки мають викликатись завжди в однаковому порядку на кожному рендері.",
+      "Забутий масив залежностей у useEffect — ефект виконується ПІСЛЯ КОЖНОГО рендеру, часто ненавмисно.",
+      "Пряма зміна стану (count++) замість setCount(count + 1) — React не помітить зміну й не перерендерить компонент.",
+    ],
+    related: ["fe-react-basics", "js-promises"],
+  },
+  "fe-state-management": {
+    badge: "Frontend",
+    title: "Керування станом (Context, Redux, Zustand)",
+    whatIsIt: "Коли дані потрібні багатьом компонентам у різних частинах дерева, передавати їх через props («prop drilling») стає незручно. Бібліотеки керування станом дають централізоване сховище, доступне будь-якому компоненту напряму.",
+    useCases: ["дані користувача (авторизація), потрібні в шапці, сайдбарі й профілі одночасно", "кошик покупок, доступний з будь-якої сторінки", "тема оформлення (світла/темна) для всього застосунку"],
+    syntax: `const ThemeContext = React.createContext('light');\n// глибоко вкладений компонент:\nconst theme = useContext(ThemeContext);`,
+    attributes: [
+      { name: "React Context", desc: "вбудований спосіб передати дані без props на кожному рівні — для нечастих оновлень" },
+      { name: "Redux / Redux Toolkit", desc: "централізоване сховище з передбачуваними оновленнями через actions/reducers — для великих застосунків" },
+      { name: "Zustand", desc: "легша альтернатива Redux, менше шаблонного коду" },
+      { name: "prop drilling", desc: "проблема, яку вирішує керування станом — передача props через багато проміжних рівнів, які самі їх не використовують" },
+    ],
+    example: `<div style="font-family:sans-serif;font-size:14px;">
+  <p><b>Без керування станом:</b> App → Layout → Sidebar → UserMenu (props йдуть через усі рівні)</p>
+  <p><b>З Context/Zustand:</b> UserMenu читає дані напряму зі сховища, минаючи Layout і Sidebar</p>
+</div>`,
+    pitfalls: [
+      "Використання глобального стану для ВСЬОГО, навіть локальних дрібниць (стан одного поля форми) — зайва складність, локальний useState часто достатній.",
+      "Context перерендерює ВСІХ підписників при будь-якій зміні значення — для великих/частих оновлень краще Zustand/Redux з точковою підпискою.",
+    ],
+    related: ["fe-react-hooks"],
   },
 
 };
