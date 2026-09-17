@@ -609,6 +609,152 @@ const HTML_LESSONS = [
       return { pass: true, message: "thead/tbody/tfoot допомагають і стилізації (CSS), і браузеру — напр. закріпити шапку таблиці при прокрутці." };
     },
   },
+  {
+    id: "html-26",
+    title: "colspan і rowspan",
+    theory:
+      "Атрибут colspan об'єднує комірку з сусідніми по ГОРИЗОНТАЛІ (кілька колонок в одну), rowspan — по ВЕРТИКАЛІ (кілька рядків в одну). Коли комірку об'єднано з наступним рядком через rowspan, у ТОМУ наступному рядку цю комірку писати вже НЕ треба — вона вже «зайнята» об'єднанням згори.",
+    example: { code: `<table>\n  <tr><td rowspan="2">A</td><td>B</td></tr>\n  <tr><td>C</td></tr>\n</table>`, explain: "У другому рядку лише одна td (C) — перша колонка вже зайнята об'єднаною згори комірку A." },
+    task: 'Створи таблицю з трьома рядками: у першому — td з rowspan="2" і текстом "Тиждень 1", та td "Пн"; у другому — лише td "Вт" (бо перша комірка вже об\'єднана згори); у третьому — один td з colspan="2" і текстом "Кінець".',
+    starter: "",
+    hints: [
+      "У другому рядку НЕ пиши комірку для першої колонки — вона вже зайнята rowspan з першого рядка.",
+      "Третій рядок має лише ОДНУ td, що займає обидві колонки через colspan=\"2\".",
+      'Приклад: <table><tr><td rowspan="2">Тиждень 1</td><td>Пн</td></tr><tr><td>Вт</td></tr><tr><td colspan="2">Кінець</td></tr></table>',
+    ],
+    solution: `<table>\n  <tr><td rowspan="2">Тиждень 1</td><td>Пн</td></tr>\n  <tr><td>Вт</td></tr>\n  <tr><td colspan="2">Кінець</td></tr>\n</table>`,
+    type: "html",
+    check: (doc) => {
+      const table = doc.querySelector("table");
+      if (!table) return { pass: false, message: "Потрібен тег <table>." };
+      const rows = table.querySelectorAll("tr");
+      if (rows.length !== 3) return { pass: false, message: `Потрібно рівно 3 рядки <tr>, зараз: ${rows.length}.` };
+      const row0 = rows[0].querySelectorAll(":scope > td");
+      if (row0.length !== 2 || row0[0].getAttribute("rowspan") !== "2" || row0[0].textContent.trim() !== "Тиждень 1")
+        return { pass: false, message: 'Перший рядок: td з rowspan="2" і текстом "Тиждень 1", потім td "Пн".' };
+      const row1 = rows[1].querySelectorAll(":scope > td");
+      if (row1.length !== 1 || row1[0].textContent.trim() !== "Вт") return { pass: false, message: 'Другий рядок має містити рівно одну td з текстом "Вт".' };
+      const row2 = rows[2].querySelectorAll(":scope > td");
+      if (row2.length !== 1 || row2[0].getAttribute("colspan") !== "2" || row2[0].textContent.trim() !== "Кінець")
+        return { pass: false, message: 'Третій рядок: одна td з colspan="2" і текстом "Кінець".' };
+      return { pass: true, message: "colspan/rowspan — основа будь-якого складного табличного макета (розклади, прайс-листи)." };
+    },
+  },
+  {
+    id: "html-27",
+    title: "textarea, fieldset, legend",
+    theory:
+      "<textarea> — багаторядкове текстове поле (на відміну від <input type=\"text\">, що завжди в один рядок). Це НЕ самозакривний тег — початковий текст пишеться МІЖ <textarea> і </textarea>, а не в атрибуті value. <fieldset> групує пов'язані поля форми візуально й семантично, <legend> — підпис цієї групи, перший дочірній елемент fieldset.",
+    example: { code: `<fieldset>\n  <legend>Контакти</legend>\n  <textarea name="message" placeholder="Повідомлення"></textarea>\n</fieldset>`, explain: "legend підписує всю групу полів усередині fieldset." },
+    task: 'Створи form з fieldset, усередині якого legend "Контакти", а після нього — textarea з name="message" і placeholder="Ваше повідомлення".',
+    starter: "",
+    hints: [
+      "legend — ПЕРШИЙ елемент усередині fieldset.",
+      "textarea має закриваючий тег </textarea>, навіть якщо всередині порожньо.",
+      'Приклад: <form><fieldset><legend>Контакти</legend><textarea name="message" placeholder="Ваше повідомлення"></textarea></fieldset></form>',
+    ],
+    solution: `<form>\n  <fieldset>\n    <legend>Контакти</legend>\n    <textarea name="message" placeholder="Ваше повідомлення"></textarea>\n  </fieldset>\n</form>`,
+    type: "html",
+    check: (doc) => {
+      const fieldset = doc.querySelector("form fieldset");
+      if (!fieldset) return { pass: false, message: "Потрібен <fieldset> усередині <form>." };
+      const legend = fieldset.querySelector("legend");
+      if (!legend || legend.textContent.trim() !== "Контакти") return { pass: false, message: '<legend> усередині fieldset має містити текст "Контакти".' };
+      const textarea = fieldset.querySelector("textarea");
+      if (!textarea) return { pass: false, message: "Усередині fieldset потрібен <textarea>." };
+      if (textarea.getAttribute("name") !== "message") return { pass: false, message: 'textarea має мати name="message".' };
+      if (textarea.getAttribute("placeholder") !== "Ваше повідомлення") return { pass: false, message: 'textarea має мати placeholder="Ваше повідомлення".' };
+      return { pass: true, message: "fieldset/legend роблять довгі форми зрозумілішими — і візуально, і для скрінрідерів." };
+    },
+  },
+  {
+    id: "html-28",
+    title: "Радіокнопки і чекбокси",
+    theory:
+      "Радіокнопки (type=\"radio\") з ОДНАКОВИМ атрибутом name утворюють групу — можна вибрати лише ОДНУ з них. Чекбокси (type=\"checkbox\") незалежні одна від одної — можна відмітити будь-яку кількість. Обом типам потрібен унікальний id, пов'язаний з <label for=\"...\"> — саме так клік по тексту підпису теж вмикає поле.",
+    example: { code: `<input type="radio" id="basic" name="plan" value="basic">\n<label for="basic">Базовий</label>`, explain: "Клік по слову «Базовий» теж вибере цю радіокнопку завдяки for/id." },
+    task: 'Створи form з двома радіокнопками (однаковий name="plan", різні id "basic" і "pro", значення value відповідно "basic" і "pro"), кожна зі своїм label. Додай ще чекбокс id="agree" name="agree" зі своїм label.',
+    starter: "",
+    hints: [
+      'Обидві радіокнопки мають ОДНАКОВИЙ name="plan", але РІЗНІ id і value.',
+      "Кожен input йде в парі з <label for=\"те саме id\">.",
+      'Приклад: <input type="radio" id="basic" name="plan" value="basic"><label for="basic">Базовий</label><input type="radio" id="pro" name="plan" value="pro"><label for="pro">Про</label><input type="checkbox" id="agree" name="agree"><label for="agree">Погоджуюсь</label>',
+    ],
+    solution: `<form>\n  <input type="radio" id="basic" name="plan" value="basic">\n  <label for="basic">Базовий</label>\n  <input type="radio" id="pro" name="plan" value="pro">\n  <label for="pro">Про</label>\n  <input type="checkbox" id="agree" name="agree">\n  <label for="agree">Погоджуюсь з умовами</label>\n</form>`,
+    type: "html",
+    check: (doc) => {
+      const form = doc.querySelector("form");
+      if (!form) return { pass: false, message: "Потрібен тег <form>." };
+      const radios = form.querySelectorAll('input[type="radio"]');
+      if (radios.length !== 2) return { pass: false, message: "Потрібно рівно 2 радіокнопки." };
+      const names = [...radios].map((r) => r.getAttribute("name"));
+      if (names[0] !== "plan" || names[1] !== "plan") return { pass: false, message: 'Обидві радіокнопки мають мати однаковий name="plan".' };
+      const values = [...radios].map((r) => r.getAttribute("value")).sort();
+      if (values.join(",") !== "basic,pro") return { pass: false, message: 'Значення value мають бути "basic" і "pro".' };
+      for (const r of radios) {
+        const id = r.getAttribute("id");
+        if (!id || !form.querySelector(`label[for="${id}"]`)) return { pass: false, message: `Радіокнопка з id="${id}" потребує <label for="${id}">.` };
+      }
+      const checkbox = form.querySelector('input[type="checkbox"]#agree');
+      if (!checkbox) return { pass: false, message: 'Потрібен чекбокс з id="agree".' };
+      if (!form.querySelector('label[for="agree"]')) return { pass: false, message: 'Потрібен <label for="agree"> для чекбоксу.' };
+      return { pass: true, message: "Однаковий name перетворює окремі radio на взаємовиключну групу — так браузер знає, що вони пов'язані." };
+    },
+  },
+  {
+    id: "html-29",
+    title: "Типи input: email, number, date, range, color, file",
+    theory:
+      "Атрибут type у <input> сильно змінює поведінку поля: браузер сам показує потрібну клавіатуру на мобільному, вбудовану валідацію чи спеціальний UI. email — перевіряє формат адреси, number — лише цифри зі стрілками, date — календар, range — повзунок, color — палітра кольору, file — вибір файлу з диска.",
+    example: { code: `<input type="email" name="email">\n<input type="date" name="birthday">`, explain: "Кожен тип автоматично дає відповідний інтерфейс уводу, без жодного JavaScript." },
+    task: 'Створи form із шістьма input: type="email" name="email", type="number" name="age", type="date" name="birthday", type="range" name="volume", type="color" name="theme", type="file" name="avatar".',
+    starter: "",
+    hints: [
+      "Шість окремих input, кожен зі своїм унікальним поєднанням type і name.",
+      "Порядок полів не важливий, важливі самі пари type/name.",
+      'Приклад: <form><input type="email" name="email"><input type="number" name="age"><input type="date" name="birthday"><input type="range" name="volume"><input type="color" name="theme"><input type="file" name="avatar"></form>',
+    ],
+    solution: `<form>\n  <input type="email" name="email">\n  <input type="number" name="age">\n  <input type="date" name="birthday">\n  <input type="range" name="volume">\n  <input type="color" name="theme">\n  <input type="file" name="avatar">\n</form>`,
+    type: "html",
+    check: (doc) => {
+      const form = doc.querySelector("form");
+      if (!form) return { pass: false, message: "Потрібен тег <form>." };
+      const pairs = [["email", "email"], ["number", "age"], ["date", "birthday"], ["range", "volume"], ["color", "theme"], ["file", "avatar"]];
+      for (const [type, name] of pairs) {
+        if (!form.querySelector(`input[type="${type}"][name="${name}"]`))
+          return { pass: false, message: `Потрібен <input type="${type}" name="${name}">.` };
+      }
+      return { pass: true, message: "Правильний type — це вбудована валідація й зручність без жодного рядка JavaScript." };
+    },
+  },
+  {
+    id: "html-30",
+    title: "Валідація форм: required, pattern, min, max",
+    theory:
+      "HTML вміє валідувати форму ще ДО відправки на сервер, без JavaScript: required — поле обов'язкове, pattern — значення має відповідати регулярному виразу, min/max — межі для чисел чи дат. Браузер сам покаже підказку й не дасть відправити форму, поки умови не виконані.",
+    example: { code: `<input type="text" required placeholder="Обов'язкове поле">\n<input type="number" min="18" max="99">`, explain: "Форма не відправиться, доки required-поле порожнє чи число поза межами min/max." },
+    task: 'Створи form з input type="text" name="username", атрибутом required і placeholder="Ім\'я користувача", а також input type="number" name="age" з min="18" і max="99".',
+    starter: "",
+    hints: [
+      "required пишеться без значення, просто як окреме слово в тегу.",
+      "min і max — атрибути з числовим значенням у лапках.",
+      'Приклад: <form><input type="text" name="username" required placeholder="Ім\'я користувача"><input type="number" name="age" min="18" max="99"></form>',
+    ],
+    solution: `<form>\n  <input type="text" name="username" required placeholder="Ім'я користувача">\n  <input type="number" name="age" min="18" max="99">\n</form>`,
+    type: "html",
+    check: (doc) => {
+      const form = doc.querySelector("form");
+      if (!form) return { pass: false, message: "Потрібен тег <form>." };
+      const username = form.querySelector('input[name="username"]');
+      if (!username) return { pass: false, message: 'Потрібен input з name="username".' };
+      if (!username.hasAttribute("required")) return { pass: false, message: "Поле username має мати атрибут required." };
+      if (username.getAttribute("placeholder") !== "Ім'я користувача") return { pass: false, message: 'placeholder має дорівнювати "Ім\'я користувача".' };
+      const age = form.querySelector('input[name="age"]');
+      if (!age || age.getAttribute("min") !== "18" || age.getAttribute("max") !== "99")
+        return { pass: false, message: 'Поле age має мати min="18" і max="99".' };
+      return { pass: true, message: "Вбудована валідація HTML — перший, найпростіший рівень захисту від некоректних даних, ще до JavaScript чи сервера." };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
