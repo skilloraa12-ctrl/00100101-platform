@@ -4455,6 +4455,75 @@ const TERM_PAGES_V2 = {
     related: ["css-background", "css-box-model"],
   },
 
+  "css-variables": {
+    badge: "CSS",
+    title: "Custom properties (--змінні)",
+    whatIsIt: "CSS-змінні (custom properties) дозволяють зберегти значення один раз і використовувати його в багатьох місцях через var(). Оголошуються з подвійним дефісом на початку, зазвичай на :root для глобального доступу, і можуть перевизначатись для будь-якого піддерева елементів.",
+    useCases: ["єдина палітра кольорів проєкту, яку легко змінити в одному місці", "перемикання теми (світла/темна) через перевизначення змінних", "повторювані значення відступів чи розмірів шрифту"],
+    syntax: `:root {\n  --main-color: #7c3aed;\n}\n.box { color: var(--main-color); }`,
+    attributes: [
+      { name: "--назва: значення", desc: "оголошення змінної — назва довільна, значення будь-яке CSS-значення" },
+      { name: "var(--назва)", desc: "читає значення змінної" },
+      { name: "var(--назва, запасне)", desc: "друге значення — запасне, якщо змінна не визначена" },
+      { name: ":root", desc: "псевдоклас кореневого елемента, типове місце для глобальних змінних" },
+    ],
+    example: `<style>
+  :root { --accent: #7c3aed; }
+  .btn { background: var(--accent); color: white; padding: 8px 16px; border: none; border-radius: 6px; }
+  .btn.alt { --accent: #0ea5e9; }
+</style>
+<button class="btn">Звичайна</button>
+<button class="btn alt">Перевизначена змінна</button>`,
+    pitfalls: [
+      "CSS-змінні (на відміну від Sass-змінних) — це справжні runtime-значення, доступні й змінювані через JavaScript (element.style.setProperty).",
+      "Змінна, оголошена всередині селектора, доступна лише в межах цього елемента й нащадків, не глобально.",
+      "Друкарська помилка в назві змінної не викликає помилку CSS — просто властивість тихо не застосується.",
+    ],
+    related: ["css-calc-clamp", "css-at-rules"],
+  },
+  "css-calc-clamp": {
+    badge: "CSS",
+    title: "calc(), min(), max(), clamp()",
+    whatIsIt: "Математичні CSS-функції дозволяють обчислювати значення прямо в стилях, комбінуючи різні одиниці виміру. calc() виконує арифметику, min()/max() обирають менше/більше з варіантів, а clamp() тримає значення в заданих межах — ідеально для адаптивних розмірів без медіа-запитів.",
+    useCases: ["ширина колонки мінус фіксований відступ (calc(100% - 40px))", "адаптивний розмір шрифту без @media (clamp)", "відступ, що не менший і не більший заданих меж"],
+    syntax: `.box {\n  width: calc(100% - 40px);\n  font-size: clamp(1rem, 2vw + 0.5rem, 2rem);\n}`,
+    attributes: [
+      { name: "calc(a + b)", desc: "виконує арифметику з різними одиницями, напр. calc(100% - 20px)" },
+      { name: "min(a, b)", desc: "обирає менше з переданих значень" },
+      { name: "max(a, b)", desc: "обирає більше з переданих значень" },
+      { name: "clamp(min, preferred, max)", desc: "тримає значення в межах min-max, за замовчуванням — preferred" },
+    ],
+    example: `<div style="width:calc(100% - 40px);margin:0 auto;padding:10px;background:#f4f4f4;border-radius:6px;">
+  <p style="font-size:clamp(14px, 4vw, 22px);">Цей текст масштабується плавно між 14px і 22px залежно від ширини екрана.</p>
+</div>`,
+    pitfalls: [
+      "Пробіли навколо + і - в calc() обов'язкові (calc(100% - 10px), не calc(100%-10px)) — інакше правило зламається.",
+      "clamp() з неправильним порядком аргументів (min > max) дає непередбачуваний результат.",
+      "Забагато вкладених calc()/var() ускладнює читання й дебаг стилів.",
+    ],
+    related: ["css-units", "css-variables"],
+  },
+  "css-logical-properties": {
+    badge: "CSS",
+    title: "Логічні властивості (margin-inline, inset-block...)",
+    whatIsIt: "Логічні властивості задають відступи й позицію відносно напрямку письма (inline — горизонтальний потік тексту, block — вертикальний), а не фіксованих сторін left/right/top/bottom. Це критично важливо для коректної роботи з мовами, де текст іде справа наліво (арабська, іврит).",
+    useCases: ["сайт, що підтримує кілька мов з різним напрямком письма", "компоненти бібліотек, які мають однаково коректно виглядати в ltr і rtl", "сучасна заміна margin-left/right на margin-inline-start/end"],
+    syntax: `.box {\n  margin-inline: 16px;\n  padding-block: 8px;\n}`,
+    attributes: [
+      { name: "margin-inline / padding-inline", desc: "відступи по горизонтальному напрямку письма (замість left/right)" },
+      { name: "margin-block / padding-block", desc: "відступи по вертикальному напрямку письма (замість top/bottom)" },
+      { name: "inset-inline-start / inset-inline-end", desc: "позиція відносно початку/кінця напрямку письма, а не фіксовано left/right" },
+      { name: "border-inline / border-block", desc: "рамка по відповідному напрямку" },
+    ],
+    example: `<div dir="ltr" style="margin-inline:20px;padding:10px;background:#ede9fe;border-radius:6px;margin-bottom:8px;">dir="ltr": відступ зліва</div>
+<div dir="rtl" style="margin-inline:20px;padding:10px;background:#dbeafe;border-radius:6px;">dir="rtl": той самий код, відступ автоматично справа</div>`,
+    pitfalls: [
+      "Змішування логічних (margin-inline) і фізичних (margin-left) властивостей для того самого відступу — можуть конфліктувати.",
+      "Не всі старі браузери підтримують логічні властивості — перевіряй сумісність для критичних проєктів.",
+    ],
+    related: ["css-box-model", "css-position"],
+  },
+
 };
 
 const TERM_GUIDES = {
