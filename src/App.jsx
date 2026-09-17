@@ -1228,6 +1228,20 @@ const SYMBOLS = [
   { cat: "CSS: Інше", sym: "will-change", en: "Will change", ua: "Підказка про майбутню зміну", langs: "CSS", example: "will-change: transform;", explain: "Підказує браузеру заздалегідь оптимізувати рендеринг властивості, що скоро зміниться (анімація)." },
   { cat: "CSS: Інше", sym: "writing-mode / direction", en: "Text direction/writing mode", ua: "Напрямок і режим письма", langs: "CSS", example: "writing-mode: vertical-rl;", explain: "Керують напрямком тексту й вертикальним/горизонтальним режимом письма (для East Asian мов)." },
 
+  { cat: "CSS: Одиниці виміру", sym: "px / pt / pc / in / cm / mm", en: "Absolute units", ua: "Абсолютні одиниці", langs: "CSS", example: "width: 16px;", explain: "Фіксовані одиниці, що не залежать від контексту — px найпоширеніша для екранів." },
+  { cat: "CSS: Одиниці виміру", sym: "% / em / rem", en: "Relative size units", ua: "Відносні одиниці розміру", langs: "CSS", example: "font-size: 1.2rem;", explain: "% — відносно батька, em — відносно шрифту поточного елемента, rem — відносно кореневого <html>." },
+  { cat: "CSS: Одиниці виміру", sym: "vw / vh / vmin / vmax", en: "Viewport units", ua: "Одиниці вікна перегляду", langs: "CSS", example: "height: 100vh;", explain: "Відсоток від ширини/висоти вікна браузера — зручно для елементів на весь екран." },
+  { cat: "CSS: Одиниці виміру", sym: "svw/svh / lvw/lvh / dvw/dvh", en: "Dynamic viewport units", ua: "Динамічні одиниці вікна", langs: "CSS", example: "height: 100dvh;", explain: "Враховують зникнення адресного рядка на мобільних (dvh = справжня видима висота)." },
+  { cat: "CSS: Одиниці виміру", sym: "ch / ex / cap / ic / lh", en: "Font-relative units", ua: "Одиниці відносно шрифту", langs: "CSS", example: "width: 40ch;", explain: "ch — ширина символу '0' поточного шрифту, lh — висота рядка, зручно для читабельної ширини тексту." },
+  { cat: "CSS: Одиниці виміру", sym: "deg / grad / rad / turn", en: "Angle units", ua: "Одиниці кута", langs: "CSS", example: "transform: rotate(0.5turn);", explain: "Одиниці для кутів у rotate/gradient — градуси, градіани, радіани, повні оберти." },
+  { cat: "CSS: Одиниці виміру", sym: "s / ms", en: "Time units", ua: "Одиниці часу", langs: "CSS", example: "transition-duration: 300ms;", explain: "Секунди й мілісекунди для transition/animation." },
+  { cat: "CSS: Змінні", sym: "--variable", en: "Custom property", ua: "Власна властивість (змінна)", langs: "CSS", example: "--main-color: #7c3aed;", explain: "Оголошує CSS-змінну, зазвичай на :root для глобального доступу." },
+  { cat: "CSS: Змінні", sym: "var()", en: "Var function", ua: "Функція читання змінної", langs: "CSS", example: "color: var(--main-color, black);", explain: "Читає значення CSS-змінної, з опціональним запасним значенням." },
+  { cat: "CSS: Значення", sym: "inherit / initial / unset / revert", en: "CSS-wide keywords", ua: "Глобальні ключові слова CSS", langs: "CSS", example: "color: inherit;", explain: "inherit бере значення від батька, initial — стандартне значення браузера, unset/revert — скидають до природного стану." },
+  { cat: "CSS: Специфічність", sym: "!important", en: "Important flag", ua: "Позначка найвищого пріоритету", langs: "CSS", example: "color: red !important;", explain: "Робить правило пріоритетнішим за майже все інше — використовувати обережно." },
+  { cat: "CSS: Логічні властивості", sym: "margin-inline / padding-inline / margin-block / padding-block", en: "Logical spacing properties", ua: "Логічні властивості відступів", langs: "CSS", example: "margin-inline: 10px;", explain: "Відступи відносно напрямку письма (inline/block), а не фіксованих left/right — коректно працюють з rtl-мовами." },
+  { cat: "CSS: Логічні властивості", sym: "inset-inline / inset-block", en: "Logical position offsets", ua: "Логічні зміщення позиції", langs: "CSS", example: "inset-inline-start: 0;", explain: "Зміщення позиціонованого елемента відносно напрямку письма замість фіксованих left/right/top/bottom." },
+
 ];
 
 const LIBRARY_HTML = [
