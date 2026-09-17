@@ -29,7 +29,7 @@
   py-comprehension, sql-join, html-input, html-label, html-list,
   html-header, html-nav, html-main, html-footer, html-section, js-array,
   js-object, css-flexbox, html-form, py-list, sql-select`
-- **TERM_PAGES_V2** (127 записів: 117 HTML + 10 CSS) — НАЙБАГАТШИЙ формат:
+- **TERM_PAGES_V2** (146 записів: 117 HTML + 29 CSS) — НАЙБАГАТШИЙ формат:
   бічна навігація, badge+назва, "Що це", "Для чого", синтаксис, таблиця
   атрибутів, **живий iframe-приклад** (реальний HTML+CSS+JS, що виконується),
   типові помилки, пов'язані елементи.
@@ -39,17 +39,28 @@
     (b/i/small/abbr/cite/time/...), медіа/вбудований вміст
     (iframe/figure/map/...), інтерактивність (dialog/details/canvas/svg),
     a/div/span/menu, і застарілі теги компактно з приміткою "уникай".
-  - **CSS — розпочато** (10 записів, id з префіксом `css-`): css-selectors,
-    css-box-model, css-flexbox, css-grid, css-pseudo-classes,
-    css-pseudo-elements, css-colors-gradients, css-transform,
-    css-animation-transition, css-at-rules. Кожен термін групує споріднені
+  - **CSS — повністю завершено** (29 записів, id з префіксом `css-`):
+    селектори/псевдокласи/псевдоелементи, box model, position,
+    display/overflow, flexbox, grid, кольори/градієнти/фон/рамки/тіні,
+    текст/списки, одиниці виміру/змінні/calc()/clamp()/логічні властивості,
+    transform/transition/animation, filter/backdrop-filter/mask/clip-path/
+    object-fit, cursor/pointer-events/scroll-snap/колонки/таблиці/
+    лічильники/outline/appearance, @-правила. Кожен термін групує споріднені
     властивості (напр. `css-animation-transition` = і transition, і
-    animation+@keyframes разом), як і радив попередній автор цього файлу.
-    **Наступний крок**: розширити CSS-розділ — одиниці виміру (px/%/rem/vw),
-    position, overflow, display (block/inline/none), text-властивості
-    (font, line-height, text-align), background-властивості окремо від
-    градієнтів, filter/backdrop-filter, custom properties (--змінні, var()),
-    calc()/clamp(), логічні властивості (margin-inline тощо).
+    animation+@keyframes разом) — так і задумано від самого початку.
+
+  REF_NAV тепер дворівневий: спочатку список розділів (HTML, CSS,
+  JavaScript, English for IT, Frontend, Python, SQL, Backend, Full Stack —
+  як у сайдбарі курсів), і лише після кліку на розділ розкриваються його
+  групи термінів. Розділи без вмісту в TERM_PAGES_V2 показують позначку
+  "скоро" замість порожнього дерева — так додавати нові мови буде просто:
+  додай ключ у `REF_NAV` і наповнюй.
+
+  **Наступний крок**: JavaScript — за тим самим підходом (групувати
+  споріднені API/методи в один термін): оператори, масиви/рядки/об'єкти,
+  DOM API, events, Promise/async/fetch, класи, регулярні вирази. Потім по
+  черзі Python, SQL, SVG, Backend, Frontend — весь список уже є в SYMBOLS
+  (882 картки), TERM_PAGES_V2 — це поглиблена версія найважливіших з них.
 
 ## Точна схема TERM_PAGES_V2 (найважливіший формат — саме його хоче користувач для всього)
 

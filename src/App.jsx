@@ -1870,7 +1870,15 @@ const REF_NAV = {
     "Застарілі (уникай)": ["font", "center", "big", "strike", "tt", "acronym", "applet", "basefont", "dir", "frame", "frameset", "noframes"],
   },
   CSS: {
-    "Основи": ["css-selectors", "css-box-model", "css-flexbox", "css-grid", "css-pseudo-classes", "css-pseudo-elements", "css-colors-gradients", "css-transform", "css-animation-transition", "css-at-rules"],
+    "Селектори і псевдо": ["css-selectors", "css-pseudo-classes", "css-pseudo-elements"],
+    "Box model і layout": ["css-box-model", "css-position", "css-display-overflow", "css-flexbox", "css-grid"],
+    "Кольори, фон, рамки": ["css-colors-gradients", "css-background", "css-borders", "css-shadows"],
+    "Текст і списки": ["css-text", "css-lists"],
+    "Одиниці, змінні, функції": ["css-units", "css-variables", "css-calc-clamp", "css-logical-properties"],
+    "Transform і анімація": ["css-transform", "css-animation-transition"],
+    "Візуальні ефекти": ["css-filter-backdrop", "css-mask-clip", "css-object-fit"],
+    "Взаємодія та інше": ["css-cursor-interaction", "css-scroll", "css-columns-table", "css-content-counters", "css-misc-properties"],
+    "@-правила": ["css-at-rules"],
   },
   JavaScript: {},
   "English for IT": {},
@@ -4594,6 +4602,111 @@ const TERM_PAGES_V2 = {
       "cursor: pointer на елементі без реальної дії (не посилання/кнопка) вводить користувача в оману.",
     ],
     related: ["css-filter-backdrop", "css-pseudo-classes"],
+  },
+
+  "css-scroll": {
+    badge: "CSS",
+    title: "scroll-behavior і scroll-snap",
+    whatIsIt: "scroll-behavior вмикає плавну анімовану прокрутку до якорів замість миттєвого стрибка. scroll-snap змушує прокрутку зупинятись рівно на заданих елементах — основа для каруселей і слайдерів без жодного JavaScript.",
+    useCases: ["плавний перехід до розділу сторінки за посиланням-якорем", "карусель зображень, що клацає по одному слайду за раз", "горизонтальний список карток з чіткою зупинкою на кожній"],
+    syntax: `html { scroll-behavior: smooth; }\n.carousel {\n  display: flex;\n  overflow-x: auto;\n  scroll-snap-type: x mandatory;\n}\n.slide { scroll-snap-align: start; }`,
+    attributes: [
+      { name: "scroll-behavior: smooth", desc: "плавна анімована прокрутка замість миттєвої (для якорів і JS scrollTo)" },
+      { name: "scroll-snap-type", desc: "вмикає прилипання прокрутки по осі x чи y, mandatory — завжди зупиняється рівно" },
+      { name: "scroll-snap-align", desc: "на дочірньому елементі — до якого краю він прилипає (start, center, end)" },
+      { name: "scroll-margin / scroll-padding", desc: "компенсують фіксовану шапку при переході до якоря чи snap-елемента" },
+    ],
+    example: `<div style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;padding:8px;border:1px solid #ccc;border-radius:6px;">
+  <div style="min-width:80%;scroll-snap-align:start;background:#7c3aed;color:white;padding:20px;border-radius:6px;text-align:center;">Слайд 1</div>
+  <div style="min-width:80%;scroll-snap-align:start;background:#0ea5e9;color:white;padding:20px;border-radius:6px;text-align:center;">Слайд 2</div>
+  <div style="min-width:80%;scroll-snap-align:start;background:#10b981;color:white;padding:20px;border-radius:6px;text-align:center;">Слайд 3</div>
+</div>
+<p style="font-size:13px;color:#666;">Прокрути горизонтально — зупинка чітко на кожному слайді.</p>`,
+    pitfalls: [
+      "scroll-snap-type: mandatory може заважати звичайній вільній прокрутці, якщо застосований необдумано на весь layout.",
+      "Забутий scroll-snap-align на дочірніх елементах — контейнер має snap-type, але нічого не прилипає.",
+      "scroll-behavior: smooth ігнорується для prefers-reduced-motion — це навмисна поведінка для доступності.",
+    ],
+    related: ["css-flexbox", "css-position"],
+  },
+  "css-columns-table": {
+    badge: "CSS",
+    title: "columns і border-collapse",
+    whatIsIt: "columns розбиває текстовий вміст на кілька газетних колонок автоматично, без ручного поділу на блоки. border-collapse керує тим, як з'єднуються рамки сусідніх комірок таблиці — окремо чи однією спільною лінією.",
+    useCases: ["газетна верстка довгого тексту в кілька колонок", "акуратна таблиця з тонкими спільними рамками замість подвійних"],
+    syntax: `.article { columns: 3; column-gap: 24px; }\ntable { border-collapse: collapse; }`,
+    attributes: [
+      { name: "columns / column-count / column-width", desc: "кількість колонок чи бажана ширина однієї колонки" },
+      { name: "column-gap", desc: "проміжок між колонками" },
+      { name: "column-rule", desc: "роздільна лінія між колонками, як border" },
+      { name: "border-collapse", desc: "collapse об'єднує сусідні рамки комірок в одну лінію, separate — типова поведінка" },
+      { name: "border-spacing", desc: "відступ між комірками при border-collapse: separate" },
+    ],
+    example: `<div style="columns:2;column-gap:20px;column-rule:1px solid #ccc;font-size:13px;">
+  <p>Це довгий текст, який автоматично розбивається на дві колонки завдяки властивості columns, без жодних додаткових обгорток у HTML.</p>
+</div>
+<table style="border-collapse:collapse;margin-top:10px;font-size:13px;">
+  <tr><td style="border:1px solid #ccc;padding:6px;">1</td><td style="border:1px solid #ccc;padding:6px;">2</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:6px;">3</td><td style="border:1px solid #ccc;padding:6px;">4</td></tr>
+</table>`,
+    pitfalls: [
+      "columns погано контролює, ДЕ саме розіб'ється контент — для точного контролю потрібен break-inside: avoid на блоках.",
+      "Забутий border-collapse: collapse — у таблиці подвійні рамки між сусідніми комірками.",
+    ],
+    related: ["css-box-model", "css-flexbox"],
+  },
+  "css-content-counters": {
+    badge: "CSS",
+    title: "content, counter-reset, counter-increment",
+    whatIsIt: "CSS-лічильники автоматично нумерують елементи без ручного проставляння чисел у HTML — corisно для розділів документації, кастомних списків. content разом з attr() також дозволяє вставляти значення HTML-атрибута прямо в стилі.",
+    useCases: ["автоматична нумерація розділів статті (1. 1.1. 1.2. 2. ...)", "власний стиль нумерації списку замість стандартного ol", "показ значення data-атрибута як підказки через content: attr()"],
+    syntax: `body { counter-reset: section; }\nh2::before {\n  counter-increment: section;\n  content: counter(section) ". ";\n}`,
+    attributes: [
+      { name: "counter-reset", desc: "створює й обнуляє лічильник з заданим ім'ям" },
+      { name: "counter-increment", desc: "збільшує лічильник на 1 кожного разу, коли зустрічається селектор" },
+      { name: "counter(назва)", desc: "виводить поточне значення лічильника в content" },
+      { name: "counters(назва, роздільник)", desc: "виводить вкладені лічильники з роздільником, напр. \"1.2.3\"" },
+      { name: "attr(назва)", desc: "вставляє значення HTML-атрибута елемента прямо в content" },
+    ],
+    example: `<style>
+  .list { counter-reset: item; list-style: none; padding: 0; }
+  .list li { counter-increment: item; }
+  .list li::before { content: counter(item) ") "; color: #7c3aed; font-weight: bold; }
+</style>
+<ul class="list">
+  <li>Перший пункт</li>
+  <li>Другий пункт</li>
+  <li>Третій пункт</li>
+</ul>`,
+    pitfalls: [
+      "counter-reset потрібен на спільному предку, інакше лічильник створюється заново для кожного елемента.",
+      "Забутий counter-increment — числа не збільшуються, завжди показують стартове значення.",
+    ],
+    related: ["css-pseudo-elements", "css-lists"],
+  },
+  "css-misc-properties": {
+    badge: "CSS",
+    title: "outline, appearance, isolation, will-change",
+    whatIsIt: "Збірка корисних, але рідше згадуваних властивостей: outline — контур навколо елемента, що не впливає на layout (типово для :focus), appearance прибирає нативний ОС-вигляд елементів форми, isolation ізолює stacking context, will-change підказує браузеру заздалегідь оптимізувати рендеринг.",
+    useCases: ["видима рамка фокуса для клавіатурної навігації (outline)", "повна кастомізація вигляду select/checkbox (appearance: none)", "оптимізація продуктивності перед складною анімацією (will-change)"],
+    syntax: `button:focus-visible {\n  outline: 2px solid #7c3aed;\n  outline-offset: 2px;\n}`,
+    attributes: [
+      { name: "outline / outline-offset", desc: "контур навколо елемента й відступ від його країв, не впливає на розмір блоку" },
+      { name: "appearance: none", desc: "прибирає нативний вигляд ОС для select/checkbox/radio, відкриваючи повну кастомізацію через CSS" },
+      { name: "isolation: isolate", desc: "створює новий stacking context, ізолюючи z-index/mix-blend-mode від решти сторінки" },
+      { name: "will-change", desc: "підказує браузеру заздалегідь оптимізувати рендеринг властивості, що скоро анімується" },
+      { name: "writing-mode", desc: "керує напрямком тексту — горизонтальний чи вертикальний (для East Asian мов)" },
+    ],
+    example: `<button style="padding:8px 16px;border:1px solid #ccc;border-radius:6px;outline:2px solid #7c3aed;outline-offset:3px;">Кнопка з видимим outline</button>
+<select style="appearance:none;padding:8px 30px 8px 12px;border:1px solid #ccc;border-radius:6px;margin-left:10px;background:white;">
+  <option>Кастомізований select</option>
+</select>`,
+    pitfalls: [
+      "Видалення outline через outline: none без заміни на власний стиль фокуса — серйозна проблема доступності для клавіатурної навігації.",
+      "appearance: none на select прибирає й стрілку — доведеться домальовувати власну через фон чи псевдоелемент.",
+      "will-change на занадто багатьох елементах витрачає пам'ять браузера замість покращення продуктивності.",
+    ],
+    related: ["css-pseudo-classes", "css-cursor-interaction"],
   },
 
 };
