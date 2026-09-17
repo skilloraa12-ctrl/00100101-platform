@@ -5195,6 +5195,98 @@ const TERM_PAGES_V2 = {
     related: ["js-operators", "js-arrays"],
   },
 
+  "js-classes": {
+    badge: "JS",
+    title: "class, constructor, extends",
+    whatIsIt: "class — синтаксичний цукор над прототипним наслідуванням JavaScript, зручний спосіб описати «шаблон» для створення однотипних об'єктів з даними (полями) і поведінкою (методами).",
+    useCases: ["модель даних з поведінкою (напр. клас User з методами)", "наслідування спільної логіки між схожими сутностями", "інкапсуляція внутрішнього стану через приватні поля"],
+    syntax: `class User {\n  constructor(name) {\n    this.name = name;\n  }\n  greet() {\n    return \`Привіт, \${this.name}\`;\n  }\n}`,
+    attributes: [
+      { name: "constructor", desc: "спеціальний метод, що викликається автоматично при new ClassName()" },
+      { name: "extends / super", desc: "extends задає батьківський клас, super() викликає його конструктор" },
+      { name: "static", desc: "метод/поле належить самому класу, а не окремому екземпляру" },
+      { name: "get / set", desc: "створюють обчислювану властивість, що виглядає як звичайне поле" },
+      { name: "#privateField", desc: "поле з #, доступне лише всередині самого класу" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  class Animal {
+    constructor(name) { this.name = name; }
+    speak() { return this.name + ' видає звук'; }
+  }
+  class Dog extends Animal {
+    speak() { return super.speak() + ' (гав!)'; }
+  }
+  const d = new Dog('Рекс');
+  document.getElementById('out').textContent = d.speak();
+<\/script>`,
+    pitfalls: [
+      "Забутий super() у конструкторі дочірнього класу — ReferenceError при спробі використати this.",
+      "Стрілкові функції як методи класу поводяться інакше з this, ніж звичайні методи — плутанина при наслідуванні.",
+      "class — це не «справжні» класи як у Java, а прототипне наслідування з іншим синтаксисом.",
+    ],
+    related: ["js-functions", "js-modules"],
+  },
+  "js-modules": {
+    badge: "JS",
+    title: "import / export",
+    whatIsIt: "ES-модулі дозволяють розділити код на окремі файли й підключати потрібні частини одна в одну — export робить щось доступним ззовні файлу, import підключає це в іншому файлі.",
+    useCases: ["розділення великого застосунку на логічні файли", "перевикористання функцій/компонентів між файлами", "підключення сторонніх бібліотек з npm"],
+    syntax: `// utils.js\nexport function sum(a, b) { return a + b; }\n\n// main.js\nimport { sum } from './utils.js';`,
+    attributes: [
+      { name: "export", desc: "робить іменований експорт доступним для імпорту в інших файлах" },
+      { name: "export default", desc: "один головний експорт файлу — імпортується без фігурних дужок і під будь-яким ім'ям" },
+      { name: "import { a, b } from '...'", desc: "підключає конкретні іменовані експорти" },
+      { name: "import * as ns from '...'", desc: "підключає всі експорти файлу як один об'єкт-простір імен" },
+      { name: "import()", desc: "динамічний імпорт — повертає Promise, завантажує модуль лише коли потрібно" },
+    ],
+    example: `<p id="out">Модулі перевіряються під час збірки (Vite), у прикладі показано лише синтаксис:</p>
+<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">// math.js
+export const PI = 3.14;
+export default function square(x) { return x * x; }
+
+// main.js
+import square, { PI } from './math.js';
+console.log(square(4), PI); // 16 3.14</pre>`,
+    pitfalls: [
+      "Змішування CommonJS (require/module.exports, Node.js) з ES-модулями (import/export) в одному файлі — не поєднуються напряму.",
+      "export default і export {} — різний синтаксис імпорту, легко переплутати фігурні дужки.",
+      "Циклічні імпорти (файли, що імпортують один одного) можуть давати undefined замість очікуваного значення.",
+    ],
+    related: ["js-classes"],
+  },
+  "js-errors": {
+    badge: "JS",
+    title: "try/catch, throw, Error",
+    whatIsIt: "Механізм обробки помилок: try виконує потенційно небезпечний код, catch ловить помилку, якщо вона сталась, finally виконується завжди. throw дозволяє самому згенерувати помилку.",
+    useCases: ["обробка помилок мережевого запиту", "валідація вхідних даних з власними повідомленнями", "запобігання падінню всього застосунку через одну помилку"],
+    syntax: `try {\n  riskyOperation();\n} catch (e) {\n  console.error(e.message);\n} finally {\n  cleanup();\n}`,
+    attributes: [
+      { name: "try / catch / finally", desc: "try — небезпечний код, catch — обробка помилки, finally — виконується завжди" },
+      { name: "throw", desc: "генерує помилку, яку можна впіймати вище через try/catch" },
+      { name: "Error / TypeError / RangeError", desc: "вбудовані класи помилок для різних ситуацій" },
+      { name: "e.message / e.name", desc: "текст помилки й назва її типу всередині об'єкта помилки" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  function divide(a, b) {
+    if (b === 0) throw new Error('Ділення на нуль!');
+    return a / b;
+  }
+  try {
+    document.getElementById('out').textContent = divide(10, 0);
+  } catch (e) {
+    document.getElementById('out').textContent = 'Помилка: ' + e.message;
+  }
+<\/script>`,
+    pitfalls: [
+      "try/catch не ловить помилки в асинхронному коді без await (напр. усередині setTimeout чи неочікуваного Promise).",
+      "Порожній catch (е) {} приховує реальну помилку — мінімум залоговуй її через console.error.",
+      "throw довільного значення (не Error) втрачає stack trace — завжди throw new Error(...).",
+    ],
+    related: ["js-functions"],
+  },
+
 };
 
 const TERM_GUIDES = {
