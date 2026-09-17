@@ -7206,6 +7206,93 @@ asyncio.run(main())</pre>
     related: ["js-async-await"],
   },
 
+  "py-stdlib-collections": {
+    badge: "Python",
+    title: "collections: Counter, defaultdict, deque",
+    whatIsIt: "Модуль collections надає спеціалізовані контейнери, що розширюють можливості звичайних list/dict: Counter рахує входження елементів, defaultdict автоматично створює значення за замовчуванням для нових ключів, deque — ефективна черга з обох кінців.",
+    useCases: ["підрахунок частоти слів чи елементів у тексті (Counter)", "групування даних без перевірки наявності ключа (defaultdict)", "черга з ефективним додаванням/видаленням з обох кінців (deque)"],
+    syntax: `from collections import Counter\nCounter(["a", "b", "a", "c", "a"])`,
+    attributes: [
+      { name: "Counter(iterable)", desc: "рахує входження кожного елемента, .most_common(n) — топ-N найчастіших" },
+      { name: "defaultdict(list)", desc: "словник, що автоматично створює порожній список для нового ключа замість KeyError" },
+      { name: "deque", desc: "двостороння черга — appendleft()/popleft() ефективні на відміну від звичайного списку" },
+      { name: "namedtuple", desc: "легкий незмінюваний клас-контейнер із іменованими полями" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from collections import Counter
+
+words = "кіт собака кіт папуга кіт собака".split()
+counts = Counter(words)
+print(counts.most_common(2))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">[('кіт', 3), ('собака', 2)]</pre>`,
+    pitfalls: [
+      "Спроба звернутись до неіснуючого ключа звичайного dict кидає KeyError — саме цю проблему вирішує defaultdict, автоматично створюючи значення.",
+      "deque ефективний для операцій з КІНЦІВ, але не для довільного доступу за індексом посередині — для цього звичайний список швидший.",
+    ],
+    related: ["py-dicts", "py-stdlib-itertools-functools"],
+  },
+  "py-stdlib-itertools-functools": {
+    badge: "Python",
+    title: "itertools і functools",
+    whatIsIt: "itertools надає ефективні інструменти для роботи з ітераціями — комбінації, перестановки, нескінченні послідовності. functools — функціональні інструменти: reduce (згортка), lru_cache (кешування), partial (часткове застосування аргументів).",
+    useCases: ["генерація всіх комбінацій/перестановок елементів", "згортання списку в одне значення (аналог reduce в JS)", "кешування результатів «важкої» функції для повторних викликів з тими самими аргументами"],
+    syntax: `from itertools import combinations\nfrom functools import reduce, lru_cache`,
+    attributes: [
+      { name: "itertools.combinations(iterable, r)", desc: "усі комбінації по r елементів, без урахування порядку" },
+      { name: "itertools.permutations(iterable)", desc: "усі перестановки елементів" },
+      { name: "itertools.chain(a, b)", desc: "об'єднує кілька ітерованих об'єктів в один потік" },
+      { name: "functools.reduce(fn, iterable)", desc: "згортає послідовність в одне значення через послідовне застосування fn" },
+      { name: "@functools.lru_cache", desc: "кешує результати функції — повторний виклик з тими самими аргументами миттєвий" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from functools import reduce
+from itertools import combinations
+
+nums = [1, 2, 3, 4]
+total = reduce(lambda a, b: a + b, nums)
+print(total)
+
+pairs = list(combinations([1, 2, 3], 2))
+print(pairs)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">10
+[(1, 2), (1, 3), (2, 3)]</pre>`,
+    pitfalls: [
+      "Функції itertools повертають ІТЕРАТОРИ, а не списки — для списку потрібно обгорнути в list(...), і перебрати їх можна лише ОДИН раз.",
+      "reduce() без початкового значення на порожній послідовності кидає TypeError.",
+    ],
+    related: ["py-stdlib-collections", "py-comprehensions"],
+  },
+  "py-stdlib-datetime": {
+    badge: "Python",
+    title: "datetime",
+    whatIsIt: "Модуль datetime для роботи з датою й часом — створення, форматування, обчислення різниці між датами. datetime.now() повертає поточну дату/час, timedelta представляє проміжок часу.",
+    useCases: ["показ поточної дати/часу", "обчислення кількості днів між двома датами", "форматування дати у зручний для читання вигляд"],
+    syntax: `from datetime import datetime, timedelta\nnow = datetime.now()`,
+    attributes: [
+      { name: "datetime.now()", desc: "повертає поточну дату й час" },
+      { name: "strftime(format)", desc: "форматує дату в рядок за шаблоном, напр. '%d.%m.%Y'" },
+      { name: "strptime(text, format)", desc: "розбирає рядок у дату за шаблоном (зворотне до strftime)" },
+      { name: "timedelta(days=7)", desc: "представляє проміжок часу — можна додавати/віднімати від дат" },
+      { name: "date() / time()", desc: "лише дата чи лише час без другої частини" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from datetime import datetime, timedelta
+
+now = datetime(2024, 3, 15)
+formatted = now.strftime("%d.%m.%Y")
+next_week = now + timedelta(days=7)
+
+print(formatted)
+print(next_week.strftime("%d.%m.%Y"))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">15.03.2024
+22.03.2024</pre>`,
+    pitfalls: [
+      "datetime.now() не враховує часовий пояс за замовчуванням («наївний» об'єкт) — для проєктів з кількома часовими поясами потрібен datetime.now(timezone.utc).",
+      "Віднімання двох datetime дає timedelta, а не кількість днів напряму — потрібно .days для отримання числа.",
+    ],
+    related: [],
+  },
+
 };
 
 const TERM_GUIDES = {
