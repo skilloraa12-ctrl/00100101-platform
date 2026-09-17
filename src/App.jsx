@@ -4526,6 +4526,92 @@ export async function getStaticProps() {
     ],
     related: ["fe-react-basics"],
   },
+  "py-variables-types": {
+    badge: "Python",
+    title: "Змінні й типи даних",
+    whatIsIt: "У Python не потрібно оголошувати тип змінної явно — вона визначається автоматично при присвоєнні значення (динамічна типізація). Основні типи: int (ціле), float (дробове), str (рядок), bool (логічне), list, tuple, set, dict.",
+    useCases: ["зберігання будь-яких даних без явного оголошення типу", "перевірка типу значення перед обробкою", "перетворення між типами (int(), str(), float())"],
+    syntax: `age = 25\nname = "Оля"\nis_admin = True`,
+    attributes: [
+      { name: "int / float", desc: "ціле й дробове число" },
+      { name: "str", desc: "рядок — незмінна послідовність символів" },
+      { name: "bool", desc: "True / False (з великої літери!)" },
+      { name: "list / tuple", desc: "list — змінюваний список, tuple — незмінюваний" },
+      { name: "dict / set", desc: "dict — пари ключ-значення, set — унікальні елементи без порядку" },
+      { name: "type(x)", desc: "повертає тип значення x" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">age = 25
+name = "Оля"
+print(type(age))   # &lt;class 'int'&gt;
+print(type(name))  # &lt;class 'str'&gt;
+print(f"{name} має {age} років")</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">&lt;class 'int'&gt;
+&lt;class 'str'&gt;
+Оля має 25 років</pre>`,
+    pitfalls: [
+      "На відміну від JS, True/False пишуться з ВЕЛИКОЇ літери в Python (true/false — помилка).",
+      "Ціле ділення / завжди повертає float у Python 3 (5 / 2 = 2.5), для цілого результату потрібно //.",
+      "Змінні в Python — це посилання, тому list1 = list2 не копіює список, а створює друге ім'я для того самого об'єкта.",
+    ],
+    related: ["py-fstrings", "py-lists"],
+  },
+  "py-control-flow": {
+    badge: "Python",
+    title: "if/elif/else, for, while",
+    whatIsIt: "Керування потоком виконання коду в Python через відступи (indentation) замість фігурних дужок — блок коду визначається однаковим рівнем відступу, зазвичай 4 пробіли.",
+    useCases: ["умовне виконання коду залежно від значення", "перебір елементів списку чи іншої колекції", "повторення дій, поки виконується умова"],
+    syntax: `if age >= 18:\n    print("Дорослий")\nelif age >= 13:\n    print("Підліток")\nelse:\n    print("Дитина")`,
+    attributes: [
+      { name: "if / elif / else", desc: "умовні розгалуження; elif — скорочення від 'else if'" },
+      { name: "for x in iterable:", desc: "перебирає елементи списку, рядка, range тощо" },
+      { name: "while умова:", desc: "виконує блок, поки умова істинна" },
+      { name: "break / continue / pass", desc: "перервати цикл / пропустити ітерацію / нічого не робити (заглушка)" },
+      { name: "Відступи (4 пробіли)", desc: "визначають межі блоку коду — ЗАМІНА фігурних дужок" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">for i in range(5):
+    if i % 2 == 0:
+        continue
+    print(f"Непарне: {i}")</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Непарне: 1
+Непарне: 3</pre>`,
+    pitfalls: [
+      "Неправильний відступ (змішування пробілів і табів чи різна кількість пробілів у блоці) — IndentationError, найчастіша помилка новачків.",
+      "Забута двокрапка : в кінці рядка if/for/while — SyntaxError.",
+      "range(5) дає числа 0,1,2,3,4 — 5 НЕ включається, часте джерело помилок «off by one».",
+    ],
+    related: ["py-functions"],
+  },
+  "py-functions": {
+    badge: "Python",
+    title: "def, lambda, *args/**kwargs",
+    whatIsIt: "def оголошує функцію. lambda створює анонімну однорядкову функцію. *args збирає довільну кількість позиційних аргументів у кортеж, **kwargs — довільну кількість іменованих аргументів у словник.",
+    useCases: ["виділення повторюваної логіки в окрему функцію", "коротка функція для передачі як аргумент (sorted, map, filter)", "функція з гнучкою кількістю аргументів"],
+    syntax: `def greet(name, greeting="Привіт"):\n    return f"{greeting}, {name}!"\n\nsquare = lambda x: x ** 2`,
+    attributes: [
+      { name: "def name(params):", desc: "оголошує функцію" },
+      { name: "return", desc: "завершує функцію й повертає значення (без return — повертає None)" },
+      { name: "параметр=значення", desc: "значення за замовчуванням, якщо аргумент не переданий" },
+      { name: "lambda args: expr", desc: "анонімна однорядкова функція" },
+      { name: "*args", desc: "збирає позиційні аргументи в кортеж" },
+      { name: "**kwargs", desc: "збирає іменовані аргументи в словник" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">def total(*numbers, **options):
+    result = sum(numbers)
+    if options.get("double"):
+        result *= 2
+    return result
+
+print(total(1, 2, 3, double=True))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">12</pre>`,
+    pitfalls: [
+      "Змінюваний об'єкт (список) як значення параметра за замовчуванням (def f(items=[])) — ця сама заглушка спільна між усіма викликами, часте джерело багів.",
+      "Плутанина порядку: спершу звичайні параметри, потім *args, потім **kwargs — інший порядок дає SyntaxError.",
+    ],
+    related: ["py-control-flow", "py-classes"],
+  },
   "css-selectors": {
     badge: "CSS",
     title: "Селектори",
