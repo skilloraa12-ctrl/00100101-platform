@@ -6558,6 +6558,119 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     pitfalls: ["Термін неформальний — не варто використовувати в офіційній документації чи звітах, лише в розмовному контексті з командою."],
     related: ["eng-tech-debt"],
   },
+  "eng-legacy-code": {
+    badge: "English",
+    title: "legacy code",
+    whatIsIt: "Старий код, що вже працює в продакшені, часто без тестів і документації, написаний людьми, яких уже немає в команді. Не обов'язково поганий — просто старий, і його бояться чіпати.",
+    useCases: ["пояснення, чому зміна в старому модулі займає більше часу", "обговорення ризиків рефакторингу давно написаного коду"],
+    syntax: `This is legacy code from 2018 — nobody on the team fully understands it anymore.`,
+    attributes: [
+      { name: "legacy code", desc: "старий код у продакшені, часто без тестів чи документації" },
+      { name: "legacy system", desc: "те саме про цілу систему/сервіс, а не окремий шматок коду" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На плануванні:</b> "Let's be careful here — this touches legacy code with zero test coverage."
+</p>`,
+    pitfalls: ["«Legacy» не означає автоматично «поганий» — код може бути legacy, але цілком надійним і стабільним."],
+    related: ["eng-tech-debt", "eng-spaghetti-code"],
+  },
+  "eng-hotfix": {
+    badge: "English",
+    title: "hotfix",
+    whatIsIt: "Термінове виправлення критичного багу, що йде напряму в продакшн в обхід звичайного циклу розробки — коли щось зламалось прямо зараз і чекати наступного релізу не можна.",
+    useCases: ["опис термінового виправлення критичної помилки", "запит на пропуск звичайного процесу рев'ю через терміновість"],
+    syntax: `We need to ship a hotfix ASAP — payments are failing for all users.`,
+    attributes: [
+      { name: "hotfix", desc: "термінове виправлення, що йде напряму в продакшн" },
+      { name: "patch", desc: "менш терміновий синонім — будь-яке невелике виправлення" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У Slack:</b> "Pushing a hotfix now for the login bug — will backfill tests after."
+</p>`,
+    pitfalls: ["Hotfix зазвичай пропускає частину звичайних перевірок заради швидкості — після нього важливо повернутись і дописати тести."],
+    related: ["eng-tech-debt"],
+  },
+  "eng-wip": {
+    badge: "English",
+    title: "WIP (work in progress)",
+    whatIsIt: "Позначення, що робота ще не завершена — часто в назві Pull Request (щоб ніхто не змерджив завчасно) чи в статусі задачі.",
+    useCases: ["позначення незавершеного Pull Request", "статус задачі, над якою ще триває робота"],
+    syntax: `[WIP] Add user authentication — don't merge yet, still writing tests.`,
+    attributes: [
+      { name: "WIP", desc: "робота в процесі, ще не готова до злиття/рев'ю" },
+      { name: "draft PR", desc: "формальний еквівалент WIP у GitHub — чернетка PR, яку не можна змерджити" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Назва PR:</b> "WIP: refactor payment service — feedback welcome on the approach so far."
+</p>`,
+    pitfalls: ["WIP у назві — це неформальна конвенція; на GitHub краще використовувати офіційний статус Draft PR, який технічно блокує merge."],
+    related: ["eng-blocker"],
+  },
+  "eng-mvp": {
+    badge: "English",
+    title: "MVP (minimum viable product)",
+    whatIsIt: "Найпростіша версія продукту з мінімальним набором функцій, достатнім, щоб перевірити ідею на реальних користувачах, не витрачаючи місяці на «ідеальну» повну версію.",
+    useCases: ["обговорення, що включати в перший реліз, а що відкласти", "аргумент за спрощення фічі заради швидшого запуску"],
+    syntax: `Let's cut this down to an MVP — we can add the fancy filters later once we validate demand.`,
+    attributes: [
+      { name: "MVP", desc: "мінімальна робоча версія продукту для перевірки ідеї" },
+      { name: "ship the MVP", desc: "випустити цю мінімальну версію користувачам" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На плануванні:</b> "Do we really need dark mode in the MVP? Let's launch without it and see if anyone asks."
+</p>`,
+    pitfalls: ["MVP — це не «неякісний продукт», а свідомо звужений набір фіч; якість того, що ВХОДИТЬ у MVP, має бути нормальною."],
+    related: ["eng-poc-spike", "eng-scope-creep"],
+  },
+  "eng-poc-spike": {
+    badge: "English",
+    title: "POC / spike",
+    whatIsIt: "POC (proof of concept) — швидкий чорновий код, що перевіряє, чи взагалі можлива певна ідея технічно, без наміру довести його до продакшн-якості. Spike — схожий термін з Agile: обмежена в часі дослідницька задача.",
+    useCases: ["швидка перевірка технічної здійсненності перед повноцінною розробкою", "оцінка невідомої технології чи бібліотеки перед вибором"],
+    syntax: `I'll do a quick spike to see if this API even supports what we need before we commit to the approach.`,
+    attributes: [
+      { name: "POC (proof of concept)", desc: "чорновий код, що перевіряє технічну здійсненність ідеї" },
+      { name: "spike", desc: "обмежена в часі дослідницька задача (термін з Agile/Scrum)" },
+      { name: "throwaway code", desc: "код, написаний для POC/spike, який планово викидається, не йде в продакшн" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У задачі:</b> "Timeboxed spike: 1 day to determine if WebSockets will work with our current infra."
+</p>`,
+    pitfalls: ["Найчастіша пастка — POC-код «випадково» лишається жити в продакшені без рефакторингу, бо «ну він же вже працює»."],
+    related: ["eng-mvp"],
+  },
+  "eng-scope-creep": {
+    badge: "English",
+    title: "scope creep",
+    whatIsIt: "Поступове, часто непомітне розростання обсягу задачі понад початковий план — «а давай ще ось це додамо, це ж дрібниця» — доки маленька задача не перетворюється на місяць роботи.",
+    useCases: ["попередження про розширення задачі під час обговорення", "пояснення, чому проста на вигляд задача зайняла набагато більше часу"],
+    syntax: `Watch out for scope creep here — the ticket said "add a button," not "redesign the whole page."`,
+    attributes: [
+      { name: "scope creep", desc: "поступове непомітне розширення обсягу задачі" },
+      { name: "feature creep", desc: "той самий ефект, але конкретно про додавання нових функцій у продукт" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This PR has some scope creep — can we split the refactor into a separate ticket?"
+</p>`,
+    pitfalls: ["Scope creep не завжди поганий (іноді нові вимоги справді важливі) — головне усвідомлено вирішувати розширювати обсяг, а не «підхопити» його непомітно."],
+    related: ["eng-mvp"],
+  },
+  "eng-code-smell": {
+    badge: "English",
+    title: "code smell",
+    whatIsIt: "Ознака в коді, що не є помилкою сама по собі, але натякає на можливу глибшу проблему — «щось тут не так», навіть якщо важко одразу сказати, що саме.",
+    useCases: ["коментар у код-рев'ю про підозрілу, хоч і робочу, ділянку коду", "пояснення інтуїтивного відчуття, що код варто переглянути"],
+    syntax: `This deeply nested if-statement is a bit of a code smell — might be worth extracting into smaller functions.`,
+    attributes: [
+      { name: "code smell", desc: "ознака потенційної проблеми в коді, що не є явним багом" },
+      { name: "smells off / smells fishy", desc: "розмовний вираз — «щось тут підозріле»" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "Not blocking, but this function taking 8 parameters is a code smell — maybe group them into an object?"
+</p>`,
+    pitfalls: ["Code smell — це не помилка й не обов'язково потребує негайного виправлення; це сигнал звернути увагу, не наказ переписати все негайно."],
+    related: ["eng-spaghetti-code", "eng-nitpick"],
+  },
 
   "fe-react-basics": {
     badge: "Frontend",
