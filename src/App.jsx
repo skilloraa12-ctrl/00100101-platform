@@ -1903,7 +1903,16 @@ const REF_NAV = {
     "Інструменти": ["fe-build-tools", "fe-typescript", "fe-testing", "fe-package-managers"],
     "Компоненти та якість": ["fe-web-components", "fe-pwa", "fe-accessibility", "fe-performance"],
   },
-  Python: {},
+  Python: {
+    "Основи": ["py-variables-types", "py-control-flow", "py-functions", "py-fstrings"],
+    "Класи та помилки": ["py-classes", "py-exceptions", "py-decorators"],
+    "Колекції": ["py-comprehensions", "py-lists", "py-dicts", "py-sets-tuples", "py-strings"],
+    "Функції та типізація": ["py-builtin-functions", "py-type-hints", "py-dataclasses"],
+    "Файли та модулі": ["py-files", "py-modules-imports", "py-venv-pip"],
+    "Асинхронність": ["py-async"],
+    "Стандартна бібліотека": ["py-stdlib-collections", "py-stdlib-itertools-functools", "py-stdlib-datetime", "py-stdlib-os-sys", "py-stdlib-json-csv", "py-stdlib-re", "py-stdlib-math-random"],
+    "Тестування та веб": ["py-testing", "py-web-frameworks", "py-sqlite"],
+  },
   SQL: {},
   Backend: {},
   "Full Stack": {},
@@ -7409,6 +7418,126 @@ print(options)  # порядок буде випадковим</pre>
       "math.sqrt() кидає ValueError для від'ємних чисел — для комплексних результатів потрібен модуль cmath.",
     ],
     related: [],
+  },
+
+  "py-testing": {
+    badge: "Python",
+    title: "unittest і pytest",
+    whatIsIt: "Автоматизовані тести перевіряють, що код працює правильно, без ручної перевірки щоразу. unittest — вбудований у Python модуль тестування, pytest — популярніша стороння бібліотека з простішим синтаксисом.",
+    useCases: ["перевірка, що функція повертає правильний результат для різних вхідних даних", "запобігання регресіям при зміні коду", "документування очікуваної поведінки через тести"],
+    syntax: `def test_sum():\n    assert sum([1, 2, 3]) == 6`,
+    attributes: [
+      { name: "assert умова", desc: "кидає AssertionError, якщо умова хибна — основа pytest-тестів" },
+      { name: "def test_*():", desc: "pytest автоматично знаходить функції, що починаються з test_" },
+      { name: "unittest.TestCase", desc: "базовий клас для тестів у вбудованому unittest" },
+      { name: "self.assertEqual(a, b)", desc: "метод unittest для перевірки рівності" },
+      { name: "@pytest.fixture", desc: "готує повторювані дані/об'єкти для кількох тестів" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">def add(a, b):
+    return a + b
+
+def test_add_positive():
+    assert add(2, 3) == 5
+
+def test_add_negative():
+    assert add(-1, -1) == -2
+
+# Запуск: pytest test_file.py</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання pytest:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">test_file.py::test_add_positive PASSED
+test_file.py::test_add_negative PASSED
+2 passed in 0.01s</pre>`,
+    pitfalls: [
+      "Тести без перевірки граничних випадків (порожній список, від'ємні числа, None) — найпоширеніша прогалина в покритті.",
+      "Тест, що залежить від порядку виконання інших тестів — крихкий, тести мають бути незалежними один від одного.",
+    ],
+    related: ["py-functions"],
+  },
+  "py-web-frameworks": {
+    badge: "Python",
+    title: "Flask, Django, FastAPI",
+    whatIsIt: "Веб-фреймворки для створення бекенду на Python. Flask — мінімалістичний, для швидкого старту. Django — повноцінний «з батарейками» (ORM, адмінка, автентифікація з коробки). FastAPI — сучасний асинхронний з автоматичною документацією API.",
+    useCases: ["Flask — маленькі API чи прототипи", "Django — великі застосунки з адмінкою й складною бізнес-логікою", "FastAPI — швидкі, добре задокументовані REST API з валідацією даних"],
+    syntax: `from fastapi import FastAPI\napp = FastAPI()\n\n@app.get("/users")\nasync def get_users():\n    return {"users": []}`,
+    attributes: [
+      { name: "@app.route() (Flask)", desc: "реєструє обробник для вказаного URL" },
+      { name: "@app.get() / @app.post() (FastAPI)", desc: "реєструють обробники для конкретних HTTP-методів" },
+      { name: "models.py, views.py (Django)", desc: "типова структура Django-застосунку: моделі даних і обробники запитів" },
+      { name: "BaseModel (FastAPI/Pydantic)", desc: "автоматична валідація й серіалізація даних запиту" },
+      { name: "manage.py runserver (Django)", desc: "запускає локальний сервер розробки Django" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/hello/{name}")
+async def hello(name: str):
+    return {"message": f"Привіт, {name}!"}
+
+# GET /hello/Оля → {"message": "Привіт, Оля!"}</pre>`,
+    pitfalls: [
+      "Django ORM-запити в циклі без select_related/prefetch_related — проблема N+1 запитів, сильно сповільнює застосунок.",
+      "Flask сам по собі не має вбудованої структури для великих проєктів — на відміну від Django, організацію коду треба продумувати самостійно.",
+    ],
+    related: ["py-async", "sql-select"],
+  },
+  "py-venv-pip": {
+    badge: "Python",
+    title: "venv, pip, requirements.txt",
+    whatIsIt: "venv створює ізольоване віртуальне середовище для проєкту — власні залежності, що не конфліктують з іншими проєктами чи системним Python. pip встановлює пакети з PyPI. requirements.txt фіксує список залежностей проєкту.",
+    useCases: ["ізоляція залежностей одного проєкту від інших", "встановлення сторонніх бібліотек (requests, pandas, Django)", "відтворення точного середовища на іншому комп'ютері чи сервері"],
+    syntax: `python -m venv venv\nsource venv/bin/activate\npip install requests`,
+    attributes: [
+      { name: "python -m venv venv", desc: "створює нове віртуальне середовище в папці venv" },
+      { name: "source venv/bin/activate", desc: "активує середовище (Windows: venv\\\\Scripts\\\\activate)" },
+      { name: "pip install package", desc: "встановлює пакет з PyPI у поточне активне середовище" },
+      { name: "pip freeze > requirements.txt", desc: "зберігає список усіх встановлених пакетів з версіями" },
+      { name: "pip install -r requirements.txt", desc: "встановлює всі залежності зі списку одразу" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;"># requirements.txt
+flask==3.0.0
+requests==2.31.0
+
+# Встановлення всіх залежностей одразу:
+# pip install -r requirements.txt</pre>`,
+    pitfalls: [
+      "Встановлення пакетів БЕЗ активованого venv — потрапляють у глобальний Python, конфліктуючи між проєктами.",
+      "Забутий requirements.txt чи pyproject.toml — інший розробник (чи сервер) не зможе відтворити точне середовище.",
+      "Комітити саму папку venv/ у git — величезна й непотрібна; лише requirements.txt має бути в репозиторії.",
+    ],
+    related: ["py-modules-imports"],
+  },
+  "py-sqlite": {
+    badge: "Python",
+    title: "sqlite3",
+    whatIsIt: "Вбудований модуль для роботи з SQLite — файловою базою даних, що не потребує окремого сервера. Ідеально для невеликих проєктів, прототипів і локального зберігання даних.",
+    useCases: ["локальне зберігання даних застосунку без встановлення сервера БД", "прототипування перед переходом на «дорослу» БД (PostgreSQL)", "аналіз даних у скриптах без зовнішніх залежностей"],
+    syntax: `import sqlite3\nconn = sqlite3.connect("app.db")\ncursor = conn.cursor()`,
+    attributes: [
+      { name: "sqlite3.connect(path)", desc: "відкриває (чи створює) файл бази даних" },
+      { name: "cursor.execute(sql)", desc: "виконує SQL-запит" },
+      { name: "cursor.fetchall() / fetchone()", desc: "повертають усі рядки результату чи лише один" },
+      { name: "conn.commit()", desc: "зберігає зміни (INSERT/UPDATE/DELETE) у базі" },
+      { name: "? як плейсхолдер", desc: "безпечна підстановка значень у запит, захищає від SQL-ін'єкцій" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import sqlite3
+
+conn = sqlite3.connect(":memory:")  # тимчасова БД у пам'яті
+cur = conn.cursor()
+cur.execute("CREATE TABLE users (id INTEGER, name TEXT)")
+cur.execute("INSERT INTO users VALUES (?, ?)", (1, "Оля"))
+conn.commit()
+
+cur.execute("SELECT * FROM users")
+print(cur.fetchall())</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">[(1, 'Оля')]</pre>`,
+    pitfalls: [
+      "Вставка значень через f-рядок напряму в SQL (f\"INSERT ... VALUES ({name})\") замість плейсхолдера ? — серйозна вразливість SQL-ін'єкції.",
+      "Забутий conn.commit() — зміни (INSERT/UPDATE) виконуються, але не зберігаються в файл бази.",
+      "SQLite не підходить для високого навантаження з багатьма одночасними записами — для цього потрібна повноцінна СУБД (PostgreSQL/MySQL).",
+    ],
+    related: ["sql-select", "py-files"],
   },
 
 };
