@@ -74,23 +74,23 @@ const HTML_LESSONS = [
     id: "html-3",
     title: "Заголовки h1–h6",
     theory:
-      "HTML має шість рівнів заголовків: від <h1> (найважливіший, зазвичай один на сторінку) до <h6> (найменш важливий). Це не просто розмір шрифту — це структура змісту, за якою орієнтуються і читачі, і пошукові системи, і програми для людей з порушенням зору.",
-    example: { code: `<h1>Розділ</h1>\n<h2>Підрозділ</h2>`, explain: "h2 логічно вкладений у h1 — це підпункт." },
-    task: "Створи h1 з текстом «Мій блог» і h2 з текстом «Перший запис».",
+      "HTML має шість рівнів заголовків: від <h1> (найважливіший, зазвичай ОДИН на сторінку — вже зайнятий назвою сайту) до <h6> (найменш важливий). Це не просто розмір шрифту — це структура змісту, за якою орієнтуються і читачі, і пошукові системи, і програми для людей з порушенням зору (скрінрідери). h2 зазвичай позначає заголовок розділу сторінки, h3 — підрозділ усередині нього, і так далі.",
+    example: { code: `<h2>Про нас</h2>\n<p>Ми працюємо з 2020 року і любимо свою справу.</p>`, explain: "h2 — заголовок розділу, p під ним — опис цього розділу." },
+    task: 'Створи заголовок розділу свого сайту (h2) — наприклад «Про нас», «Наші переваги» чи «Чому ми» — і абзац (p) з описом під ним, щонайменше 15 символів.',
     starter: "",
     hints: [
-      "Потрібні два теги: h1 і h2, кожен з власним текстом.",
-      "Порядок: спочатку h1, потім h2.",
-      "Приклад: <h1>Мій блог</h1><h2>Перший запис</h2>",
+      "Потрібні два теги: h2 з коротким заголовком і p з описом.",
+      "Опис у p має бути змістовним — щонайменше 15 символів, не одне слово.",
+      "Приклад: <h2>Про нас</h2><p>Ми продаємо найкращу техніку в місті вже 5 років.</p>",
     ],
-    solution: `<h1>Мій блог</h1>\n<h2>Перший запис</h2>`,
+    solution: `<h2>Про нас</h2>\n<p>Ми продаємо найкращу техніку в місті вже 5 років.</p>`,
     type: "html",
     check: (doc) => {
-      const h1 = doc.querySelector("h1");
       const h2 = doc.querySelector("h2");
-      if (!h1 || h1.textContent.trim() !== "Мій блог") return { pass: false, message: 'Потрібен <h1>Мій блог</h1>.' };
-      if (!h2 || h2.textContent.trim() !== "Перший запис") return { pass: false, message: 'Потрібен <h2>Перший запис</h2>.' };
-      return { pass: true, message: "Рівні заголовків задають ієрархію змісту сторінки — саме так її читають скрінрідери." };
+      if (!h2 || !h2.textContent.trim()) return { pass: false, message: "Потрібен <h2> із власним текстом заголовка." };
+      const p = doc.querySelector("p");
+      if (!p || p.textContent.trim().length < 15) return { pass: false, message: "Потрібен <p> з описом щонайменше 15 символів." };
+      return { pass: true, message: "Рівні заголовків задають ієрархію змісту сторінки — саме так її читають скрінрідери. h1 — уже назва сайту, тому розділи починаються з h2." };
     },
   },
   {
@@ -98,15 +98,15 @@ const HTML_LESSONS = [
     title: "Абзаци та посилання",
     theory:
       "Тег <p> — це абзац тексту. Тег <a> — посилання, воно обов'язково має атрибут href з адресою переходу. Атрибути пишуться всередині відкриваючого тега у форматі ім'я=\"значення\".",
-    example: { code: `<p>Читай далі на <a href="https://example.com">example.com</a>.</p>`, explain: "href — обов'язковий атрибут посилання." },
-    task: 'Створи абзац (p), а всередині нього посилання (a) з href="https://example.com" і текстом "Приклад".',
+    example: { code: `<p>Читай більше про наші послуги <a href="#services">тут</a>.</p>`, explain: "href — обов'язковий атрибут посилання, без нього <a> нікуди не веде." },
+    task: 'Створи абзац (p) із власним текстом свого сайту, а всередині нього — посилання (a) з href (будь-яка адреса або "#") і власним текстом посилання (не порожнім).',
     starter: "",
     hints: [
       "Спочатку відкрий <p>, всередині нього розмісти <a href=\"...\">.",
-      "Текст посилання має бути точно «Приклад».",
-      'Приклад: <p><a href="https://example.com">Приклад</a></p>',
+      "Текст посилання може бути будь-яким — головне, щоб він не був порожнім.",
+      'Приклад: <p>Дізнайся більше <a href="#about">про нас</a>.</p>',
     ],
-    solution: `<p><a href="https://example.com">Приклад</a></p>`,
+    solution: `<p>Дізнайся більше <a href="#about">про нас</a>.</p>`,
     type: "html",
     check: (doc) => {
       const p = doc.querySelector("p");
@@ -114,7 +114,7 @@ const HTML_LESSONS = [
       const a = p.querySelector("a");
       if (!a) return { pass: false, message: "Усередині <p> потрібне посилання <a>." };
       if (!a.getAttribute("href")) return { pass: false, message: "У <a> відсутній атрибут href." };
-      if (a.textContent.trim() !== "Приклад") return { pass: false, message: 'Текст посилання має бути "Приклад".' };
+      if (!a.textContent.trim()) return { pass: false, message: "Текст посилання не має бути порожнім." };
       return { pass: true, message: "href каже браузеру, куди веде посилання — без нього <a> нікуди не веде." };
     },
   },
@@ -122,18 +122,23 @@ const HTML_LESSONS = [
     id: "html-5",
     title: "Зображення",
     theory:
-      "Тег <img> не має закриваючого тега — це «порожній» елемент. Атрибут src вказує шлях до файлу зображення, а alt — текстовий опис на випадок, якщо картинка не завантажиться, або для людей, які користуються скрінрідером. alt — не декоративний, а обов'язковий для доступності.",
-    example: { code: `<img src="cat.jpg" alt="Рудий кіт спить на дивані">`, explain: "alt описує зміст картинки словами." },
-    task: 'Додай зображення з src="cat.jpg" та alt="Кіт".',
+      "Тег <img> не має закриваючого тега — це «порожній» елемент. Атрибут src вказує шлях до файлу зображення, а alt — текстовий опис на випадок, якщо картинка не завантажиться, або для людей, які користуються скрінрідером. alt — не декоративний, а обов'язковий для доступності, і має описувати ЗМІСТ картинки, а не просто повторювати одне слово.",
+    example: { code: `<img src="product.jpg" alt="Чорний ноутбук на білому столі, екран відкритий">`, explain: "alt описує, що САМЕ на картинці, а не просто «фото»." },
+    task: 'Додай зображення (img) для свого сайту з атрибутом src (будь-який шлях чи назва файлу) та атрибутом alt — змістовним описом картинки щонайменше 10 символів.',
     starter: "",
-    hints: ["img — самозакривний тег, без </img>.", "Потрібні обидва атрибути: src і alt.", 'Приклад: <img src="cat.jpg" alt="Кіт">'],
-    solution: `<img src="cat.jpg" alt="Кіт">`,
+    hints: [
+      "img — самозакривний тег, без </img>.",
+      "alt має бути реченням чи фразою, що описує зміст, а не одне слово.",
+      'Приклад: <img src="tovar.jpg" alt="Бездротові навушники чорного кольору">',
+    ],
+    solution: `<img src="tovar.jpg" alt="Бездротові навушники чорного кольору">`,
     type: "html",
     check: (doc) => {
       const img = doc.querySelector("img");
       if (!img) return { pass: false, message: "Потрібен тег <img>." };
-      if (img.getAttribute("src") !== "cat.jpg") return { pass: false, message: 'src має дорівнювати "cat.jpg".' };
-      if (img.getAttribute("alt") !== "Кіт") return { pass: false, message: 'alt має дорівнювати "Кіт".' };
+      if (!img.getAttribute("src")) return { pass: false, message: "У <img> відсутній атрибут src." };
+      const alt = img.getAttribute("alt") || "";
+      if (alt.trim().length < 10) return { pass: false, message: "alt має бути змістовним описом картинки — щонайменше 10 символів." };
       return { pass: true, message: "alt важливий не лише для доступності — Google теж читає його, щоб зрозуміти зображення." };
     },
   },
@@ -142,18 +147,19 @@ const HTML_LESSONS = [
     title: "Списки",
     theory:
       "Маркований список — <ul> (unordered list), нумерований — <ol> (ordered list). Кожен пункт усередині — тег <li> (list item).",
-    example: { code: `<ul>\n  <li>Хліб</li>\n  <li>Молоко</li>\n</ul>`, explain: "Кожен <li> — окремий пункт списку." },
-    task: "Створи маркований список (ul) із трьома пунктами (li) на власний вибір.",
+    example: { code: `<ul>\n  <li>Ноутбуки</li>\n  <li>Смартфони</li>\n  <li>Навушники</li>\n</ul>`, explain: "Кожен <li> — окремий пункт списку, наприклад категорія товарів." },
+    task: 'Створи маркований список (ul) щонайменше з 3 пунктів (li) для свого сайту — наприклад список товарів, послуг чи категорій. Кожен пункт має мати власний текст.',
     starter: "",
-    hints: ["Список — ul, пункти всередині — li.", "Пунктів має бути рівно 3.", "Приклад: <ul><li>Один</li><li>Два</li><li>Три</li></ul>"],
-    solution: `<ul>\n  <li>Один</li>\n  <li>Два</li>\n  <li>Три</li>\n</ul>`,
+    hints: ["Список — ul, пункти всередині — li.", "Пунктів має бути щонайменше 3, і кожен — з непорожнім текстом.", "Приклад: <ul><li>Ноутбуки</li><li>Смартфони</li><li>Аксесуари</li></ul>"],
+    solution: `<ul>\n  <li>Ноутбуки</li>\n  <li>Смартфони</li>\n  <li>Аксесуари</li>\n</ul>`,
     type: "html",
     check: (doc) => {
       const ul = doc.querySelector("ul");
       if (!ul) return { pass: false, message: "Потрібен тег <ul>." };
-      const items = ul.querySelectorAll("li");
-      if (items.length !== 3) return { pass: false, message: `Потрібно рівно 3 пункти <li>, зараз: ${items.length}.` };
-      return { pass: true, message: "ul/li — базова структура будь-якого списку в HTML." };
+      const items = Array.from(ul.querySelectorAll("li"));
+      if (items.length < 3) return { pass: false, message: `Потрібно щонайменше 3 пункти <li>, зараз: ${items.length}.` };
+      if (items.some((li) => !li.textContent.trim())) return { pass: false, message: "Кожен пункт <li> має мати власний непорожній текст." };
+      return { pass: true, message: "ul/li — базова структура будь-якого списку в HTML, від меню до каталогу товарів." };
     },
   },
   {
@@ -179,27 +185,30 @@ const HTML_LESSONS = [
     id: "html-8",
     title: "Форми: input, label, button",
     theory:
-      "Форми збирають дані від користувача. <label> підписує поле (і клікабельний, якщо пов'язаний через for/id), <input> — поле вводу (type=\"text\" для тексту), <button> — кнопка дії.",
+      "Форми збирають дані від користувача. <label> підписує поле (і клікабельний, якщо пов'язаний через for/id), <input> — поле вводу (type=\"text\" для тексту, type=\"email\" для пошти), <button> — кнопка дії.",
     example: {
-      code: `<label for="name">Ім'я:</label>\n<input id="name" type="text">\n<button>Відправити</button>`,
+      code: `<label for="phone">Телефон:</label>\n<input id="phone" type="text">\n<button>Замовити дзвінок</button>`,
       explain: 'for у label збігається з id в input — клік по підпису фокусує поле.',
     },
-    task: 'Створи label з for="email", input типу text з id="email", і button з текстом "Відправити".',
+    task: 'Створи форму для свого сайту: label з атрибутом for, input з таким самим id (type="text" або type="email"), і button із власним текстом дії (наприклад «Відправити», «Замовити», «Підписатись»).',
     starter: "",
     hints: [
-      'for у label має дорівнювати id у input: "email".',
-      'input має атрибут type="text".',
-      '<label for="email">Email</label><input id="email" type="text"><button>Відправити</button>',
+      "for у label має збігатися з id у input — обери будь-яке ім'я, головне щоб збігалося.",
+      'input має атрибут type="text" або type="email".',
+      '<label for="phone">Телефон</label><input id="phone" type="text"><button>Замовити</button>',
     ],
-    solution: `<label for="email">Email</label>\n<input id="email" type="text">\n<button>Відправити</button>`,
+    solution: `<label for="phone">Телефон</label>\n<input id="phone" type="text">\n<button>Замовити</button>`,
     type: "html",
     check: (doc) => {
-      const label = doc.querySelector('label[for="email"]');
-      if (!label) return { pass: false, message: 'Потрібен <label for="email">.' };
-      const input = doc.querySelector('input#email[type="text"]');
-      if (!input) return { pass: false, message: 'Потрібен <input id="email" type="text">.' };
+      const label = doc.querySelector("label[for]");
+      if (!label) return { pass: false, message: "Потрібен <label> з атрибутом for." };
+      const forId = label.getAttribute("for");
+      const input = forId ? doc.getElementById(forId) : null;
+      if (!input || input.tagName !== "INPUT") return { pass: false, message: "Атрибут for у label має збігатися з id якогось <input>." };
+      const type = input.getAttribute("type");
+      if (type !== "text" && type !== "email") return { pass: false, message: 'input має атрибут type="text" або type="email".' };
       const btn = doc.querySelector("button");
-      if (!btn || btn.textContent.trim() !== "Відправити") return { pass: false, message: 'Потрібна <button>Відправити</button>.' };
+      if (!btn || !btn.textContent.trim()) return { pass: false, message: "Потрібна <button> з власним текстом." };
       return { pass: true, message: "for + id зв'язують підпис із полем — це і доступність, і зручність кліку." };
     },
   },
@@ -377,25 +386,27 @@ const HTML_LESSONS = [
     id: "html-17",
     title: "header, nav, footer",
     theory:
-      "Це семантичні теги для типових частин сторінки. <header> — шапка (лого, заголовок, іноді навігація). <nav> — блок навігаційних посилань. <footer> — підвал сторінки (копірайт, контакти). Вони працюють так само, як <div>, але дають браузеру й скрінрідерам зрозуміти РОЛЬ блоку, а не лише його вигляд.",
-    example: { code: `<header><h1>Мій сайт</h1></header>\n<nav><a href="/">Головна</a></nav>\n<footer>© 2025</footer>`, explain: "Три семантичні блоки замість безликих <div class=\"header\">." },
-    task: 'Створи header з заголовком h1 "Мій сайт" усередині, nav з одним посиланням a (href="#", текст "Головна"), і footer з текстом "© 2025".',
+      "Це семантичні теги для типових частин сторінки. <header> — шапка (лого, заголовок, іноді навігація). <nav> — блок навігаційних посилань, зазвичай усередині header. <footer> — підвал сторінки (копірайт, контакти). Вони працюють так само, як <div>, але дають браузеру й скрінрідерам зрозуміти РОЛЬ блоку, а не лише його вигляд.",
+    example: { code: `<header>\n  <h1>Мій сайт</h1>\n  <nav>\n    <a href="#">Головна</a>\n    <a href="#">Контакти</a>\n  </nav>\n</header>`, explain: "h1 і nav лежать усередині header — це шапка сторінки з назвою і меню." },
+    task: 'Створи header для свого сайту з h1 (назва сайту) усередині, і nav усередині header щонайменше з 2 посиланнями (a) на розділи твого сайту.',
     starter: "",
     hints: [
-      "header, nav, footer — окремі теги на одному рівні, не вкладені один в одного.",
-      "h1 лежить УСЕРЕДИНІ header, посилання a — усередині nav.",
-      'Приклад: <header><h1>Мій сайт</h1></header><nav><a href="#">Головна</a></nav><footer>© 2025</footer>',
+      "header — один зовнішній контейнер.",
+      "h1 і nav лежать УСЕРЕДИНІ header, а не поруч.",
+      'Приклад: <header><h1>TechShop</h1><nav><a href="#">Каталог</a><a href="#">Контакти</a></nav></header>',
     ],
-    solution: `<header><h1>Мій сайт</h1></header>\n<nav><a href="#">Головна</a></nav>\n<footer>© 2025</footer>`,
+    solution: `<header>\n  <h1>Мій сайт</h1>\n  <nav>\n    <a href="#">Каталог</a>\n    <a href="#">Контакти</a>\n  </nav>\n</header>`,
     type: "html",
     check: (doc) => {
       const header = doc.querySelector("header");
-      if (!header || !header.querySelector("h1")) return { pass: false, message: "Потрібен <header> з <h1> усередині." };
-      const nav = doc.querySelector("nav");
-      if (!nav || !nav.querySelector("a")) return { pass: false, message: "Потрібен <nav> з посиланням <a> усередині." };
-      const footer = doc.querySelector("footer");
-      if (!footer || !footer.textContent.includes("2025")) return { pass: false, message: "Потрібен <footer> з текстом, що містить «2025»." };
-      return { pass: true, message: "header/nav/footer — три найпоширеніші семантичні блоки на будь-якій сторінці." };
+      if (!header) return { pass: false, message: "Потрібен тег <header>." };
+      const h1 = header.querySelector("h1");
+      if (!h1 || !h1.textContent.trim()) return { pass: false, message: "Усередині <header> потрібен <h1> із назвою сайту." };
+      const nav = header.querySelector("nav");
+      if (!nav) return { pass: false, message: "Усередині <header> потрібен <nav>." };
+      const links = Array.from(nav.querySelectorAll("a")).filter((a) => a.textContent.trim());
+      if (links.length < 2) return { pass: false, message: "Усередині <nav> потрібно щонайменше 2 посилання <a> з текстом." };
+      return { pass: true, message: "header/nav — шапка й меню будь-якого сайту. footer із авторськими правами вже готовий і чекає на CSS-стилізацію." };
     },
   },
   {
@@ -1458,12 +1469,25 @@ const PROJECT_THEMES = [
 ];
 
 function defaultProject() {
-  return { themeId: null, siteName: "", navLinks: [], html: "", css: "", js: "" };
+  return { themeId: null, siteName: "", navLinks: [], blocks: {}, html: "", css: "", js: "" };
 }
 
-function buildInitialProjectHtml(theme, siteName) {
-  const links = theme.navLinks.map((l) => `      <a href="#">${l}</a>`).join("\n");
-  return `<header>\n  <h1>${siteName}</h1>\n  <nav>\n${links}\n  </nav>\n</header>\n<main>\n  <!-- Тут з'являться нові блоки в міру проходження уроків -->\n</main>\n<footer>\n  <p>© 2025 ${siteName}</p>\n</footer>`;
+// Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
+const HEADER_MILESTONE = "html-17";
+const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-8"];
+
+function renderProjectHtml(project, theme, siteName) {
+  const name = siteName ?? project.siteName;
+  const blocks = project.blocks || {};
+  const header =
+    blocks[HEADER_MILESTONE] ||
+    `<header>\n  <h1>${name}</h1>\n  <nav>\n${theme.navLinks.map((l) => `    <a href="#">${l}</a>`).join("\n")}\n  </nav>\n</header>`;
+  const mainBlocks = MAIN_MILESTONES.map((id) => blocks[id]).filter(Boolean);
+  const main = mainBlocks.length
+    ? `<main>\n${mainBlocks.map((b) => "  " + b.split("\n").join("\n  ")).join("\n\n")}\n</main>`
+    : `<main>\n  <!-- Тут з'являться нові блоки в міру проходження уроків -->\n</main>`;
+  const footer = `<footer>\n  <p>© 2025 ${name}</p>\n</footer>`;
+  return `${header}\n${main}\n${footer}`;
 }
 
 async function loadProject() {
@@ -11815,7 +11839,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       const r = lesson.check(doc, code);
       setResult(r);
       runHtml();
-      if (r.pass) onComplete(lesson.id);
+      if (r.pass) onComplete(lesson.id, code);
       return;
     }
     if (lesson.type === "css") {
@@ -12504,7 +12528,7 @@ function ProjectSetup({ onCreate }) {
   );
 }
 
-function MyProjectPage({ project, onReset }) {
+function MyProjectPage({ project, progress, onReset, onGoLesson }) {
   const theme = PROJECT_THEMES.find((t) => t.id === project.themeId);
   const [tab, setTab] = useState("preview");
 
@@ -12512,6 +12536,10 @@ function MyProjectPage({ project, onReset }) {
   const accent = ACCENT_MAP[theme.accent];
 
   const previewDoc = `<!DOCTYPE html><html><head><style>${project.css || ""}</style></head><body>${project.html || ""}<script>${project.js || ""}<\/script></body></html>`;
+
+  const milestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
+  const doneIds = progress?.completed?.html || [];
+  const doneCount = milestoneIds.filter((id) => doneIds.includes(id)).length;
 
   return (
     <div className="max-w-5xl">
@@ -12523,9 +12551,31 @@ function MyProjectPage({ project, onReset }) {
           <RefreshCw size={12} /> Почати новий сайт
         </button>
       </div>
-      <p className="text-stone-500 text-sm mb-5">
+      <p className="text-stone-500 text-sm mb-3">
         {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
       </p>
+
+      {doneCount < milestoneIds.length && (
+        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
+          <div className="text-xs text-stone-500 mb-2">Блоки сайту з уроків HTML ({doneCount}/{milestoneIds.length}):</div>
+          <div className="flex flex-wrap gap-2">
+            {milestoneIds.map((id) => {
+              const lesson = HTML_LESSONS.find((l) => l.id === id);
+              const done = doneIds.includes(id);
+              return (
+                <button
+                  key={id}
+                  disabled={done}
+                  onClick={() => onGoLesson?.(id)}
+                  className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
+                >
+                  {done ? "✓ " : ""}{lesson?.title || id}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-3">
         {[["preview", "Результат"], ["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"]].map(([id, label]) => (
@@ -12890,7 +12940,8 @@ export default function App() {
   }, []);
 
   const handleCreateProject = useCallback((theme, siteName) => {
-    const next = { themeId: theme.id, siteName, navLinks: theme.navLinks, html: buildInitialProjectHtml(theme, siteName), css: "", js: "" };
+    const base = { themeId: theme.id, siteName, navLinks: theme.navLinks, blocks: {}, css: "", js: "" };
+    const next = { ...base, html: renderProjectHtml(base, theme) };
     setProject(next);
     saveProject(next);
   }, []);
@@ -12902,7 +12953,7 @@ export default function App() {
     saveProject(next);
   }, []);
 
-  const handleComplete = useCallback((id) => {
+  const handleComplete = useCallback((id, code) => {
     setProgress((prev) => {
       const list = prev.completed[courseId] || [];
       if (list.includes(id)) return prev;
@@ -12911,6 +12962,17 @@ export default function App() {
       saveProgress(next);
       return next;
     });
+    if (code !== undefined && (id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id))) {
+      setProject((prev) => {
+        if (!prev.themeId) return prev;
+        const theme = PROJECT_THEMES.find((t) => t.id === prev.themeId);
+        if (!theme) return prev;
+        const blocks = { ...(prev.blocks || {}), [id]: code };
+        const next = { ...prev, blocks, html: renderProjectHtml({ ...prev, blocks }, theme) };
+        saveProject(next);
+        return next;
+      });
+    }
   }, [courseId]);
 
   const goHome = () => setView("home");
@@ -12975,7 +13037,7 @@ export default function App() {
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
           {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} />}
           {view === "myproject" && (project.themeId
-            ? <MyProjectPage project={project} onReset={handleResetProject} />
+            ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(lId) => goCourse("html", lId)} />
             : <ProjectSetup onCreate={handleCreateProject} />)}
           {view === "library" && <LibraryPage />}
           {view === "reference" && <ReferencePage />}
