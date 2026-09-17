@@ -4380,6 +4380,81 @@ const TERM_PAGES_V2 = {
     related: ["css-borders", "css-colors-gradients"],
   },
 
+  "css-text": {
+    badge: "CSS",
+    title: "Текстові властивості",
+    whatIsIt: "Група властивостей, що керують виглядом тексту: шрифт, вага, міжрядковий інтервал, вирівнювання, перетворення регістру, оздоблення (підкреслення) і поведінка переносу довгих слів.",
+    useCases: ["базове форматування абзаців і заголовків", "аккуратний перенос довгого тексту без виходу за межі контейнера", "капіталізація заголовків через text-transform"],
+    syntax: `.text {\n  font-family: sans-serif;\n  font-size: 16px;\n  line-height: 1.5;\n  text-align: center;\n}`,
+    attributes: [
+      { name: "font-family / font-size / font-weight", desc: "гарнітура, розмір і жирність шрифту" },
+      { name: "line-height", desc: "висота рядка — впливає на міжрядковий інтервал і читабельність" },
+      { name: "text-align", desc: "вирівнювання: left, center, right, justify" },
+      { name: "letter-spacing / word-spacing", desc: "відстань між символами чи словами" },
+      { name: "text-transform", desc: "uppercase, lowercase, capitalize — перетворення регістру" },
+      { name: "text-decoration", desc: "підкреслення/закреслення тексту, з кольором і стилем лінії" },
+      { name: "white-space / word-break / overflow-wrap", desc: "керують переносом рядків і довгих слів" },
+    ],
+    example: `<p style="font-family:sans-serif;line-height:1.6;text-align:center;letter-spacing:0.5px;">
+  Приклад тексту з міжрядковим інтервалом 1.6 і невеликим letter-spacing.
+</p>
+<p style="text-transform:uppercase;text-decoration:underline wavy #7c3aed;">великі літери й хвиляста підкреслена лінія</p>`,
+    pitfalls: [
+      "Занизький line-height (менше 1.2) робить багаторядковий текст важким для читання.",
+      "text-align: justify без hyphens: auto створює нерівні пробіли між словами.",
+      "Довгий текст без word-break/overflow-wrap може вийти за межі вузького контейнера.",
+    ],
+    related: ["css-lists", "css-selectors"],
+  },
+  "css-lists": {
+    badge: "CSS",
+    title: "list-style",
+    whatIsIt: "Група властивостей list-style-* керує зовнішнім виглядом маркерів списку <ul>/<ol> — тип маркера (кружечок, число, власне зображення), його позиція відносно тексту й повна заміна на власне зображення.",
+    useCases: ["прибрати стандартні маркери для навігаційного меню", "власна нумерація списку кроків", "маркер-іконка замість стандартної крапки"],
+    syntax: `ul {\n  list-style-type: square;\n  list-style-position: inside;\n}`,
+    attributes: [
+      { name: "list-style-type", desc: "тип маркера: disc, circle, square, decimal, lower-alpha, none..." },
+      { name: "list-style-position", desc: "inside — маркер всередині блоку тексту, outside (типово) — зовні" },
+      { name: "list-style-image", desc: "власне зображення замість стандартного маркера" },
+      { name: "list-style", desc: "скорочення трьох властивостей одним рядком" },
+    ],
+    example: `<ul style="list-style-type:none;padding:0;">
+  <li style="padding-left:20px;position:relative;margin-bottom:4px;">
+    <span style="position:absolute;left:0;color:#7c3aed;">✓</span> Пункт зі своєю іконкою
+  </li>
+  <li style="padding-left:20px;position:relative;">
+    <span style="position:absolute;left:0;color:#7c3aed;">✓</span> Другий пункт
+  </li>
+</ul>`,
+    pitfalls: [
+      "list-style: none прибирає маркери, але не padding-left — список все ще має зайвий відступ зліва.",
+      "Забутий list-style-position — маркер може виходити за межі контейнера з overflow: hidden.",
+    ],
+    related: ["css-text"],
+  },
+  "css-object-fit": {
+    badge: "CSS",
+    title: "object-fit і object-position",
+    whatIsIt: "object-fit керує тим, як зображення чи відео вписується в задані розміри свого блоку — обрізається, вписується повністю чи розтягується. object-position задає, яка частина медіа лишається видимою при обрізанні.",
+    useCases: ["однакового розміру превʼю фото в галереї без спотворення пропорцій", "аватар-коло без розтягнутого обличчя", "відео на весь контейнер без чорних смуг"],
+    syntax: `img {\n  width: 200px;\n  height: 200px;\n  object-fit: cover;\n}`,
+    attributes: [
+      { name: "cover", desc: "заповнює весь контейнер, обрізаючи зайве, зберігаючи пропорції" },
+      { name: "contain", desc: "вписує зображення повністю, можуть лишитись порожні поля" },
+      { name: "fill", desc: "розтягує зображення точно під розміри контейнера (спотворює пропорції)" },
+      { name: "object-position", desc: "яка частина зображення лишається видимою при cover, напр. \"top\"" },
+    ],
+    example: `<div style="display:flex;gap:10px;">
+  <img src="https://picsum.photos/300/150" style="width:100px;height:100px;object-fit:cover;border-radius:6px;" alt="cover">
+  <img src="https://picsum.photos/300/150" style="width:100px;height:100px;object-fit:contain;background:#eee;border-radius:6px;" alt="contain">
+</div>`,
+    pitfalls: [
+      "object-fit не працює без явно заданих width і height на елементі.",
+      "fill спотворює пропорції зображення — рідко бажаний результат для фото.",
+    ],
+    related: ["css-background", "css-box-model"],
+  },
+
 };
 
 const TERM_GUIDES = {
