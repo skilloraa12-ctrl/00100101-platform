@@ -4621,6 +4621,96 @@ print(total(1, 2, 3, double=True))</pre>
     ],
     related: ["py-control-flow", "py-classes"],
   },
+  "sql-select-where": {
+    badge: "SQL",
+    title: "SELECT, WHERE, ORDER BY, LIMIT",
+    whatIsIt: "SELECT — основа кожного SQL-запиту, обирає колонки для вибірки з таблиці. WHERE фільтрує рядки за умовою, ORDER BY сортує результат, LIMIT обмежує кількість повернутих рядків.",
+    useCases: ["вибірка конкретних колонок замість усіх даних", "фільтрація рядків за умовою", "пагінація результатів (LIMIT + OFFSET)"],
+    syntax: `SELECT name, age FROM users\nWHERE age > 18\nORDER BY age DESC\nLIMIT 10;`,
+    attributes: [
+      { name: "SELECT * / SELECT col1, col2", desc: "* вибирає всі колонки, або перелічуй конкретні" },
+      { name: "FROM table", desc: "з якої таблиці вибираємо дані" },
+      { name: "WHERE умова", desc: "фільтрує рядки ДО групування" },
+      { name: "ORDER BY col ASC/DESC", desc: "сортує результат за зростанням (типово) чи спаданням" },
+      { name: "LIMIT n OFFSET m", desc: "обмежує кількість рядків і пропускає перші m — для пагінації" },
+      { name: "DISTINCT", desc: "прибирає повторювані рядки з результату" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT name, age FROM users
+WHERE age >= 18
+ORDER BY age DESC
+LIMIT 3;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">age</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">42</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">25</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Марія</td><td style="border:1px solid #ccc;padding:4px 10px;">19</td></tr>
+</table>`,
+    pitfalls: [
+      "WHERE не може використовувати результат агрегатної функції (COUNT, SUM) — для фільтрації груп потрібен HAVING.",
+      "Забутий ORDER BY — порядок рядків результату не гарантований жодним стандартом SQL.",
+      "SELECT * зручний для дослідження, але в продакшн-коді краще перелічувати конкретні колонки — стабільніше й ефективніше.",
+    ],
+    related: ["sql-filtering", "sql-aggregation-grouping"],
+  },
+  "sql-filtering": {
+    badge: "SQL",
+    title: "AND, OR, IN, BETWEEN, LIKE, IS NULL",
+    whatIsIt: "Оператори для побудови складних умов фільтрації у WHERE — комбінування кількох умов, перевірка входження в список, діапазон значень, пошук за текстовим шаблоном, перевірка відсутності значення.",
+    useCases: ["фільтрація за кількома критеріями одночасно (AND/OR)", "перевірка, чи значення входить у список варіантів (IN)", "пошук тексту за частковим збігом (LIKE)", "знаходження рядків з відсутнім значенням (IS NULL)"],
+    syntax: `WHERE city IN ('Київ', 'Львів')\n  AND age BETWEEN 18 AND 65\n  AND name LIKE 'О%';`,
+    attributes: [
+      { name: "AND / OR / NOT", desc: "комбінують кілька умов у WHERE" },
+      { name: "IN (список)", desc: "перевіряє, чи значення входить у заданий список" },
+      { name: "BETWEEN a AND b", desc: "перевіряє, чи значення в діапазоні (включно з краями)" },
+      { name: "LIKE 'шаблон'", desc: "пошук за текстовим шаблоном: % — будь-які символи, _ — один символ" },
+      { name: "IS NULL / IS NOT NULL", desc: "перевіряють відсутність значення — оператор = NULL НЕ працює" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT name, email FROM users
+WHERE email IS NULL
+   OR name LIKE 'О%';</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">email</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">olya@mail.com</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Богдан</td><td style="border:1px solid #ccc;padding:4px 10px;">NULL</td></tr>
+</table>`,
+    pitfalls: [
+      "WHERE email = NULL НІКОЛИ не спрацює — NULL не дорівнює нічому, навіть самому собі; завжди потрібен IS NULL.",
+      "LIKE без % на обох кінцях шукає точну відповідність, а не входження підрядка — 'О%' знаходить лише те, що ПОЧИНАЄТЬСЯ з 'О'.",
+    ],
+    related: ["sql-select-where"],
+  },
+  "sql-aggregation-grouping": {
+    badge: "SQL",
+    title: "COUNT, SUM, AVG, GROUP BY, HAVING",
+    whatIsIt: "Агрегатні функції обчислюють одне значення з набору рядків — кількість, суму, середнє. GROUP BY групує рядки за значенням колонки для застосування агрегації до кожної групи окремо. HAVING фільтрує вже ЗГРУПОВАНІ результати.",
+    useCases: ["підрахунок кількості замовлень на кожного клієнта", "сума продажів за кожен місяць", "знаходження груп, що перевищують певний поріг (напр. клієнти з 5+ замовленнями)"],
+    syntax: `SELECT city, COUNT(*) as total\nFROM users\nGROUP BY city\nHAVING COUNT(*) > 10;`,
+    attributes: [
+      { name: "COUNT(*) / COUNT(col)", desc: "кількість рядків / кількість НЕ-NULL значень у колонці" },
+      { name: "SUM() / AVG()", desc: "сума й середнє значення числової колонки" },
+      { name: "MIN() / MAX()", desc: "найменше й найбільше значення" },
+      { name: "GROUP BY col", desc: "групує рядки за значенням колонки — агрегатні функції рахують ОКРЕМО для кожної групи" },
+      { name: "HAVING умова", desc: "фільтрує групи ПІСЛЯ агрегації — WHERE тут не підходить" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT city, COUNT(*) as total, AVG(age) as avg_age
+FROM users
+GROUP BY city
+HAVING COUNT(*) > 1;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">city</th><th style="border:1px solid #ccc;padding:4px 10px;">total</th><th style="border:1px solid #ccc;padding:4px 10px;">avg_age</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Київ</td><td style="border:1px solid #ccc;padding:4px 10px;">15</td><td style="border:1px solid #ccc;padding:4px 10px;">29.4</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Львів</td><td style="border:1px solid #ccc;padding:4px 10px;">8</td><td style="border:1px solid #ccc;padding:4px 10px;">33.1</td></tr>
+</table>`,
+    pitfalls: [
+      "Колонка в SELECT, якої немає ні в GROUP BY, ні в агрегатній функції — помилка (чи непередбачувана поведінка) у більшості СУБД.",
+      "Плутанина WHERE і HAVING — WHERE фільтрує рядки ДО групування, HAVING — групи ПІСЛЯ, з доступом до результатів COUNT/SUM тощо.",
+      "COUNT(col) пропускає NULL-значення, а COUNT(*) рахує ВСІ рядки — різні результати для колонок з пропусками.",
+    ],
+    related: ["sql-select-where", "sql-window-functions"],
+  },
   "css-selectors": {
     badge: "CSS",
     title: "Селектори",
