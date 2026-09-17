@@ -8268,6 +8268,93 @@ ws.onmessage = (e) => console.log('Отримано:', e.data);</pre>
     ],
     related: ["backend-rest", "backend-security"],
   },
+  "backend-nodejs-modules": {
+    badge: "Backend",
+    title: "require/module.exports, process.env, fs/path",
+    whatIsIt: "Node.js виконує JavaScript поза браузером і додає власне середовище виконання: систему модулів для розбиття коду на файли, доступ до змінних середовища й файлової системи — того, чого немає у звичайному JS у браузері.",
+    useCases: ["розбиття серверного коду на окремі файли/модулі", "конфігурація застосунку через змінні середовища (порт, секрети, URL бази даних)", "читання/запис файлів, побудова кросплатформних шляхів"],
+    syntax: `// math.js\nmodule.exports = { add: (a, b) => a + b };\n\n// index.js\nconst { add } = require('./math');\nconsole.log(add(2, 3));`,
+    attributes: [
+      { name: "module.exports", desc: "визначає, що саме файл-модуль експортує для використання в інших файлах" },
+      { name: "require('./file')", desc: "підключає інший модуль за відносним чи пакетним шляхом" },
+      { name: "process.env.NAME", desc: "доступ до змінної середовища — конфігурації, що не повинна бути в коді" },
+      { name: "fs.readFileSync(path)", desc: "синхронно читає вміст файлу" },
+      { name: "path.join(...)", desc: "будує коректний шлях до файлу незалежно від ОС (Windows/Linux/Mac)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const path = require('path');
+const fs = require('fs');
+
+const filePath = path.join(__dirname, 'data.json');
+const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+console.log(data.users.length);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">3</pre>`,
+    pitfalls: [
+      "Захардкоджені секрети/паролі прямо в коді замість process.env — потрапляють у git-історію й видно кожному з доступом до репозиторію.",
+      "Ручна конкатенація шляхів через '/' (напр. dir + '/' + file) замість path.join — ламається на Windows, де роздільник інший.",
+      "fs.readFileSync у коді, що обробляє HTTP-запити — блокує весь процес Node.js на час читання файлу; для серверів краще асинхронний fs.promises.",
+    ],
+    related: ["backend-express-routing"],
+  },
+  "backend-express-routing": {
+    badge: "Backend",
+    title: "app.get()/app.post(), req/res, params/query/body",
+    whatIsIt: "Express — мінімалістичний веб-фреймворк для Node.js. Маршрути (routes) реєструють обробники для конкретного HTTP-методу й шляху; об'єкти req і res представляють вхідний запит і вихідну відповідь відповідно.",
+    useCases: ["реєстрація обробника для конкретного ендпоінту API", "читання параметрів URL, query-рядка чи тіла запиту", "формування JSON-відповіді з потрібним статус-кодом"],
+    syntax: `app.get('/users/:id', (req, res) => {\n  const { id } = req.params;\n  res.json({ id, name: 'Оля' });\n});`,
+    attributes: [
+      { name: "app.get() / app.post() / ...", desc: "реєструють обробник для запитів певного HTTP-методу на вказаному шляху" },
+      { name: "req.params", desc: "динамічні частини URL, напр. /users/:id → req.params.id" },
+      { name: "req.query", desc: "параметри після ? у URL, напр. ?page=2 → req.query.page" },
+      { name: "req.body", desc: "дані з тіла запиту (потребує middleware express.json())" },
+      { name: "res.json() / res.status()", desc: "відправляють JSON-відповідь і задають HTTP-код статусу" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">app.get('/users/:id', (req, res) => {
+  const user = users.find(u => u.id === Number(req.params.id));
+  if (!user) return res.status(404).json({ error: 'Not found' });
+  res.json(user);
+});</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (GET /users/42, користувача немає):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">404 { "error": "Not found" }</pre>`,
+    pitfalls: [
+      "Читання req.body без підключеного middleware express.json() — body лишається undefined.",
+      "Плутанина req.params і req.query — params завжди з визначеної частини шляху (:id), query — довільні ?key=value.",
+      "Забутий return перед res.status(...).json(...) в умові — код виконується далі й намагається відправити відповідь двічі, що кидає помилку.",
+    ],
+    related: ["backend-nodejs-modules", "backend-express-middleware"],
+  },
+  "backend-express-middleware": {
+    badge: "Backend",
+    title: "Middleware, next()",
+    whatIsIt: "Middleware — функція, що виконується МІЖ отриманням запиту й фінальним обробником маршруту. Має доступ до req/res і вирішує: обробити запит самостійно, змінити його і передати далі через next(), чи перервати ланцюжок.",
+    useCases: ["логування кожного вхідного запиту", "перевірка автентифікації перед доступом до захищених маршрутів", "парсинг тіла запиту (express.json()) перед тим, як воно дійде до обробника", "централізована обробка помилок"],
+    syntax: `app.use((req, res, next) => {\n  console.log(\`\${req.method} \${req.url}\`);\n  next();\n});`,
+    attributes: [
+      { name: "app.use(fn)", desc: "підключає middleware до всіх маршрутів (чи до вказаного префіксу шляху)" },
+      { name: "(req, res, next) => {}", desc: "сигнатура middleware-функції — три параметри, третій викликає наступну ланку" },
+      { name: "next()", desc: "передає керування наступному middleware чи обробнику маршруту" },
+      { name: "next(err)", desc: "передає керування одразу в обробник помилок, минаючи звичайні middleware" },
+      { name: "порядок підключення", desc: "middleware виконуються В ПОРЯДКУ реєстрації — це критично для автентифікації, логування тощо" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">function requireAuth(req, res, next) {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: 'No token' });
+  }
+  next();
+}
+
+app.get('/profile', requireAuth, (req, res) => {
+  res.json({ name: 'Оля' });
+});</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (GET /profile без заголовка Authorization):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">401 { "error": "No token" }</pre>`,
+    pitfalls: [
+      "Забутий виклик next() у middleware — запит «зависає» назавжди, клієнт ніколи не отримує відповідь.",
+      "Виклик next() ПІСЛЯ res.send()/res.json() — призводить до помилки «Cannot set headers after they are sent».",
+      "Middleware автентифікації, підключений ПІСЛЯ маршруту, який має захищати — маршрут лишається публічним.",
+    ],
+    related: ["backend-express-routing", "backend-auth"],
+  },
 
 };
 
