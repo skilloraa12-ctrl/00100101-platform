@@ -1368,6 +1368,22 @@ const SYMBOLS = [
   { cat: "JS: Symbol", sym: "Symbol()", en: "Symbol primitive", ua: "Примітив Symbol", langs: "JS", example: "const id = Symbol('id');", explain: "Створює унікальне, незмінне значення — часто для прихованих ключів об'єкта." },
   { cat: "JS: Reflect/Proxy", sym: "Proxy", en: "Proxy object", ua: "Об'єкт Proxy", langs: "JS", example: "new Proxy(target, handler);", explain: "Перехоплює й перевизначає базові операції над об'єктом (читання, запис, виклик)." },
 
+  { cat: "JS: Сховище", sym: "localStorage / sessionStorage", en: "Web storage", ua: "Веб-сховище браузера", langs: "JS", example: "localStorage.setItem('theme', 'dark');", explain: "localStorage зберігає дані без терміну дії, sessionStorage — лише на час вкладки." },
+  { cat: "JS: Сховище", sym: "getItem() / setItem() / removeItem()", en: "Storage methods", ua: "Методи сховища", langs: "JS", example: "localStorage.getItem('theme');", explain: "Читають, записують чи видаляють значення зі сховища за ключем." },
+  { cat: "JS: Console", sym: "console.log() / console.error() / console.warn()", en: "Console output methods", ua: "Методи виводу в консоль", langs: "JS", example: "console.log('Дебаг:', value);", explain: "Виводять повідомлення в консоль розробника різного рівня важливості." },
+  { cat: "JS: Console", sym: "console.table() / console.group()", en: "Console formatting methods", ua: "Методи форматування консолі", langs: "JS", example: "console.table(users);", explain: "table показує масив об'єктів як таблицю, group групує повідомлення у згорнутий блок." },
+  { cat: "JS: Canvas API", sym: "getContext('2d')", en: "Canvas context", ua: "Контекст малювання canvas", langs: "JS", example: "const ctx = canvas.getContext('2d');", explain: "Повертає об'єкт для малювання на canvas — усі методи малювання викликаються на ньому." },
+  { cat: "JS: Canvas API", sym: "fillRect() / strokeRect() / clearRect()", en: "Canvas rectangle methods", ua: "Методи прямокутника canvas", langs: "JS", example: "ctx.fillRect(10, 10, 100, 50);", explain: "Малюють заповнений, обведений чи очищають прямокутну область." },
+  { cat: "JS: Canvas API", sym: "beginPath() / moveTo() / lineTo() / arc()", en: "Canvas path methods", ua: "Методи контуру canvas", langs: "JS", example: "ctx.arc(50, 50, 40, 0, Math.PI * 2);", explain: "Будують довільний контур для малювання ліній, кривих і дуг." },
+  { cat: "JS: Web APIs", sym: "AbortController", en: "Abort controller", ua: "Контролер скасування", langs: "JS", example: "const c = new AbortController(); fetch(url, {signal: c.signal});", explain: "Дозволяє скасувати fetch-запит чи іншу асинхронну операцію." },
+  { cat: "JS: Web APIs", sym: "IntersectionObserver", en: "Intersection observer", ua: "Спостерігач перетину", langs: "JS", example: "new IntersectionObserver(callback);", explain: "Відстежує, коли елемент з'являється/зникає у видимій області екрана — для лінивого завантаження, анімацій при скролі." },
+  { cat: "JS: Web APIs", sym: "MutationObserver", en: "Mutation observer", ua: "Спостерігач змін DOM", langs: "JS", example: "new MutationObserver(callback).observe(el, {childList: true});", explain: "Відстежує зміни в DOM-дереві — додавання/видалення елементів, зміну атрибутів." },
+  { cat: "JS: Web APIs", sym: "ResizeObserver", en: "Resize observer", ua: "Спостерігач зміни розміру", langs: "JS", example: "new ResizeObserver(callback).observe(el);", explain: "Відстежує зміну розміру конкретного елемента (не всього вікна)." },
+  { cat: "JS: Web APIs", sym: "navigator.clipboard", en: "Clipboard API", ua: "API буфера обміну", langs: "JS", example: "navigator.clipboard.writeText('текст');", explain: "Дозволяє читати чи записувати текст у системний буфер обміну." },
+  { cat: "JS: Web APIs", sym: "navigator.geolocation", en: "Geolocation API", ua: "API геолокації", langs: "JS", example: "navigator.geolocation.getCurrentPosition(fn);", explain: "Отримує поточні координати користувача (з його дозволу)." },
+  { cat: "JS: Web APIs", sym: "requestAnimationFrame()", en: "Animation frame request", ua: "Запит кадру анімації", langs: "JS", example: "requestAnimationFrame(draw);", explain: "Планує виконання функції перед наступним перемальовуванням екрана — для плавних JS-анімацій." },
+  { cat: "JS: Web APIs", sym: "Worker", en: "Web worker", ua: "Веб-воркер", langs: "JS", example: "new Worker('worker.js');", explain: "Запускає JS-код у фоновому потоці, не блокуючи основний UI-потік." },
+
 ];
 
 const LIBRARY_HTML = [
