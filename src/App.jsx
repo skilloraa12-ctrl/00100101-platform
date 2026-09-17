@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
-  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info
+  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server
 } from "lucide-react";
 
 /* =========================================================================
@@ -1837,6 +1837,27 @@ const LIBRARY_SQL = [
   { name: "DELETE FROM", desc: "Видаляє рядки з таблиці.", syntax: "DELETE FROM users WHERE id = 1;", attrs: "—", pitfalls: "DELETE без WHERE видаляє всі рядки — так само небезпечно, як UPDATE без WHERE." },
   { name: "COUNT / SUM / AVG", desc: "Агрегатні функції для підрахунку по групі рядків.", syntax: "SELECT AVG(age) FROM users;", attrs: "MIN(), MAX() теж агрегатні", pitfalls: "Агрегатні функції ігнорують NULL-значення при підрахунку." },
   { name: "NULL", desc: "Позначення відсутності значення — не те саме, що 0 чи порожній рядок.", syntax: "WHERE email IS NULL", attrs: "IS NULL, IS NOT NULL", pitfalls: "age = NULL ніколи не істинне — потрібно саме IS NULL." },
+];
+
+const LIBRARY_SERVERS = [
+  { name: "GitHub", desc: "Хостинг git-репозиторіїв, командна робота через Pull Request, автоматизація через Actions.", syntax: "git remote add origin https://github.com/user/repo.git\ngit push -u origin main", attrs: "Безкоштовно: так (необмежено публічних і приватних репо) · 2000 хв/міс Actions", pitfalls: "Токен доступу (PAT) показується один раз — і ніколи не комітиться в репозиторій.", guide: "server-github" },
+  { name: "Cloudflare", desc: "CDN, DNS і захист сайту, плюс безкоштовний хостинг фронтенду (Pages) і серверless-функцій (Workers).", syntax: "npx wrangler login\nnpx wrangler deploy", attrs: "Безкоштовно: так · Workers 100k запитів/день · Pages необмежено сайтів", pitfalls: "API-токен без обмеження прав (scopes) — серйозний ризик, якщо витече.", guide: "server-cloudflare" },
+  { name: "Supabase", desc: "Готовий бекенд на базі Postgres: база даних, автентифікація, файлове сховище й автогенероване API.", syntax: "import { createClient } from '@supabase/supabase-js'\nconst supabase = createClient(url, anonKey);", attrs: "Безкоштовно: так · 500 MB БД · 50k активних користувачів автентифікації", pitfalls: "service_role ключ дає ПОВНИЙ доступ до бази в обхід прав доступу — лише на сервері, ніколи у фронтенді.", guide: "server-supabase" },
+  { name: "Firebase", desc: "Backend-платформа від Google: Firestore/Realtime Database, автентифікація, хостинг, файлове сховище.", syntax: "import { initializeApp } from 'firebase/app'\nconst app = initializeApp(firebaseConfig);", attrs: "Безкоштовно: так (Spark) · 1 GB Firestore · 10 GB хостинг/міс", pitfalls: "Правила безпеки (Security Rules) за замовчуванням можуть бути занадто відкритими — завжди перевіряй перед продакшеном.", guide: "server-firebase" },
+  { name: "ElevenLabs", desc: "AI-генерація озвучки (text-to-speech) реалістичними голосами через API.", syntax: "fetch('https://api.elevenlabs.io/v1/text-to-speech/{voice_id}', {\n  headers: { 'xi-api-key': apiKey }\n});", attrs: "Безкоштовно: так · 10000 символів/міс на free tier", pitfalls: "Безкоштовний ліміт рахується по символах тексту — довгі тексти швидко його вичерпують.", guide: "server-elevenlabs" },
+  { name: "Vercel", desc: "Хостинг і деплой фронтенд-застосунків (React/Next.js) прямо з git-репозиторію, з preview для кожного PR.", syntax: "npm i -g vercel\nvercel deploy", attrs: "Безкоштовно: так (Hobby) · 100 GB трафіку/міс", pitfalls: "Безкоштовний план — лише для особистих некомерційних проєктів, не для команд/бізнесу.", guide: "server-vercel" },
+  { name: "Netlify", desc: "Хостинг статичних сайтів і фронтенд-застосунків з автоматичним деплоєм із git.", syntax: "npm i -g netlify-cli\nnetlify deploy --prod", attrs: "Безкоштовно: так · 100 GB трафіку/міс · 300 хв збірки/міс", pitfalls: "Перевищення ліміту хвилин збірки зупиняє автодеплой до наступного місяця.", guide: "server-netlify" },
+  { name: "Render", desc: "Хостинг бекенд-застосунків, баз даних і фонових задач — альтернатива власному серверу без DevOps.", syntax: "# render.yaml описує сервіс\nservices:\n  - type: web\n    env: node", attrs: "Безкоштовно: так · безкоштовні сервіси «засинають» без трафіку", pitfalls: "Безкоштовний веб-сервіс засинає після 15 хв без запитів — перший запит після цього повільний.", guide: "server-render" },
+  { name: "Railway", desc: "Швидкий деплой бекенду й баз даних з git, з готовими шаблонами (Postgres, Redis, Node.js).", syntax: "npm i -g @railway/cli\nrailway up", attrs: "Безкоштовно: пробний $5 кредиту, далі платно", pitfalls: "На відміну від інших сервісів у списку, немає постійного безкоштовного тарифу — лише стартовий кредит.", guide: "server-railway" },
+  { name: "MongoDB Atlas", desc: "Хмарний хостинг MongoDB (NoSQL, документна база даних) з безкоштовним кластером.", syntax: "MongoClient.connect(process.env.MONGODB_URI)", attrs: "Безкоштовно: так (M0) · 512 MB сховища назавжди", pitfalls: "Кластер M0 без активності не видаляється, але має обмежену продуктивність — не для продакшн-навантаження.", guide: "server-mongodb-atlas" },
+  { name: "Neon", desc: "Серверless Postgres із моментальним створенням гілок бази даних (як git-гілки, але для БД).", syntax: "import postgres from 'postgres'\nconst sql = postgres(process.env.DATABASE_URL);", attrs: "Безкоштовно: так · 0.5 GB сховища · автопауза при бездіяльності", pitfalls: "База «засинає» при бездіяльності — перший запит після паузи повільніший (холодний старт).", guide: "server-neon" },
+  { name: "Upstash", desc: "Серверless Redis і черги повідомлень — оплата за фактичні запити, без постійно запущеного сервера.", syntax: "import { Redis } from '@upstash/redis'\nconst redis = new Redis({ url, token });", attrs: "Безкоштовно: так · 500 000 команд/міс", pitfalls: "REST-based Redis має вищу затримку за традиційний Redis — не для задач, де критичні мікросекунди.", guide: "server-upstash" },
+  { name: "Resend", desc: "API для відправки транзакційних листів (підтвердження реєстрації, скидання пароля) з коду.", syntax: "await resend.emails.send({ from, to, subject, html });", attrs: "Безкоштовно: так · 3000 листів/міс, 100/день", pitfalls: "Без підтвердження власного домену листи можуть потрапляти в спам чи мати обмежений ліміт відправника.", guide: "server-resend" },
+  { name: "Stripe", desc: "Обробка онлайн-платежів і підписок — картки, рахунки, повернення коштів через API.", syntax: "const session = await stripe.checkout.sessions.create({ line_items, mode: 'payment' });", attrs: "Безкоштовно: немає плати за підключення · комісія лише з реальних транзакцій", pitfalls: "Секретний ключ (sk_...) дає повний доступ до операцій з грошима — виключно на сервері, НІКОЛИ у фронтенді.", guide: "server-stripe" },
+  { name: "OpenAI", desc: "API до мовних моделей (GPT) і генерації зображень для інтеграції ШІ у власний застосунок.", syntax: "const res = await openai.chat.completions.create({ model, messages });", attrs: "Безкоштовно: ні · оплата за токени, є пробний кредит для нових акаунтів", pitfalls: "Ключ API у фронтенд-коді видно будь-кому в DevTools — запити лише через власний бекенд.", guide: "server-openai" },
+  { name: "Cloudinary", desc: "Хостинг, оптимізація й трансформація зображень і відео «на льоту» через URL-параметри.", syntax: "<img src=\"https://res.cloudinary.com/demo/image/upload/w_300/sample.jpg\">", attrs: "Безкоштовно: так · 25 кредитів/міс (≈25 GB трафіку)", pitfalls: "Трансформації зображень (resize, crop) рахуються в кредити — необмежена кількість варіантів однієї картинки може швидко вичерпати ліміт.", guide: "server-cloudinary" },
+  { name: "Sentry", desc: "Моніторинг помилок у продакшені — автоматично збирає стек-трейси й контекст падінь застосунку.", syntax: "Sentry.init({ dsn: process.env.SENTRY_DSN });", attrs: "Безкоштовно: так · 5000 помилок/міс", pitfalls: "DSN не є секретом (його можна лишати у фронтенд-коді), але забагато шуму без фільтрації швидко з'їдає ліміт.", guide: "server-sentry" },
+  { name: "Clerk", desc: "Готова автентифікація й керування користувачами (логін, реєстрація, профілі) як вбудовані UI-компоненти.", syntax: "<SignedIn><UserButton /></SignedIn>\n<SignedOut><SignInButton /></SignedOut>", attrs: "Безкоштовно: так · 10 000 місячних активних користувачів (MAU)", pitfalls: "Публічний (publishable) ключ можна лишати у фронтенді, а secret key — лише на сервері.", guide: "server-clerk" },
 ];
 
 /* =========================================================================
@@ -10960,6 +10981,17 @@ function TermGuidePage({ guideId, onBack }) {
         </div>
       </div>
 
+      {guide.link && (
+        <a
+          href={guide.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`inline-flex items-center gap-1.5 text-sm mb-4 px-3 py-1.5 rounded-md border ${c.border} ${c.text} hover:bg-stone-900`}
+        >
+          <ExternalLink size={14} /> Відкрити {guide.linkLabel || guide.titleEn}
+        </a>
+      )}
+
       <p className="text-stone-300 mb-6">{guide.intro}</p>
 
       <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -11180,7 +11212,7 @@ function ReferencePage() {
 function LibraryPage() {
   const [tab, setTab] = useState("html");
   const [openGuide, setOpenGuide] = useState(null);
-  const data = { html: LIBRARY_HTML, css: LIBRARY_CSS, js: LIBRARY_JS, python: LIBRARY_PYTHON, sql: LIBRARY_SQL }[tab];
+  const data = { html: LIBRARY_HTML, css: LIBRARY_CSS, js: LIBRARY_JS, python: LIBRARY_PYTHON, sql: LIBRARY_SQL, servers: LIBRARY_SERVERS }[tab];
 
   if (openGuide) return <TermGuidePage guideId={openGuide} onBack={() => setOpenGuide(null)} />;
 
@@ -11189,7 +11221,7 @@ function LibraryPage() {
       <h1 className="text-2xl font-semibold text-stone-100 mb-1 flex items-center gap-2"><Library size={22} className="text-amber-400" /> Бібліотека</h1>
       <p className="text-stone-500 text-sm mb-5">Довідник тегів, властивостей і концепцій — шукай і читай у будь-якому порядку. {data.length} записів у цьому розділі.</p>
       <div className="flex flex-wrap gap-2 mb-5">
-        {[["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["python", "Python"], ["sql", "SQL"]].map(([id, label]) => (
+        {[["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["python", "Python"], ["sql", "SQL"], ["servers", "Сервери"]].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`px-3 py-1.5 rounded-md text-sm ${tab === id ? "bg-stone-800 text-amber-400" : "text-stone-400 hover:bg-stone-900"}`}>{label}</button>
         ))}
       </div>
@@ -11443,7 +11475,7 @@ function buildSearchIndex() {
     idx.push({ kind: "Урок", label: l.title, sub: l.theory.slice(0, 70) + "…", nav: { view: "course", courseId, lessonId: l.id } });
   });
   SYMBOLS.forEach((s) => idx.push({ kind: "Символ", label: `${s.sym} — ${s.ua}`, sub: s.en, nav: { view: "symbols" } }));
-  [...LIBRARY_HTML, ...LIBRARY_CSS, ...LIBRARY_JS, ...LIBRARY_PYTHON, ...LIBRARY_SQL].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
+  [...LIBRARY_HTML, ...LIBRARY_CSS, ...LIBRARY_JS, ...LIBRARY_PYTHON, ...LIBRARY_SQL, ...LIBRARY_SERVERS].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
   ENGLISH_WORDS.forEach((w) => idx.push({ kind: "English", label: w.en, sub: w.ua, nav: { view: "english" } }));
   UKRAINIAN_TERMS.forEach((t) => idx.push({ kind: "Українська", label: t.correct, sub: t.en, nav: { view: "ukrainian" } }));
   Object.entries(CHEATSHEETS).forEach(([id, sheet]) => {
