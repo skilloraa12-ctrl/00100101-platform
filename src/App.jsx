@@ -890,6 +890,144 @@ const HTML_LESSONS = [
       return { pass: true, message: "rel=\"noopener\" закриває діру безпеки: без нього нова вкладка могла б керувати вихідною сторінкою через window.opener." };
     },
   },
+  {
+    id: "html-36",
+    title: "data-*, tabindex, hidden",
+    theory:
+      "Це глобальні атрибути — працюють на БУДЬ-ЯКОМУ тегу. data-* (напр. data-user-id) дозволяє зберегти власні дані прямо в HTML, які потім читає JavaScript (через element.dataset). tabindex=\"0\" робить елемент доступним для переходу клавішею Tab у природному порядку. hidden повністю ховає елемент зі сторінки — як display:none, але просто одним словом в HTML.",
+    example: { code: `<div data-user-id="42">Профіль</div>\n<p hidden>Не показувати</p>`, explain: "data-user-id прочитає JS через element.dataset.userId; hidden прибирає елемент з відображення." },
+    task: 'Створи div з data-user-id="42" і текстом "Профіль". Створи button з tabindex="0" і текстом "Клікни". Створи p з атрибутом hidden і текстом "Не показувати".',
+    starter: "",
+    hints: [
+      "data-user-id пишеться як звичайний атрибут: data-user-id=\"42\".",
+      "hidden пишеться без значення, просто як слово в тегу.",
+      'Приклад: <div data-user-id="42">Профіль</div><button tabindex="0">Клікни</button><p hidden>Не показувати</p>',
+    ],
+    solution: `<div data-user-id="42">Профіль</div>\n<button tabindex="0">Клікни</button>\n<p hidden>Не показувати</p>`,
+    type: "html",
+    check: (doc) => {
+      const div = doc.querySelector('div[data-user-id="42"]');
+      if (!div || div.textContent.trim() !== "Профіль") return { pass: false, message: 'Потрібен div з data-user-id="42" і текстом "Профіль".' };
+      const btn = doc.querySelector('button[tabindex="0"]');
+      if (!btn || btn.textContent.trim() !== "Клікни") return { pass: false, message: 'Потрібна button з tabindex="0" і текстом "Клікни".' };
+      const p = doc.querySelector("p[hidden]");
+      if (!p || p.textContent.trim() !== "Не показувати") return { pass: false, message: "Потрібен p з атрибутом hidden і текстом «Не показувати»." };
+      return { pass: true, message: "data-* — офіційний, валідний спосіб зберігати власні дані в HTML, без вигадування нестандартних атрибутів." };
+    },
+  },
+  {
+    id: "html-37",
+    title: "HTML-сутності (entities)",
+    theory:
+      "Символи <, > і & мають спеціальне значення в HTML (починають теги чи сутності), тому писати їх буквально в тексті небезпечно — браузер може сплутати їх із розміткою. Для цього є сутності: &lt; (<), &gt; (>), &amp; (&), &quot; (\"), &nbsp; (нерозривний пробіл), &copy; (©).",
+    example: { code: `<p>5 &lt; 10</p>`, explain: "&lt; безпечно показує символ <, не ризикуючи, що браузер прийме його за початок тега." },
+    task: 'Створи абзац з текстом "5 &lt; 10 та 10 &gt; 5" — використай сутності &lt; і &gt; замість символів < і >. Створи другий абзац із сутністю &copy; та роком 2025.',
+    starter: "",
+    hints: [
+      "Пиши буквально &lt; і &gt; у коді — це і є сутності, браузер сам покаже їх як < і >.",
+      "&copy; перетвориться на символ ©.",
+      "Приклад: <p>5 &lt; 10 та 10 &gt; 5</p><p>&copy; 2025</p>",
+    ],
+    solution: `<p>5 &lt; 10 та 10 &gt; 5</p>\n<p>&copy; 2025</p>`,
+    type: "html",
+    check: (doc, raw) => {
+      if (!raw.includes("&lt;") || !raw.includes("&gt;")) return { pass: false, message: "Потрібно використати сутності &lt; і &gt; замість символів < і > у коді." };
+      if (!raw.includes("&copy;")) return { pass: false, message: "Потрібно використати сутність &copy; для символу копірайту." };
+      const ps = doc.querySelectorAll("p");
+      if (ps.length < 2) return { pass: false, message: "Потрібні два окремі абзаци <p>." };
+      const p1 = ps[0].textContent;
+      if (!p1.includes("<") || !p1.includes(">")) return { pass: false, message: "Перший абзац після розбору має відображати символи < і >." };
+      const p2 = ps[1].textContent;
+      if (!p2.includes("©") || !p2.includes("2025")) return { pass: false, message: "Другий абзац має містити символ © і рік 2025." };
+      return { pass: true, message: "Сутності — безпечний спосіб показати «зарезервовані» символи HTML як звичайний текст." };
+    },
+  },
+  {
+    id: "html-38",
+    title: "Блокові й рядкові елементи",
+    theory:
+      "Кожен HTML-елемент типово поводиться як block (блоковий) або inline (рядковий). Блокові (div, p, h1-h6, ul, section) завжди починаються з нового рядка й займають усю доступну ширину. Рядкові (span, a, strong, em, img) течуть просто в тексті, не розривають рядок і не займають ширину більше за свій вміст.",
+    example: { code: `<div><span>Раз</span> <span>Два</span></div>`, explain: "div — блоковий, починає новий рядок; span усередині — рядкові, течуть один за одним у тому самому рядку." },
+    task: 'Створи div (блоковий елемент), а всередині — два span (рядкові елементи) з текстом "Раз" і "Два" відповідно, розділені пробілом у самому тексті.',
+    starter: "",
+    hints: [
+      "div — один зовнішній блоковий контейнер.",
+      "Усередині — два span підряд, розділені звичайним пробілом (не br чи окремим тегом).",
+      'Приклад: <div><span>Раз</span> <span>Два</span></div>',
+    ],
+    solution: `<div><span>Раз</span> <span>Два</span></div>`,
+    type: "html",
+    check: (doc) => {
+      const div = doc.querySelector("div");
+      if (!div) return { pass: false, message: "Потрібен тег <div>." };
+      const spans = div.querySelectorAll("span");
+      if (spans.length !== 2) return { pass: false, message: `Усередині div потрібно рівно 2 <span>, зараз: ${spans.length}.` };
+      if (spans[0].textContent.trim() !== "Раз" || spans[1].textContent.trim() !== "Два")
+        return { pass: false, message: 'Тексти span мають бути "Раз" і "Два" у такому порядку.' };
+      return { pass: true, message: "div (блоковий) починає новий рядок; span (рядкові) усередині течуть один за одним у тому самому рядку." };
+    },
+  },
+  {
+    id: "html-39",
+    title: "SEO та head: meta description, favicon, Open Graph",
+    theory:
+      "meta name=\"description\" — короткий опис сторінки, який пошукові системи показують у результатах пошуку. link rel=\"icon\" підключає favicon — маленьку іконку у вкладці браузера. Open Graph теги (meta property=\"og:...\") контролюють, як посилання виглядає при поширенні в соцмережах і месенджерах — заголовок, опис, картинка прев'ю.",
+    example: { code: `<meta name="description" content="Короткий опис сторінки для Google">\n<link rel="icon" href="favicon.ico">`, explain: "Обидва теги невидимі на сторінці, але впливають на те, як її бачать пошуковики й браузер." },
+    task: 'У head додай meta name="description" content="Платформа для вивчення програмування", link rel="icon" href="favicon.ico", і meta property="og:title" content="00100101".',
+    starter: "",
+    hints: [
+      "Усі три теги — самозакривні, лежать усередині <head>.",
+      "og:title пишеться в атрибуті property, а не name (це особливість формату Open Graph).",
+      'Приклад: <head><meta name="description" content="Платформа для вивчення програмування"><link rel="icon" href="favicon.ico"><meta property="og:title" content="00100101"></head>',
+    ],
+    solution: `<html><head>\n  <meta name="description" content="Платформа для вивчення програмування">\n  <link rel="icon" href="favicon.ico">\n  <meta property="og:title" content="00100101">\n</head><body></body></html>`,
+    type: "html",
+    check: (doc) => {
+      const desc = doc.querySelector('meta[name="description"]');
+      if (!desc || desc.getAttribute("content") !== "Платформа для вивчення програмування")
+        return { pass: false, message: 'Потрібен meta name="description" content="Платформа для вивчення програмування".' };
+      const icon = doc.querySelector('link[rel="icon"]');
+      if (!icon || icon.getAttribute("href") !== "favicon.ico") return { pass: false, message: 'Потрібен link rel="icon" href="favicon.ico".' };
+      const og = doc.querySelector('meta[property="og:title"]');
+      if (!og || og.getAttribute("content") !== "00100101") return { pass: false, message: 'Потрібен meta property="og:title" content="00100101".' };
+      return { pass: true, message: "Ці три теги не видно на сторінці, але саме вони визначають, як сайт виглядає в Google і при поширенні посиланням." };
+    },
+  },
+  {
+    id: "html-40",
+    title: "Фінальний проєкт 3: лендінг-сторінка",
+    theory:
+      "Зведи все, що вивчила за курс, в одну реальну сторінку: семантичну структуру (header/nav/main/section/footer), форму підписки і правильні заголовки. Саме так влаштовані лендінги справжніх продуктів.",
+    example: {
+      code: `<header>\n  <h1>Продукт</h1>\n  <nav><a href="#a">A</a><a href="#b">B</a></nav>\n</header>\n<main>\n  <section><h2>Про нас</h2><p>Текст</p></section>\n  <form><input type="email"><button type="submit">OK</button></form>\n</main>\n<footer>© 2025</footer>`,
+      explain: "Кожен блок сторінки — свій семантичний тег, а не купа безликих div.",
+    },
+    task: 'Створи повноцінну структуру лендінгу: header з h1 і nav усередині (у nav — щонайменше 2 посилання a); main, що містить section з h2 і p усередині, а також form з input і button type="submit"; footer з текстом, що містить "2025".',
+    starter: "",
+    hints: [
+      "nav і його посилання лежать УСЕРЕДИНІ header, поруч із h1.",
+      "У main — два окремі блоки: section (з h2 і p) і form (з input і button).",
+      "footer — окремий блок після main, з текстом, що містить рік.",
+    ],
+    solution: `<header>\n  <h1>Моя Платформа</h1>\n  <nav>\n    <a href="#about">Про нас</a>\n    <a href="#contact">Контакти</a>\n  </nav>\n</header>\n<main>\n  <section>\n    <h2>Про нас</h2>\n    <p>Ми навчаємо програмуванню.</p>\n  </section>\n  <form>\n    <input type="email" name="email" placeholder="Ваш email">\n    <button type="submit">Підписатись</button>\n  </form>\n</main>\n<footer>© 2025 Моя Платформа</footer>`,
+    type: "html",
+    check: (doc) => {
+      const header = doc.querySelector("header");
+      if (!header || !header.querySelector("h1")) return { pass: false, message: "Потрібен <header> з <h1>." };
+      const nav = header.querySelector("nav");
+      if (!nav || nav.querySelectorAll("a").length < 2) return { pass: false, message: "Усередині header потрібен <nav> щонайменше з 2 посиланнями <a>." };
+      const main = doc.querySelector("main");
+      if (!main) return { pass: false, message: "Потрібен <main>." };
+      const section = main.querySelector("section");
+      if (!section || !section.querySelector("h2") || !section.querySelector("p")) return { pass: false, message: "У main потрібна <section> з h2 і p усередині." };
+      const form = main.querySelector("form");
+      if (!form || !form.querySelector("input") || !form.querySelector('button[type="submit"]'))
+        return { pass: false, message: "У main потрібна <form> з input і button type=\"submit\"." };
+      const footer = doc.querySelector("footer");
+      if (!footer || !footer.textContent.includes("2025")) return { pass: false, message: "Потрібен <footer> з текстом, що містить «2025»." };
+      return { pass: true, message: "Це вже структура реальної продакшн-сторінки — саме так організовані лендінги справжніх продуктів. Курс HTML завершено!" };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
