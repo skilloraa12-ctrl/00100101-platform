@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
-  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server
+  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw
 } from "lucide-react";
 
 /* =========================================================================
@@ -1448,6 +1448,41 @@ const COURSES = [
   { id: "backend", title: "Backend", subtitle: "власний сервер + API", lessons: [], status: "planned", accent: "orange" },
   { id: "fullstack", title: "Full Stack", subtitle: "повноцінний власний продукт", lessons: [], status: "planned", accent: "stone" },
 ];
+
+const PROJECT_THEMES = [
+  { id: "tech-store", icon: "💻", title: "Магазин техніки", description: "Інтернет-магазин з каталогом товарів, картками і кошиком.", defaultName: "TechShop", navLinks: ["Каталог", "Про нас", "Контакти"], accent: "sky" },
+  { id: "news", icon: "📰", title: "Новинний сайт", description: "Стрічка новин із заголовками, датами й категоріями.", defaultName: "Новини Дня", navLinks: ["Новини", "Політика", "Спорт"], accent: "rose" },
+  { id: "realestate", icon: "🏠", title: "Рієлторська компанія", description: "Каталог нерухомості з фото, ціною й описом об'єктів.", defaultName: "Домівка", navLinks: ["Об'єкти", "Про компанію", "Контакти"], accent: "amber" },
+  { id: "beauty", icon: "💅", title: "Салон краси", description: "Сторінка послуг, майстрів і запису на прийом.", defaultName: "Beauty Studio", navLinks: ["Послуги", "Майстри", "Запис"], accent: "fuchsia" },
+  { id: "gym", icon: "🏋️", title: "Спортзал", description: "Розклад тренувань, тренери й абонементи.", defaultName: "PowerGym", navLinks: ["Тренування", "Тренери", "Абонементи"], accent: "orange" },
+];
+
+function defaultProject() {
+  return { themeId: null, siteName: "", navLinks: [], html: "", css: "", js: "" };
+}
+
+function buildInitialProjectHtml(theme, siteName) {
+  const links = theme.navLinks.map((l) => `      <a href="#">${l}</a>`).join("\n");
+  return `<header>\n  <h1>${siteName}</h1>\n  <nav>\n${links}\n  </nav>\n</header>\n<main>\n  <!-- Тут з'являться нові блоки в міру проходження уроків -->\n</main>\n<footer>\n  <p>© 2025 ${siteName}</p>\n</footer>`;
+}
+
+async function loadProject() {
+  try {
+    const raw = localStorage.getItem("00100101-project");
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    /* no saved project yet */
+  }
+  return defaultProject();
+}
+
+async function saveProject(p) {
+  try {
+    localStorage.setItem("00100101-project", JSON.stringify(p));
+  } catch (e) {
+    console.error("Не вдалося зберегти проєкт", e);
+  }
+}
 
 const SYMBOLS = [
   { cat: "Основні символи", sym: ".", en: "Period / dot", ua: "Крапка", langs: "JS, Python, CSS", example: "user.name", explain: "Звертання до властивості об'єкта або методу (у JS/Python) чи десяткова крапка в числах." },
@@ -12417,6 +12452,103 @@ function ReferencePage() {
   );
 }
 
+function ProjectSetup({ onCreate }) {
+  const [themeId, setThemeId] = useState(null);
+  const [siteName, setSiteName] = useState("");
+  const theme = PROJECT_THEMES.find((t) => t.id === themeId);
+
+  return (
+    <div className="max-w-3xl">
+      <h1 className="text-2xl font-semibold text-stone-100 mb-1 flex items-center gap-2"><Layout size={22} className="text-amber-400" /> Мій сайт</h1>
+      <p className="text-stone-500 text-sm mb-6">
+        Обери тему — і в міру проходження уроків HTML, CSS і JavaScript тут поступово вироститиме твій справжній сайт. Назву, наповнення й кольори обираєш сама.
+      </p>
+
+      <div className="text-sm font-medium text-stone-300 mb-2">1. Обери тему сайту</div>
+      <div className="grid sm:grid-cols-2 gap-3 mb-6">
+        {PROJECT_THEMES.map((t) => {
+          const accent = ACCENT_MAP[t.accent];
+          const active = t.id === themeId;
+          return (
+            <button
+              key={t.id}
+              onClick={() => { setThemeId(t.id); if (!siteName) setSiteName(t.defaultName); }}
+              className={`text-left border rounded-md p-4 transition ${active ? `${accent.border} bg-stone-900 ring-1 ${accent.ring}` : "border-stone-800 bg-stone-950 hover:border-stone-700"}`}
+            >
+              <div className="text-2xl mb-1">{t.icon}</div>
+              <div className={`font-medium mb-1 ${active ? accent.text : "text-stone-200"}`}>{t.title}</div>
+              <div className="text-xs text-stone-500">{t.description}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {theme && (
+        <>
+          <div className="text-sm font-medium text-stone-300 mb-2">2. Дай сайту назву</div>
+          <input
+            value={siteName}
+            onChange={(e) => setSiteName(e.target.value)}
+            placeholder={theme.defaultName}
+            className="w-full mb-6 bg-stone-900 border border-stone-800 rounded-md px-3 py-2 text-sm text-stone-100 outline-none focus:border-amber-700"
+          />
+          <button
+            onClick={() => onCreate(theme, siteName.trim() || theme.defaultName)}
+            className={`px-4 py-2 rounded-md text-sm font-medium text-stone-950 ${ACCENT_MAP[theme.accent].bg} hover:opacity-90`}
+          >
+            Почати будувати сайт →
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MyProjectPage({ project, onReset }) {
+  const theme = PROJECT_THEMES.find((t) => t.id === project.themeId);
+  const [tab, setTab] = useState("preview");
+
+  if (!theme) return null;
+  const accent = ACCENT_MAP[theme.accent];
+
+  const previewDoc = `<!DOCTYPE html><html><head><style>${project.css || ""}</style></head><body>${project.html || ""}<script>${project.js || ""}<\/script></body></html>`;
+
+  return (
+    <div className="max-w-5xl">
+      <div className="flex items-start justify-between gap-4 mb-1 flex-wrap">
+        <h1 className="text-2xl font-semibold text-stone-100 flex items-center gap-2">
+          <Layout size={22} className={accent.text} /> {project.siteName}
+        </h1>
+        <button onClick={onReset} className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-300 border border-stone-800 rounded-md px-2.5 py-1.5">
+          <RefreshCw size={12} /> Почати новий сайт
+        </button>
+      </div>
+      <p className="text-stone-500 text-sm mb-5">
+        {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
+      </p>
+
+      <div className="flex gap-2 mb-3">
+        {[["preview", "Результат"], ["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"]].map(([id, label]) => (
+          <button key={id} onClick={() => setTab(id)} className={`px-3 py-1.5 rounded-md text-sm ${tab === id ? "bg-stone-800 text-amber-400" : "text-stone-400 hover:bg-stone-900"}`}>{label}</button>
+        ))}
+      </div>
+
+      {tab === "preview" && (
+        <iframe title="my-site" srcDoc={previewDoc} sandbox="allow-scripts" className="w-full h-[600px] bg-white rounded-md border border-stone-800" />
+      )}
+      {tab === "html" && (
+        <pre className="w-full h-[600px] overflow-auto bg-stone-950 border border-stone-800 rounded-md p-4 text-xs font-mono text-stone-200 whitespace-pre-wrap">{project.html || "// Поки що порожньо — виконай перший урок HTML."}</pre>
+      )}
+      {tab === "css" && (
+        <pre className="w-full h-[600px] overflow-auto bg-stone-950 border border-stone-800 rounded-md p-4 text-xs font-mono text-stone-200 whitespace-pre-wrap">{project.css || "/* Поки що порожньо — стилі з'являться в курсі CSS. */"}</pre>
+      )}
+      {tab === "js" && (
+        <pre className="w-full h-[600px] overflow-auto bg-stone-950 border border-stone-800 rounded-md p-4 text-xs font-mono text-stone-200 whitespace-pre-wrap">{project.js || "// Поки що порожньо — інтерактивність з'явиться в курсі JavaScript."}</pre>
+      )}
+    </div>
+  );
+}
+
 function LibraryPage() {
   const [tab, setTab] = useState("servers");
   const [openGuide, setOpenGuide] = useState(null);
@@ -12746,6 +12878,7 @@ export default function App() {
   const [courseId, setCourseId] = useState("html");
   const [lessonId, setLessonId] = useState(HTML_LESSONS[0].id);
   const [progress, setProgress] = useState(defaultProgress());
+  const [project, setProject] = useState(defaultProject());
   const [loaded, setLoaded] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -12753,6 +12886,20 @@ export default function App() {
 
   useEffect(() => {
     loadProgress().then((p) => { setProgress(p); setLoaded(true); });
+    loadProject().then((p) => setProject(p));
+  }, []);
+
+  const handleCreateProject = useCallback((theme, siteName) => {
+    const next = { themeId: theme.id, siteName, navLinks: theme.navLinks, html: buildInitialProjectHtml(theme, siteName), css: "", js: "" };
+    setProject(next);
+    saveProject(next);
+  }, []);
+
+  const handleResetProject = useCallback(() => {
+    if (!window.confirm("Скинути поточний сайт і почати новий з іншою темою?")) return;
+    const next = defaultProject();
+    setProject(next);
+    saveProject(next);
   }, []);
 
   const handleComplete = useCallback((id) => {
@@ -12800,6 +12947,7 @@ export default function App() {
         {COURSES.map((c) => (
           <NavButton key={c.id} icon={BookOpen} label={c.title} active={view === "course" && courseId === c.id} onClick={() => goCourse(c.id)} />
         ))}
+        <NavButton icon={Layout} label="Мій сайт" active={view === "myproject"} onClick={() => goPage("myproject")} />
         <div className="text-xs uppercase tracking-wide text-stone-600 mt-4 mb-1 px-3">Мова</div>
         <NavButton icon={Globe} label="English for Devs" active={view === "english"} onClick={() => goPage("english")} />
         <NavButton icon={Languages} label="Українська" active={view === "ukrainian"} onClick={() => goPage("ukrainian")} />
@@ -12826,6 +12974,9 @@ export default function App() {
         <main className="flex-1 p-4 md:p-8">
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
           {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} />}
+          {view === "myproject" && (project.themeId
+            ? <MyProjectPage project={project} onReset={handleResetProject} />
+            : <ProjectSetup onCreate={handleCreateProject} />)}
           {view === "library" && <LibraryPage />}
           {view === "reference" && <ReferencePage />}
           {view === "cheatsheets" && <CheatSheetsPage />}
