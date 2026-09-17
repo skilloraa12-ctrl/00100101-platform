@@ -8355,6 +8355,94 @@ app.get('/profile', requireAuth, (req, res) => {
     ],
     related: ["backend-express-routing", "backend-auth"],
   },
+  "backend-auth": {
+    badge: "Backend",
+    title: "JWT, OAuth 2.0, сесії/cookie",
+    whatIsIt: "Три поширені способи перевірити, хто робить запит. Сесії — сервер зберігає стан і видає клієнту ідентифікатор у cookie. JWT — самодостатній підписаний токен, що містить дані користувача, без стану на сервері. OAuth 2.0 — стандартний протокол делегованої авторизації (напр. «Увійти через Google»).",
+    useCases: ["традиційний вхід через логін/пароль з сесією в cookie", "stateless-автентифікація для API, що масштабується на кілька серверів (JWT)", "вхід через сторонній сервіс без передачі пароля твоєму сайту (OAuth)"],
+    syntax: `// Сесія\nSet-Cookie: sessionId=abc123; HttpOnly; Secure\n\n// JWT\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIs...`,
+    attributes: [
+      { name: "session / cookie", desc: "сервер зберігає стан сесії, клієнт лише передає ідентифікатор через cookie" },
+      { name: "JWT (JSON Web Token)", desc: "самодостатній підписаний токен: header.payload.signature — сервер перевіряє підпис, не звертаючись до БД" },
+      { name: "OAuth 2.0", desc: "стандартний протокол делегованої авторизації через сторонній сервіс (Google, GitHub)" },
+      { name: "refresh token", desc: "довготривалий токен для отримання нового access-токена без повторного логіну" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">// Перевірка JWT на сервері
+const jwt = require('jsonwebtoken');
+
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+}</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (протермінований токен):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">401 { "error": "Invalid token" }</pre>`,
+    pitfalls: [
+      "Зберігання JWT у звичайному localStorage — вразливо до XSS: шкідливий скрипт може прочитати токен і вкрасти сесію.",
+      "JWT без строку дії (exp) чи без можливості відкликати — вкрадений токен лишається дійсним назавжди.",
+      "Cookie сесії без HttpOnly і Secure — доступна JavaScript-коду (ризик XSS) і може передаватись по незашифрованому HTTP.",
+    ],
+    related: ["backend-password-hashing", "backend-security"],
+  },
+  "backend-password-hashing": {
+    badge: "Backend",
+    title: "bcrypt, argon2",
+    whatIsIt: "Хешування паролів — одностороннє перетворення пароля перед збереженням у базі даних. На відміну від шифрування, хеш неможливо «розшифрувати» назад — навіть якщо база даних витече, реальні паролі лишаються захищеними.",
+    useCases: ["безпечне збереження паролів користувачів у базі даних", "перевірка пароля при вході без зберігання оригінального значення", "захист від наслідків витоку бази даних"],
+    syntax: `const bcrypt = require('bcrypt');\n\nconst hash = await bcrypt.hash(password, 10);\nconst isValid = await bcrypt.compare(inputPassword, hash);`,
+    attributes: [
+      { name: "bcrypt.hash(password, rounds)", desc: "хешує пароль з заданою кількістю раундів (складність, вища — повільніше й безпечніше)" },
+      { name: "bcrypt.compare(password, hash)", desc: "перевіряє, чи відповідає введений пароль збереженому хешу" },
+      { name: "сіль (salt)", desc: "випадкові дані, додані до пароля перед хешуванням — вбудовані в bcrypt автоматично, захищають від rainbow-таблиць" },
+      { name: "argon2", desc: "сучасніший алгоритм хешування, переможець Password Hashing Competition, стійкіший до GPU-атак" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const hash = await bcrypt.hash('mySecret123', 10);
+console.log(hash);
+
+const ok = await bcrypt.compare('mySecret123', hash);
+console.log(ok);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">$2b$10$N9qo8uLOickgx2ZMRZoMye...
+true</pre>`,
+    pitfalls: [
+      "Зберігання паролів у відкритому вигляді чи через MD5/SHA1 (швидкі хеш-функції, легко зламати перебором) — НІКОЛИ не використовуй для паролів.",
+      "Власна реалізація хешування замість перевіреної бібліотеки (bcrypt/argon2) — легко припуститись критичної помилки в криптографії.",
+      "Занадто малий rounds/cost параметр — хешування стає надто швидким і вразливим до перебору на сучасному обладнанні.",
+    ],
+    related: ["backend-auth"],
+  },
+  "backend-security": {
+    badge: "Backend",
+    title: "CORS, CSRF, XSS",
+    whatIsIt: "Три ключові концепції веб-безпеки. CORS — механізм браузера, що дозволяє/забороняє запити між різними доменами. CSRF — атака, коли шкідливий сайт змушує браузер жертви виконати дію від її імені. XSS — впровадження шкідливого скрипта на сторінку через невалідований ввід.",
+    useCases: ["налаштування, які домени можуть звертатись до твого API (CORS)", "захист форм і дій від підробки запитів (CSRF-токени)", "екранування користувацького вводу перед виводом на сторінку (захист від XSS)"],
+    syntax: `// CORS у Express\nconst cors = require('cors');\napp.use(cors({ origin: 'https://myapp.com' }));`,
+    attributes: [
+      { name: "CORS (Cross-Origin Resource Sharing)", desc: "браузерний механізм, що дозволяє чи забороняє запити з одного домену до API іншого" },
+      { name: "CSRF (Cross-Site Request Forgery)", desc: "шкідливий сайт відправляє запит від імені залогіненого користувача, використовуючи його cookie" },
+      { name: "CSRF-токен", desc: "унікальне значення у формі, яке має підтвердити, що запит справді прийшов з твого сайту" },
+      { name: "XSS (Cross-Site Scripting)", desc: "впровадження шкідливого JavaScript через невалідований ввід (коментар, ім'я, параметр URL)" },
+      { name: "екранування вводу (escaping)", desc: "перетворення спецсимволів (<, >, &) у безпечний текст перед виводом на сторінку" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">// Небезпечно: XSS-вразливість
+element.innerHTML = userComment;
+
+// Безпечно: текст, не HTML
+element.textContent = userComment;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (userComment = "&lt;img src=x onerror=alert(1)&gt;"):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">innerHTML: скрипт виконується (XSS!)
+textContent: показано як звичайний текст, безпечно</pre>`,
+    pitfalls: [
+      "innerHTML з даними від користувача без санітизації — класична XSS-вразливість, шкідливий скрипт виконується в браузері жертви.",
+      "CORS з Access-Control-Allow-Origin: * разом з credentials: true (cookie) — браузер це заборонить, і правильно, бо це небезпечна комбінація.",
+      "Форми/дії без CSRF-захисту на сайтах, що покладаються на cookie-автентифікацію — уразливі до підробки запитів зі стороннього сайту.",
+    ],
+    related: ["backend-auth", "backend-http-headers"],
+  },
 
 };
 
