@@ -1900,6 +1900,8 @@ const REF_NAV = {
   Frontend: {
     "Архітектура": ["fe-spa-mpa", "fe-rendering-strategies", "fe-virtual-dom"],
     "React": ["fe-react-basics", "fe-react-hooks", "fe-state-management"],
+    "Інструменти": ["fe-build-tools", "fe-typescript", "fe-testing", "fe-package-managers"],
+    "Компоненти та якість": ["fe-web-components", "fe-pwa", "fe-accessibility", "fe-performance"],
   },
   Python: {},
   SQL: {},
@@ -6517,6 +6519,142 @@ test('shows greeting after click', () => {
       "E2E-тести повільніші за unit-тести — не варто покривати ними абсолютно все, краще піраміда тестів (багато unit, менше E2E).",
     ],
     related: [],
+  },
+
+  "fe-web-components": {
+    badge: "Frontend",
+    title: "Web Components (Custom Elements, Shadow DOM)",
+    whatIsIt: "Нативна браузерна технологія для створення перевикористовуваних компонентів БЕЗ жодного фреймворку — власні HTML-теги (Custom Elements) з ізольованими стилями й розміткою (Shadow DOM), що не конфліктують з рештою сторінки.",
+    useCases: ["бібліотека компонентів, що працює в будь-якому проєкті незалежно від фреймворку", "віджети сторонніх сервісів (напр. чат-боти), вбудовані на чужі сайти", "ізоляція стилів одного компонента від решти CSS сторінки"],
+    syntax: `customElements.define('my-card', class extends HTMLElement {\n  connectedCallback() {\n    this.attachShadow({ mode: 'open' }).innerHTML = '<p>Привіт</p>';\n  }\n});`,
+    attributes: [
+      { name: "customElements.define()", desc: "реєструє новий HTML-тег з власною поведінкою" },
+      { name: "class extends HTMLElement", desc: "визначає поведінку кастомного елемента" },
+      { name: "connectedCallback()", desc: "викликається, коли елемент з'являється в DOM" },
+      { name: "attachShadow({ mode: 'open' })", desc: "створює ізольований Shadow DOM — власний піддокумент зі своїми стилями" },
+      { name: "<slot>", desc: "місце-заповнювач у Shadow DOM для контенту, переданого ззовні" },
+    ],
+    example: `<my-badge>Новий</my-badge>
+<script>
+  class MyBadge extends HTMLElement {
+    connectedCallback() {
+      const shadow = this.attachShadow({ mode: 'open' });
+      shadow.innerHTML = \`
+        <style>
+          span { background: #7c3aed; color: white; padding: 4px 10px; border-radius: 10px; font-size: 12px; }
+        </style>
+        <span><slot></slot></span>
+      \`;
+    }
+  }
+  customElements.define('my-badge', MyBadge);
+<\/script>`,
+    pitfalls: [
+      "Стилі всередині Shadow DOM повністю ізольовані — глобальний CSS сторінки на них НЕ впливає, що зручно, але заплутує при першому знайомстві.",
+      "Web Components мають менш зручний за React/Vue API для складного стану й реактивності — часто використовуються для окремих незалежних віджетів, не цілих застосунків.",
+    ],
+    related: ["fe-react-basics"],
+  },
+  "fe-pwa": {
+    badge: "Frontend",
+    title: "PWA (Progressive Web App)",
+    whatIsIt: "Веб-застосунок, що поводиться як нативний мобільний додаток — можна встановити на головний екран, він працює офлайн (частково), може надсилати push-сповіщення. Досягається через Service Worker і файл маніфесту.",
+    useCases: ["застосунок, доступний офлайн після першого відвідування", "встановлення сайту на головний екран телефону без App Store", "push-сповіщення без нативного застосунку"],
+    syntax: `// manifest.json
+{ "name": "Моя PWA", "icons": [...], "start_url": "/", "display": "standalone" }`,
+    attributes: [
+      { name: "manifest.json", desc: "файл з метаданими застосунку: назва, іконки, кольори, точка входу" },
+      { name: "Service Worker", desc: "скрипт, що працює у фоні окремо від сторінки — кешує ресурси, перехоплює мережеві запити" },
+      { name: "Cache API", desc: "дозволяє Service Worker зберігати відповіді запитів для роботи офлайн" },
+      { name: "display: standalone", desc: "застосунок відкривається без адресного рядка браузера, як нативний" },
+    ],
+    example: `<div style="font-family:sans-serif;font-size:14px;">
+  <p>1. Браузер знаходить manifest.json → пропонує «Встановити застосунок»</p>
+  <p>2. Service Worker кешує основні файли при першому відвідуванні</p>
+  <p>3. Наступного разу застосунок відкривається навіть без інтернету (з кешу)</p>
+</div>`,
+    pitfalls: [
+      "PWA потребує HTTPS (окрім localhost) — Service Worker не реєструється на незахищеному з'єднанні.",
+      "Забутий план оновлення кешу Service Worker — користувачі можуть застрягти зі старою версією застосунку.",
+      "iOS історично має обмежену підтримку деяких PWA-можливостей порівняно з Android.",
+    ],
+    related: [],
+  },
+  "fe-accessibility": {
+    badge: "Frontend",
+    title: "Доступність (a11y)",
+    whatIsIt: "a11y (скорочення від accessibility — між 'a' і 'y' одинадцять букв) — практики, що роблять сайт зручним для людей з інвалідністю: користувачів скрінрідерів, людей, що не використовують мишу, людей з порушенням зору.",
+    useCases: ["скрінрідер коректно озвучує вміст сторінки", "повна навігація сайтом лише клавіатурою (Tab, Enter)", "достатній колірний контраст для людей з порушенням зору"],
+    syntax: `<button aria-label="Закрити">✕</button>\n<img src="cat.jpg" alt="Руда кішка на дивані">`,
+    attributes: [
+      { name: "alt", desc: "текстовий опис зображення для скрінрідерів — обов'язковий" },
+      { name: "aria-label", desc: "задає доступну назву елемента, коли візуального тексту немає" },
+      { name: "семантичні теги", desc: "<button>, <nav>, <header> замість <div> з обробниками — скрінрідери розуміють їх сенс" },
+      { name: "tabindex", desc: "керує порядком фокусування клавішею Tab" },
+      { name: "контраст кольорів", desc: "достатня різниця яскравості між текстом і фоном (WCAG рекомендує мінімум 4.5:1)" },
+    ],
+    example: `<button style="padding:8px;border:none;border-radius:6px;background:#7c3aed;color:white;" aria-label="Закрити вікно">✕</button>
+<p style="font-size:13px;color:#666;margin-top:8px;">Без aria-label скрінрідер прочитав би лише символ «✕» без пояснення дії.</p>`,
+    pitfalls: [
+      "div з onClick замість <button> — недоступний з клавіатури й невидимий для скрінрідерів як інтерактивний елемент.",
+      "Відсутній alt на змістовних зображеннях — інформація повністю втрачається для користувачів скрінрідерів.",
+      "Занадто низький контраст тексту (світло-сірий на білому) — нечитабельно для людей з порушенням зору.",
+    ],
+    related: [],
+  },
+  "fe-performance": {
+    badge: "Frontend",
+    title: "Продуктивність і Core Web Vitals",
+    whatIsIt: "Core Web Vitals — метрики Google для оцінки якості користувацького досвіду сторінки: швидкість завантаження, стабільність макету під час завантаження, швидкість реакції на взаємодію.",
+    useCases: ["оцінка реальної швидкості сайту для користувачів", "фактор ранжування в пошуковій видачі Google", "виявлення проблем продуктивності перед релізом"],
+    syntax: `// Виміряти в DevTools → Lighthouse чи PageSpeed Insights`,
+    attributes: [
+      { name: "LCP (Largest Contentful Paint)", desc: "час до показу найбільшого видимого елемента — має бути до 2.5с" },
+      { name: "CLS (Cumulative Layout Shift)", desc: "наскільки макет «стрибає» під час завантаження — має бути мінімальним" },
+      { name: "INP (Interaction to Next Paint)", desc: "швидкість реакції інтерфейсу на дії користувача" },
+      { name: "code splitting", desc: "розбиття JS-бандла на менші частини, що завантажуються лише коли потрібні" },
+      { name: "lazy loading", desc: "відкладене завантаження зображень/компонентів, поки користувач до них не докрутить" },
+    ],
+    example: `<div style="font-family:sans-serif;font-size:14px;">
+  <p>❌ Погано: зображення без width/height → сторінка «стрибає» (CLS) при завантаженні</p>
+  <p>✅ Добре: <code>&lt;img width="300" height="150" loading="lazy"&gt;</code> — місце зарезервоване заздалегідь</p>
+</div>`,
+    pitfalls: [
+      "Оптимізація заради самих метрик без реального покращення досвіду користувача — метрики мають бути засобом, не самоціллю.",
+      "Забуті width/height на зображеннях — найпоширеніша причина поганого CLS.",
+      "Занадто великий JS-бандл без code splitting сповільнює LCP навіть на швидкому інтернеті.",
+    ],
+    related: ["fe-build-tools"],
+  },
+  "fe-package-managers": {
+    badge: "Frontend",
+    title: "Пакетні менеджери (npm, yarn, pnpm)",
+    whatIsIt: "Інструменти для встановлення, оновлення й керування залежностями проєкту — бібліотеками з реєстру npm. package.json описує, які пакети потрібні, package-lock.json (чи аналог) фіксує ТОЧНІ версії для відтворюваності.",
+    useCases: ["встановлення бібліотек (React, Vite) для проєкту", "запуск скриптів проєкту (dev, build, test)", "фіксація точних версій залежностей для команди"],
+    syntax: `npm install react\nnpm run dev\nnpm install --save-dev vite`,
+    attributes: [
+      { name: "npm", desc: "стандартний пакетний менеджер Node.js, йде в комплекті" },
+      { name: "yarn / pnpm", desc: "альтернативи з іншими підходами до швидкості й дискового простору (pnpm економить місце через спільні залежності)" },
+      { name: "package.json", desc: "список залежностей проєкту й скриптів (dev, build, test)" },
+      { name: "package-lock.json", desc: "фіксує точні версії всіх залежностей (включно з вкладеними) для відтворюваної збірки" },
+      { name: "node_modules", desc: "папка, куди фактично встановлюються всі залежності — не комітиться в git" },
+      { name: "dependencies / devDependencies", desc: "робочі залежності проєкту / потрібні лише для розробки (тести, збірка)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^18.3.1"
+  }
+}</pre>`,
+    pitfalls: [
+      "Комітити node_modules у git — величезна, непотрібна папка; завжди в .gitignore, package-lock.json відновить її через npm install.",
+      "Змішування npm і yarn в одному проєкті (два різні lock-файли) — може призвести до розбіжностей версій між розробниками.",
+      "^ перед версією (напр. ^18.3.1) дозволяє мінорні оновлення автоматично — іноді призводить до несподіваних змін поведінки.",
+    ],
+    related: ["fe-build-tools"],
   },
 
 };
