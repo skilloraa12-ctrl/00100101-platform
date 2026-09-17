@@ -1307,6 +1307,25 @@ const SYMBOLS = [
   { cat: "JS: Дата", sym: "getFullYear() / getMonth() / getDate()", en: "Date component getters", ua: "Отримання частин дати", langs: "JS", example: "date.getFullYear();", explain: "Повертають рік, місяць (0-11!) і день місяця з об'єкта Date." },
   { cat: "JS: JSON", sym: "JSON.parse() / JSON.stringify()", en: "JSON conversion", ua: "Перетворення JSON", langs: "JS", example: "JSON.parse('{\"a\":1}');", explain: "parse перетворює JSON-рядок на об'єкт, stringify — об'єкт на JSON-рядок." },
 
+  { cat: "JS: DOM пошук", sym: "getElementById() / querySelector()", en: "Single element selectors", ua: "Пошук одного елемента", langs: "JS", example: "document.querySelector('.card');", explain: "Знаходять один елемент за id чи CSS-селектором (querySelector — за будь-яким селектором)." },
+  { cat: "JS: DOM пошук", sym: "querySelectorAll() / getElementsByClassName()", en: "Multiple element selectors", ua: "Пошук кількох елементів", langs: "JS", example: "document.querySelectorAll('.item');", explain: "Знаходять усі елементи, що відповідають селектору чи класу." },
+  { cat: "JS: DOM пошук", sym: "closest() / matches()", en: "Ancestor/match checks", ua: "Перевірка предка/відповідності", langs: "JS", example: "el.closest('.card');", explain: "closest шукає найближчого предка (чи сам елемент) за селектором, matches перевіряє відповідність селектору." },
+  { cat: "JS: DOM створення", sym: "createElement() / createTextNode()", en: "DOM creation methods", ua: "Методи створення DOM", langs: "JS", example: "document.createElement('div');", explain: "Створюють новий DOM-елемент чи текстовий вузол програмно." },
+  { cat: "JS: DOM створення", sym: "cloneNode()", en: "Clone node", ua: "Клонування вузла", langs: "JS", example: "el.cloneNode(true);", explain: "Створює копію елемента; true клонує і всіх нащадків." },
+  { cat: "JS: DOM вміст", sym: "innerHTML / textContent", en: "Content properties", ua: "Властивості вмісту", langs: "JS", example: "el.textContent = 'Привіт';", explain: "innerHTML парсить рядок як HTML (обережно з XSS), textContent вставляє чистий текст." },
+  { cat: "JS: DOM вміст", sym: "value", en: "Value property", ua: "Властивість значення", langs: "JS", example: "input.value = 'текст';", explain: "Читає/задає значення поля вводу форми." },
+  { cat: "JS: DOM атрибути", sym: "getAttribute() / setAttribute()", en: "Attribute methods", ua: "Методи атрибутів", langs: "JS", example: "el.setAttribute('data-id', '5');", explain: "Читають і задають будь-який HTML-атрибут елемента." },
+  { cat: "JS: DOM атрибути", sym: "removeAttribute() / hasAttribute()", en: "Attribute removal/check", ua: "Видалення/перевірка атрибута", langs: "JS", example: "el.hasAttribute('disabled');", explain: "Видаляють атрибут чи перевіряють його наявність." },
+  { cat: "JS: DOM класи", sym: "classList.add() / .remove() / .toggle()", en: "ClassList methods", ua: "Методи classList", langs: "JS", example: "el.classList.toggle('active');", explain: "Додають, видаляють чи перемикають CSS-клас елемента." },
+  { cat: "JS: DOM класи", sym: "classList.contains()", en: "ClassList check", ua: "Перевірка classList", langs: "JS", example: "el.classList.contains('active');", explain: "Перевіряє, чи має елемент вказаний клас." },
+  { cat: "JS: DOM стиль", sym: "style / getComputedStyle()", en: "Style access", ua: "Доступ до стилів", langs: "JS", example: "getComputedStyle(el).color;", explain: "style змінює інлайн-стилі елемента, getComputedStyle читає фактично застосовані стилі (з CSS-файлів теж)." },
+  { cat: "JS: DOM дерево", sym: "parentNode / children / childNodes", en: "DOM tree navigation", ua: "Навігація деревом DOM", langs: "JS", example: "el.parentNode;", explain: "parentNode/children дають доступ до батьківського й дочірніх елементів." },
+  { cat: "JS: DOM дерево", sym: "nextElementSibling / previousElementSibling", en: "Sibling navigation", ua: "Навігація до сусідів", langs: "JS", example: "el.nextElementSibling;", explain: "Дають доступ до сусіднього елемента того самого рівня вкладеності." },
+  { cat: "JS: DOM дерево", sym: "appendChild() / append() / prepend()", en: "Insert child methods", ua: "Методи вставки дочірнього елемента", langs: "JS", example: "parent.append(child);", explain: "Додають елемент у кінець (append) чи на початок (prepend) списку дітей." },
+  { cat: "JS: DOM дерево", sym: "before() / after() / insertBefore()", en: "Insert sibling methods", ua: "Методи вставки сусіднього елемента", langs: "JS", example: "el.after(newEl);", explain: "Вставляють новий елемент до чи після поточного, на тому самому рівні." },
+  { cat: "JS: DOM дерево", sym: "remove() / removeChild()", en: "Remove methods", ua: "Методи видалення", langs: "JS", example: "el.remove();", explain: "Видаляють елемент з DOM." },
+  { cat: "JS: DOM дерево", sym: "replaceWith() / replaceChild()", en: "Replace methods", ua: "Методи заміни", langs: "JS", example: "el.replaceWith(newEl);", explain: "Замінюють елемент іншим у DOM." },
+
 ];
 
 const LIBRARY_HTML = [
