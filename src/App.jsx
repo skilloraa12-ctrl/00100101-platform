@@ -1881,7 +1881,17 @@ const REF_NAV = {
     "Взаємодія та інше": ["css-cursor-interaction", "css-scroll", "css-columns-table", "css-content-counters", "css-misc-properties"],
     "@-правила": ["css-at-rules"],
   },
-  JavaScript: {},
+  JavaScript: {
+    "Основи": ["js-variables", "js-control-flow", "js-functions", "js-operators", "js-destructuring"],
+    "Класи та модулі": ["js-classes", "js-modules", "js-errors"],
+    "Масиви, об'єкти, рядки": ["js-arrays", "js-objects", "js-strings"],
+    "Числа, дати, JSON": ["js-numbers-math", "js-dates", "js-json"],
+    "DOM": ["js-dom-select", "js-dom-manipulate"],
+    "Події": ["js-events"],
+    "Асинхронність": ["js-promises", "js-async-await", "js-fetch", "js-timers"],
+    "Колекції та ітератори": ["js-sets-maps", "js-iterators-generators", "js-proxy-reflect"],
+    "Web APIs та інше": ["js-storage", "js-regex", "js-console", "js-canvas", "js-web-apis"],
+  },
   "English for IT": {},
   Frontend: {},
   Python: {},
@@ -5781,6 +5791,159 @@ console.log(square(4), PI); // 16 3.14</pre>`,
       "Не всі операції автоматично перехоплюються — для повної консистентності handler часто делегує до Reflect.*.",
     ],
     related: ["js-objects"],
+  },
+
+  "js-storage": {
+    badge: "JS",
+    title: "localStorage і sessionStorage",
+    whatIsIt: "Вбудоване сховище браузера для збереження даних у вигляді рядків між перезавантаженнями сторінки. localStorage зберігає дані без терміну дії, sessionStorage — лише поки відкрита вкладка.",
+    useCases: ["збереження теми оформлення (світла/темна)", "збереження прогресу користувача без бекенду", "кешування даних форми між сесіями"],
+    syntax: `localStorage.setItem('theme', 'dark');\nconst theme = localStorage.getItem('theme');`,
+    attributes: [
+      { name: "setItem(key, value)", desc: "зберігає значення за ключем (лише рядки!)" },
+      { name: "getItem(key)", desc: "читає значення за ключем, null якщо немає" },
+      { name: "removeItem(key)", desc: "видаляє конкретний запис" },
+      { name: "clear()", desc: "видаляє ВСІ записи цього сховища для поточного домену" },
+      { name: "sessionStorage", desc: "той самий API, але дані зникають при закритті вкладки" },
+    ],
+    example: `<button id="save">Зберегти ім'я</button>
+<input id="name" placeholder="Твоє ім'я" style="padding:6px;border:1px solid #ccc;border-radius:6px;">
+<p id="out"></p>
+<script>
+  const saved = localStorage.getItem('demo_name');
+  if (saved) document.getElementById('out').textContent = 'Збережено раніше: ' + saved;
+  document.getElementById('save').onclick = () => {
+    const name = document.getElementById('name').value;
+    localStorage.setItem('demo_name', name);
+    document.getElementById('out').textContent = 'Збережено: ' + name;
+  };
+<\/script>`,
+    pitfalls: [
+      "localStorage зберігає лише РЯДКИ — об'єкти/масиви потрібно перетворювати через JSON.stringify()/JSON.parse().",
+      "Дані localStorage доступні лише для одного домену й не синхронізуються між пристроями.",
+      "localStorage синхронний і блокує основний потік — не варто зберігати там великі обсяги даних.",
+    ],
+    related: ["js-json"],
+  },
+  "js-regex": {
+    badge: "JS",
+    title: "Регулярні вирази (RegExp)",
+    whatIsIt: "Регулярні вирази описують шаблон тексту для пошуку, перевірки чи заміни — потужний, але лаконічний спосіб працювати з рядками за складнішими правилами, ніж прості includes()/indexOf().",
+    useCases: ["перевірка формату email чи телефону", "пошук і заміна всіх входжень шаблону в тексті", "розбиття рядка за складним роздільником"],
+    syntax: `const re = /\\d{3}-\\d{4}/;\nconst isValid = re.test('123-4567');`,
+    attributes: [
+      { name: "/pattern/flags", desc: "літерал регулярного виразу; g — глобальний пошук, i — без урахування регістру" },
+      { name: "test()", desc: "перевіряє, чи рядок відповідає шаблону, повертає true/false" },
+      { name: "exec() / match()", desc: "повертають деталі знайденого збігу" },
+      { name: "replace(regex, replacement)", desc: "замінює знайдені збіги в рядку (потрібен /g для всіх входжень)" },
+      { name: "\\d \\w \\s", desc: "цифра, буква/цифра/підкреслення, пробільний символ" },
+      { name: "^ $ * + ? {}", desc: "початок/кінець рядка, повторення 0+/1+/0-1 раз, точна кількість повторень" },
+    ],
+    example: `<input id="email" placeholder="you@example.com" style="padding:6px;border:1px solid #ccc;border-radius:6px;width:200px;">
+<p id="out"></p>
+<script>
+  const re = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  document.getElementById('email').oninput = (e) => {
+    const valid = re.test(e.target.value);
+    document.getElementById('out').textContent = valid ? '✓ Схоже на email' : '✗ Невірний формат';
+    document.getElementById('out').style.color = valid ? 'green' : 'red';
+  };
+<\/script>`,
+    pitfalls: [
+      "Забутий прапорець /g у replace() — замінює лише ПЕРШЕ входження замість усіх.",
+      "Складні регулярні вирази важко читати й підтримувати — для простих перевірок форматів варто розглянути прості string-методи.",
+      "Регулярний вираз без ^ і $ перевіряє наявність підрядка ДЕСЬ у тексті, а не відповідність усього рядка цілком.",
+    ],
+    related: ["js-strings"],
+  },
+  "js-console": {
+    badge: "JS",
+    title: "console.log і інші методи консолі",
+    whatIsIt: "Вбудований об'єкт console для виводу повідомлень у консоль розробника браузера — основний інструмент дебагу JavaScript-коду.",
+    useCases: ["швидка перевірка значення змінної під час розробки", "виведення помилок і попереджень окремо від звичайних логів", "групування пов'язаних повідомлень для наочності"],
+    syntax: `console.log('Значення:', value);\nconsole.error('Щось пішло не так');`,
+    attributes: [
+      { name: "console.log()", desc: "звичайний вивід — приймає кілька аргументів через кому" },
+      { name: "console.error() / console.warn()", desc: "виводять повідомлення як помилку (червоне) чи попередження (жовте)" },
+      { name: "console.table()", desc: "показує масив об'єктів у вигляді зручної таблиці" },
+      { name: "console.group() / console.groupEnd()", desc: "групують кілька повідомлень у згорнутий блок" },
+      { name: "console.time() / console.timeEnd()", desc: "вимірюють, скільки часу зайняв блок коду" },
+    ],
+    example: `<button id="run">Запустити приклад (відкрий консоль браузера!)</button>
+<p style="font-size:13px;color:#666;">Результат буде в консолі розробника (F12), не на сторінці.</p>
+<script>
+  document.getElementById('run').onclick = () => {
+    console.log('Звичайний лог');
+    console.warn('Це попередження');
+    console.table([{ name: 'Оля', age: 25 }, { name: 'Іван', age: 30 }]);
+  };
+<\/script>`,
+    pitfalls: [
+      "Забуті console.log() у продакшн-коді засмічують консоль користувача й можуть трохи впливати на продуктивність.",
+      "console.log(об'єкт) показує ПОСИЛАННЯ на об'єкт — якщо об'єкт зміниться пізніше, у консолі побачиш вже ЗМІНЕНИЙ стан, а не той, що був на момент логування.",
+    ],
+    related: [],
+  },
+  "js-canvas": {
+    badge: "JS",
+    title: "Canvas API",
+    whatIsIt: "JavaScript API для малювання графіки на елементі <canvas> — фігури, лінії, зображення, текст. Усе малювання відбувається через контекст (getContext), отриманий від canvas-елемента.",
+    useCases: ["графіки й діаграми, намальовані кодом", "прості 2D-ігри в браузері", "інтерактивні візуалізації даних"],
+    syntax: `const ctx = canvas.getContext('2d');\nctx.fillRect(10, 10, 100, 50);`,
+    attributes: [
+      { name: "getContext('2d')", desc: "повертає об'єкт для малювання — усі методи викликаються на ньому" },
+      { name: "fillRect() / strokeRect()", desc: "малюють заповнений чи обведений прямокутник" },
+      { name: "beginPath() / moveTo() / lineTo()", desc: "будують довільний контур з ліній" },
+      { name: "arc()", desc: "малює дугу чи повне коло" },
+      { name: "fillStyle / strokeStyle", desc: "колір заливки й контуру для наступних операцій малювання" },
+      { name: "clearRect()", desc: "очищає прямокутну область — потрібно для кожного кадру анімації" },
+    ],
+    example: `<canvas id="c" width="280" height="100" style="border:1px solid #ccc;border-radius:6px;"></canvas>
+<script>
+  const ctx = document.getElementById('c').getContext('2d');
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(20, 20, 80, 60);
+  ctx.fillStyle = '#0ea5e9';
+  ctx.beginPath();
+  ctx.arc(200, 50, 30, 0, Math.PI * 2);
+  ctx.fill();
+<\/script>`,
+    pitfalls: [
+      "Зміна розміру canvas через CSS (width/height у стилях) розтягує намальоване замість зміни роздільної здатності — розміри треба міняти через атрибути width/height.",
+      "Для анімації потрібно самому очищати попередній кадр (clearRect) і перемальовувати — canvas не робить це автоматично.",
+    ],
+    related: [],
+  },
+  "js-web-apis": {
+    badge: "JS",
+    title: "IntersectionObserver, MutationObserver, Clipboard та інші Web API",
+    whatIsIt: "Браузер надає багато вбудованих API поза межами «чистого» JavaScript: спостереження за появою елементів на екрані, зміною DOM, буфер обміну, геолокація. Дозволяють реалізувати складну поведінку без сторонніх бібліотек.",
+    useCases: ["лінива загрузка зображень при прокручуванні (IntersectionObserver)", "кнопка «Скопіювати» (Clipboard API)", "реакція на динамічні зміни в DOM від сторонньої бібліотеки (MutationObserver)"],
+    syntax: `const observer = new IntersectionObserver((entries) => {\n  entries.forEach(e => { if (e.isIntersecting) console.log('Видно!'); });\n});\nobserver.observe(el);`,
+    attributes: [
+      { name: "IntersectionObserver", desc: "відстежує, коли елемент з'являється/зникає у видимій області екрана" },
+      { name: "MutationObserver", desc: "відстежує зміни в DOM-дереві (додавання/видалення елементів, зміну атрибутів)" },
+      { name: "navigator.clipboard.writeText()", desc: "копіює текст у системний буфер обміну (потребує дозволу браузера)" },
+      { name: "navigator.geolocation.getCurrentPosition()", desc: "отримує поточні координати користувача (з дозволу)" },
+      { name: "ResizeObserver", desc: "відстежує зміну розміру конкретного елемента" },
+    ],
+    example: `<button id="copy">Скопіювати текст</button>
+<p id="out"></p>
+<script>
+  document.getElementById('copy').onclick = async () => {
+    try {
+      await navigator.clipboard.writeText('Привіт з 00100101!');
+      document.getElementById('out').textContent = 'Скопійовано в буфер обміну!';
+    } catch (e) {
+      document.getElementById('out').textContent = 'Не вдалось скопіювати (потрібен дозвіл браузера)';
+    }
+  };
+<\/script>`,
+    pitfalls: [
+      "Багато сучасних Web API (Clipboard, Geolocation) потребують HTTPS і явного дозволу користувача — не працюють у небезпечному контексті.",
+      "Забутий observer.disconnect() для IntersectionObserver/MutationObserver — витік пам'яті, якщо елемент видалено, а спостереження триває.",
+    ],
+    related: ["js-events"],
   },
 
 };
