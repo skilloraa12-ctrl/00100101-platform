@@ -29,15 +29,27 @@
   py-comprehension, sql-join, html-input, html-label, html-list,
   html-header, html-nav, html-main, html-footer, html-section, js-array,
   js-object, css-flexbox, html-form, py-list, sql-select`
-- **TERM_PAGES_V2** (50 записів, лише HTML) — НАЙБАГАТШИЙ формат: бічна
-  навігація, badge+назва, "Що це", "Для чого", синтаксис, таблиця
+- **TERM_PAGES_V2** (127 записів: 117 HTML + 10 CSS) — НАЙБАГАТШИЙ формат:
+  бічна навігація, badge+назва, "Що це", "Для чого", синтаксис, таблиця
   атрибутів, **живий iframe-приклад** (реальний HTML+CSS+JS, що виконується),
-  типові помилки, пов'язані елементи. Список id: `range, checkbox, email,
-  button, form, text, password, number, date, radio, file, color, label,
-  select, textarea, fieldset, legend, datalist, output, progress, meter,
-  search, tel, url, hidden, ul, ol, li, dl, table, tr, th, td, img, video,
-  audio, picture, header, nav, main, section, article, footer, aside,
-  strong, em, mark, code, pre, blockquote`
+  типові помилки, пов'язані елементи.
+  - **HTML — повністю завершено** (117 записів, усе з попереднього
+    бэклогу додано): форми/input-типи, семантика, списки, таблиці, медіа,
+    структура документа (html/head/title/meta/...), текстова семантика
+    (b/i/small/abbr/cite/time/...), медіа/вбудований вміст
+    (iframe/figure/map/...), інтерактивність (dialog/details/canvas/svg),
+    a/div/span/menu, і застарілі теги компактно з приміткою "уникай".
+  - **CSS — розпочато** (10 записів, id з префіксом `css-`): css-selectors,
+    css-box-model, css-flexbox, css-grid, css-pseudo-classes,
+    css-pseudo-elements, css-colors-gradients, css-transform,
+    css-animation-transition, css-at-rules. Кожен термін групує споріднені
+    властивості (напр. `css-animation-transition` = і transition, і
+    animation+@keyframes разом), як і радив попередній автор цього файлу.
+    **Наступний крок**: розширити CSS-розділ — одиниці виміру (px/%/rem/vw),
+    position, overflow, display (block/inline/none), text-властивості
+    (font, line-height, text-align), background-властивості окремо від
+    градієнтів, filter/backdrop-filter, custom properties (--змінні, var()),
+    calc()/clamp(), логічні властивості (margin-inline тощо).
 
 ## Точна схема TERM_PAGES_V2 (найважливіший формат — саме його хоче користувач для всього)
 
@@ -85,29 +97,39 @@ const REF_NAV = {
 
 Користувач дав повний список HTML5/CSS/JS/Python/SQL/Frontend/Backend
 термінів і хоче **всі** їх у форматі TERM_PAGES_V2. Пріоритет: спочатку
-дописати HTML повністю, потім по черзі інші розділи.
+дописати HTML повністю (✅ зроблено), потім по черзі інші розділи.
 
-### HTML — залишилось (не в TERM_PAGES_V2 ще)
-Структурні/службові (без live-демо великого сенсу, але зробити коротку
-статичну версію): `html, head, title, base, link, meta, script, style, noscript`
-Інші текстові: `b, i, small, del, ins, s, u, sub, sup, abbr, cite, q, kbd,
-samp, var, time, data, bdi, bdo, ruby, rt, rp, dfn, wbr, br, hr`
-Медіа/вбудований вміст: `iframe, embed, object, figure, figcaption, source, track, map, area`
-Інтерактивність: `dialog, details, summary, template, slot, canvas, svg`
-Інше: `a, div, span, menu`
-Застарілі (можна пропустити або зробити компактно з приміткою "уникай"):
-`font, center, big, strike, tt, acronym, applet, basefont, dir, frame, frameset, noframes`
-Глобальні атрибути й ARIA — уже є компактно в Шпаргалках (HTML → "Глобальні
-атрибути" / "ARIA"), не обов'язково дублювати в TERM_PAGES_V2, хіба що
-користувач попросить.
+### HTML — ✅ завершено
+Усі 117 термінів із попереднього бэклогу додані (структурні/службові
+теги, текстова семантика, медіа/вбудований вміст, інтерактивність,
+a/div/span/menu, застарілі теги). Глобальні атрибути й ARIA лишаються
+лише в Шпаргалках (HTML → "Глобальні атрибути" / "ARIA"), не дублюються
+в TERM_PAGES_V2 — так і планувалось.
+
+### CSS — 🔶 у процесі (10 з ~orientovno 20-30 групованих термінів)
+Уже зроблено (див. вище, id з префіксом `css-`): селектори, box model,
+flexbox, grid, псевдокласи, псевдоелементи, кольори/градієнти, transform,
+transition+animation, @-правила.
+
+Залишилось (групувати споріднені властивості в один термін, як і раніше):
+- одиниці виміру (px, %, rem, em, vw/vh, ch)
+- position (static/relative/absolute/fixed/sticky) — детально, з живим
+  демо кожного значення
+- display (block/inline/inline-block/none) і overflow (visible/hidden/scroll/auto)
+- текстові властивості (font-family/size/weight, line-height, text-align,
+  letter-spacing, text-transform, white-space)
+- background окремо від градієнтів (background-image/position/size/repeat)
+- filter/backdrop-filter (blur, brightness, drop-shadow...)
+- custom properties: `--змінна` і `var()`
+- функції: `calc()`, `clamp()`, `min()`, `max()`
+- логічні властивості (margin-inline, padding-block тощо) — компактно,
+  можна одним терміном
+- object-fit/object-position для медіа
+
+Джерело — повний список властивостей у документах користувача (дуже
+довгий, ~250 властивостей — не обов'язково кожна окремим live-демо).
 
 ### Наступні розділи (створити новий REF_NAV-розділ на кожен, за тим самим шаблоном)
-- **CSS**: селектори, box model, layout (flex/grid детально), псевдокласи/
-  псевдоелементи, кольори/градієнти, transform/animation/transition,
-  @-правила. Джерело — повний список властивостей у документах користувача
-  (дуже довгий, ~250 властивостей — не обов'язково кожна окремим live-демо;
-  можна групувати спорідненні в один термін, як зроблено для `position`,
-  `flexbox`, `grid` у TERM_GUIDES).
 - **JavaScript**: оператори, масиви/рядки/об'єкти методи, DOM API, events,
   Promise/async, класи, регулярні вирази.
 - **Python**: keywords, вбудовані функції, магічні методи, стандартна

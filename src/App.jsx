@@ -1020,6 +1020,7 @@ const REF_NAV = {
   "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
   "Інше": ["a", "div", "span", "menu"],
   "Застарілі (уникай)": ["font", "center", "big", "strike", "tt", "acronym", "applet", "basefont", "dir", "frame", "frameset", "noframes"],
+  "CSS": ["css-selectors", "css-box-model", "css-flexbox", "css-grid", "css-pseudo-classes", "css-pseudo-elements", "css-colors-gradients", "css-transform", "css-animation-transition", "css-at-rules"],
 };
 
 const TERM_PAGES_V2 = {
@@ -3082,6 +3083,293 @@ const TERM_PAGES_V2 = {
     example: `<p style="font-size:13px;color:#666;">Сучасна заміна фреймів — &lt;iframe&gt; чи CSS-макети, тому &lt;noframes&gt; більше не потрібен.</p>`,
     pitfalls: ["Немає сенсу без <frameset>, який сам видалений зі стандарту."],
     related: ["frameset", "noscript"],
+  },
+
+  "css-selectors": {
+    badge: "CSS",
+    title: "Селектори",
+    whatIsIt: "Селектори визначають, до яких HTML-елементів застосовується CSS-правило. Від простого (за тегом, класом, id) до складних комбінацій (нащадок, прямий нащадок, сусід) — селектор завжди йде перед фігурними дужками { }.",
+    useCases: ["стилізація всіх елементів певного тегу", "стилізація за класом чи id", "стилізація елементів залежно від їх положення в розмітці"],
+    syntax: `селектор { властивість: значення; }`,
+    attributes: [
+      { name: "p", desc: "усі елементи <p> (за тегом)" },
+      { name: ".card", desc: "усі елементи з class=\"card\" (за класом)" },
+      { name: "#header", desc: "єдиний елемент з id=\"header\" (за id)" },
+      { name: "div p", desc: "усі <p> всередині <div>, на будь-якій глибині (нащадок)" },
+      { name: "div > p", desc: "лише <p>, що прямі діти <div> (прямий нащадок)" },
+      { name: "h1 + p", desc: "перший <p> одразу після <h1> (сусід)" },
+      { name: "a, button", desc: "одночасно і <a>, і <button> (перелік через кому)" },
+    ],
+    example: `<style>
+  .box { padding: 8px; margin-bottom: 6px; border-radius: 6px; color: white; }
+  .box.red { background: #ef4444; }
+  .box.blue { background: #3b82f6; }
+  div > .box { border: 2px solid gold; }
+</style>
+<div>
+  <p class="box red">Червоний бокс (клас .red)</p>
+  <p class="box blue">Синій бокс (клас .blue), з золотою рамкою бо прямий нащадок div</p>
+</div>`,
+    pitfalls: [
+      "Плутанина між div p (усі нащадки) і div > p (лише прямі діти) — часто впливає невірно на глибоко вкладені елементи.",
+      "Надмірно специфічні селектори (напр. div.container ul li a.link) ускладнюють перевизначення стилів пізніше.",
+      "Заплутування # (id, унікальний) і . (class, можна повторювати) — id має вищий пріоритет у каскаді.",
+    ],
+    related: ["css-flexbox", "css-pseudo-classes"],
+  },
+  "css-box-model": {
+    badge: "CSS",
+    title: "Box Model (модель блоку)",
+    whatIsIt: "Кожен елемент на сторінці — прямокутний блок, що складається з чотирьох шарів: контент, padding (внутрішній відступ), border (рамка), margin (зовнішній відступ). Розуміння цієї моделі — основа будь-якої верстки.",
+    useCases: ["контроль розмірів і відступів будь-якого елемента", "створення карток, кнопок, контейнерів з правильними відступами", "вирівнювання елементів через margin"],
+    syntax: `.box {\n  width: 200px;\n  padding: 16px;\n  border: 2px solid #333;\n  margin: 10px;\n  box-sizing: border-box;\n}`,
+    attributes: [
+      { name: "width / height", desc: "розмір самого контенту (без padding/border, якщо box-sizing: content-box)" },
+      { name: "padding", desc: "внутрішній відступ між контентом і рамкою" },
+      { name: "border", desc: "рамка навколо padding" },
+      { name: "margin", desc: "зовнішній відступ між цим елементом і сусідніми" },
+      { name: "box-sizing", desc: "border-box — width/height включають padding+border (рекомендовано); content-box — типова поведінка без них" },
+    ],
+    example: `<style>
+  .demo { box-sizing: border-box; width: 220px; padding: 16px; margin: 10px; border: 3px solid #7c3aed; background: #ede9fe; border-radius: 6px; }
+</style>
+<div class="demo">width: 220px включає padding і border завдяки box-sizing: border-box.</div>`,
+    pitfalls: [
+      "Забутий box-sizing: border-box — розмір елемента непередбачувано збільшується на padding+border.",
+      "Схлопування зовнішніх margin (margin collapse) двох сусідніх блокових елементів по вертикалі — підсумковий відступ не сума, а більше з двох значень.",
+      "margin: auto центрує блок лише якщо в нього є явна width і display: block.",
+    ],
+    related: ["css-flexbox", "css-selectors"],
+  },
+  "css-flexbox": {
+    badge: "CSS",
+    title: "Flexbox",
+    whatIsIt: "Одновимірна система макетування — розташовує елементи в ряд або стовпчик, з гнучким розподілом простору, вирівнюванням і зміною порядку. Найпростіший спосіб центрувати елемент чи зробити рівномірні картки.",
+    useCases: ["центрування елементів по вертикалі й горизонталі", "навігаційні панелі, ряди кнопок", "рівномірний розподіл карток чи колонок"],
+    syntax: `.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 10px;\n}`,
+    attributes: [
+      { name: "display: flex", desc: "вмикає flex-контейнер для прямих дітей" },
+      { name: "flex-direction", desc: "row (типово) — в ряд, column — у стовпчик" },
+      { name: "justify-content", desc: "вирівнювання по головній осі: center, space-between, flex-end..." },
+      { name: "align-items", desc: "вирівнювання по поперечній осі: center, stretch, flex-start..." },
+      { name: "gap", desc: "відступ між елементами-дітьми" },
+      { name: "flex-wrap", desc: "wrap — дозволяє елементам переноситись на новий рядок" },
+    ],
+    example: `<style>
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #f4f4f4; padding: 10px; border-radius: 6px; }
+  .item { background: #0ea5e9; color: white; padding: 10px 16px; border-radius: 6px; }
+</style>
+<div class="row">
+  <div class="item">1</div>
+  <div class="item">2</div>
+  <div class="item">3</div>
+</div>`,
+    pitfalls: [
+      "Плутанина justify-content (головна вісь) і align-items (поперечна вісь) — залежить від flex-direction.",
+      "Забутий gap і використання margin на кожному елементі замість нього — більше коду для того самого результату.",
+      "align-items: stretch (типова поведінка) розтягує елементи по висоті, що не завжди очікувано.",
+    ],
+    related: ["css-grid", "css-box-model"],
+  },
+  "css-grid": {
+    badge: "CSS",
+    title: "CSS Grid",
+    whatIsIt: "Двовимірна система макетування — керує рядками й колонками одночасно, на відміну від flexbox (лише один напрямок). Ідеальна для складних макетів сторінки: шапка, бічна панель, контент, підвал.",
+    useCases: ["макет сторінки з колонками й рядками", "галереї зображень з рівними комірками", "складні адаптивні макети без зайвих обгорток"],
+    syntax: `.grid {\n  display: grid;\n  grid-template-columns: 1fr 2fr;\n  gap: 10px;\n}`,
+    attributes: [
+      { name: "display: grid", desc: "вмикає grid-контейнер для прямих дітей" },
+      { name: "grid-template-columns", desc: "кількість і ширина колонок, напр. \"1fr 1fr 1fr\" — три рівні" },
+      { name: "grid-template-rows", desc: "кількість і висота рядків" },
+      { name: "gap", desc: "відступ між комірками (по рядках і колонках)" },
+      { name: "grid-column / grid-row", desc: "на дочірньому елементі — скільки комірок він займає" },
+    ],
+    example: `<style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .cell { background: #7c3aed; color: white; padding: 16px; text-align: center; border-radius: 6px; }
+  .cell.wide { grid-column: span 2; background: #0ea5e9; }
+</style>
+<div class="grid">
+  <div class="cell wide">span 2 колонки</div>
+  <div class="cell">3</div>
+  <div class="cell">4</div>
+  <div class="cell">5</div>
+</div>`,
+    pitfalls: [
+      "Плутанина grid і flexbox — grid для двовимірних макетів (рядки+колонки), flexbox для одновимірних (ряд або стовпчик).",
+      "Одиниця fr (fraction) — частка вільного простору, не плутати з відсотками чи px.",
+      "Забутий gap і використання margin на комірках — може зламати рівність ширини колонок.",
+    ],
+    related: ["css-flexbox", "css-box-model"],
+  },
+  "css-pseudo-classes": {
+    badge: "CSS",
+    title: "Псевдокласи (:hover, :nth-child...)",
+    whatIsIt: "Псевдокласи вибирають елементи залежно від їх стану чи положення, яких немає в самій HTML-розмітці — наведення курсору, фокус, перший/останній дочірній елемент тощо. Записуються через одну двокрапку.",
+    useCases: ["стилі при наведенні курсору чи фокусі", "чергування кольорів рядків таблиці (зебра)", "стилізація першого чи останнього елемента списку"],
+    syntax: `a:hover { color: red; }\nli:nth-child(2n) { background: #f4f4f4; }`,
+    attributes: [
+      { name: ":hover", desc: "поки курсор наведений на елемент" },
+      { name: ":focus", desc: "поки елемент у фокусі (напр. поле вводу)" },
+      { name: ":active", desc: "у момент кліку/натискання" },
+      { name: ":first-child / :last-child", desc: "перший/останній дочірній елемент серед братів" },
+      { name: ":nth-child(n)", desc: "елемент за номером чи формулою, напр. 2n — парні" },
+      { name: ":not(селектор)", desc: "усі елементи, що НЕ відповідають вказаному селектору" },
+      { name: ":disabled / :checked", desc: "стан форм-елементів" },
+    ],
+    example: `<style>
+  button { padding: 8px 16px; background: #7c3aed; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  button:hover { background: #6d28d9; }
+  button:active { transform: scale(0.97); }
+  ul li:nth-child(2n) { background: #f4f4f4; }
+</style>
+<button>Наведи на мене</button>
+<ul style="margin-top:10px;padding-left:20px;">
+  <li>Рядок 1</li><li>Рядок 2 (парний, сірий)</li><li>Рядок 3</li><li>Рядок 4 (парний, сірий)</li>
+</ul>`,
+    pitfalls: [
+      "Плутанина :nth-child(2) (другий елемент, будь-якого типу) з :nth-of-type(2) (другий елемент саме цього тегу серед братів).",
+      "Стилі :hover не спрацьовують на тач-екранах так само, як на десктопі — варто не покладатись лише на них для критичного функціоналу.",
+      "Забутий порядок LVHA (:link, :visited, :hover, :active) для посилань — неправильний порядок ламає каскад.",
+    ],
+    related: ["css-pseudo-elements", "css-selectors"],
+  },
+  "css-pseudo-elements": {
+    badge: "CSS",
+    title: "Псевдоелементи (::before, ::after...)",
+    whatIsIt: "Псевдоелементи дозволяють стилізувати чи навіть створювати «віртуальні» частини елемента, яких немає в розмітці — наприклад, вставити декоративний вміст перед текстом чи виділити першу літеру абзацу. Записуються через дві двокрапки.",
+    useCases: ["декоративні іконки чи символи без зайвого HTML", "лічильники й нумерація списків", "виділення першої літери чи рядка абзацу"],
+    syntax: `.quote::before { content: "«"; }\n.quote::after { content: "»"; }`,
+    attributes: [
+      { name: "::before", desc: "вставляє віртуальний вміст перед контентом елемента" },
+      { name: "::after", desc: "вставляє віртуальний вміст після контенту елемента" },
+      { name: "content", desc: "обов'язковий для ::before/::after — текст, символ або порожній рядок \"\"" },
+      { name: "::first-letter", desc: "стилізує першу літеру блокового елемента" },
+      { name: "::first-line", desc: "стилізує перший рядок тексту" },
+      { name: "::selection", desc: "стилізує виділений користувачем текст" },
+    ],
+    example: `<style>
+  .badge { position: relative; padding: 8px 16px 8px 28px; background: #ede9fe; border-radius: 6px; display: inline-block; }
+  .badge::before { content: "✓"; position: absolute; left: 10px; color: #7c3aed; font-weight: bold; }
+  .fancy::first-letter { font-size: 1.8em; color: #7c3aed; font-weight: bold; }
+</style>
+<span class="badge">Виконано</span>
+<p class="fancy">Перша літера цього абзацу збільшена через ::first-letter.</p>`,
+    pitfalls: [
+      "Забутий content — без нього ::before/::after взагалі не з'являться, навіть з іншими стилями.",
+      "::before/::after не працюють на елементах без вмісту в деяких контекстах (напр. <img>, <input>).",
+      "Зловживання псевдоелементами для контенту, що має семантичне значення — краще реальна розмітка для важливого тексту.",
+    ],
+    related: ["css-pseudo-classes"],
+  },
+  "css-colors-gradients": {
+    badge: "CSS",
+    title: "Кольори й градієнти",
+    whatIsIt: "CSS підтримує кілька форматів запису кольору (назва, hex, rgb, hsl) та функції для плавних переходів між кольорами (градієнти) — для фонів, обводок, тіней.",
+    useCases: ["фон кнопок і карток", "плавні переходи кольору (градієнтні банери, кнопки)", "напівпрозорі накладки поверх зображень"],
+    syntax: `.box {\n  color: #7c3aed;\n  background: rgba(0, 0, 0, 0.5);\n  background: linear-gradient(90deg, #7c3aed, #0ea5e9);\n}`,
+    attributes: [
+      { name: "#rrggbb", desc: "шістнадцятковий формат, напр. #7c3aed" },
+      { name: "rgb(r, g, b)", desc: "через числа 0-255 для кожного каналу" },
+      { name: "rgba(r, g, b, a)", desc: "те саме, плюс прозорість (0-1)" },
+      { name: "hsl(h, s%, l%)", desc: "за тоном (0-360), насиченістю й яскравістю — зручно для варіацій одного кольору" },
+      { name: "linear-gradient()", desc: "лінійний перехід між кількома кольорами під кутом" },
+      { name: "radial-gradient()", desc: "перехід кольорів від центру назовні по колу/еліпсу" },
+    ],
+    example: `<style>
+  .swatch { display: inline-block; width: 80px; height: 50px; border-radius: 6px; margin: 4px; color: white; font-size: 11px; text-align: center; line-height: 50px; }
+</style>
+<div class="swatch" style="background:#7c3aed;">#7c3aed</div>
+<div class="swatch" style="background:rgba(14,165,233,0.7);">rgba()</div>
+<div class="swatch" style="background:linear-gradient(90deg,#7c3aed,#ec4899);">gradient</div>
+<div class="swatch" style="background:radial-gradient(circle,#0ea5e9,#0c4a6e);">radial</div>`,
+    pitfalls: [
+      "rgba/hsla прозорість (0-1) можна сплутати з відсотками — 0.5 означає 50%, а не 0.5%.",
+      "Градієнт без вказаного кута/напрямку (напр. лише linear-gradient(red, blue)) типово йде згори вниз — не завжди очікувано.",
+      "Низький контраст кольору тексту й фону — проблема доступності, варто перевіряти співвідношення контрастності.",
+    ],
+    related: ["css-box-model"],
+  },
+  "css-transform": {
+    badge: "CSS",
+    title: "transform",
+    whatIsIt: "Властивість transform змінює форму, розмір чи положення елемента — обертання, масштабування, зсув, нахил — без впливу на розташування сусідніх елементів (на відміну від зміни width/margin).",
+    useCases: ["анімовані ефекти при наведенні (збільшення картки)", "обертання іконок", "позиціювання елементів через translate замість margin"],
+    syntax: `.box { transform: rotate(15deg) scale(1.1); }`,
+    attributes: [
+      { name: "translate(x, y)", desc: "зсуває елемент по осях X/Y, не впливаючи на потік документа" },
+      { name: "rotate(deg)", desc: "обертає елемент на вказаний кут" },
+      { name: "scale(n)", desc: "масштабує елемент (1 — без змін, 1.5 — на 50% більше)" },
+      { name: "skew(deg)", desc: "нахиляє елемент по осях" },
+      { name: "transform-origin", desc: "точка, відносно якої відбувається трансформація (типово центр)" },
+    ],
+    example: `<style>
+  .card { width: 100px; height: 60px; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: transform 0.3s; }
+  .card:hover { transform: rotate(-4deg) scale(1.1); }
+</style>
+<div class="card">Наведи на мене</div>`,
+    pitfalls: [
+      "transform не впливає на layout сусідніх елементів — на відміну від зміни width/margin, елементи навколо не зсуваються.",
+      "Кілька трансформацій в одному значенні (rotate + scale) застосовуються в порядку запису — це впливає на результат.",
+      "Анімація transform без transition чи @keyframes відбувається миттєво, без плавності.",
+    ],
+    related: ["css-animation-transition"],
+  },
+  "css-animation-transition": {
+    badge: "CSS",
+    title: "transition і animation",
+    whatIsIt: "transition плавно змінює значення властивості між двома станами (напр. звичайний і :hover). animation дозволяє задати складнішу послідовність кроків через @keyframes, що може повторюватись автоматично, без потреби в події.",
+    useCases: ["плавна зміна кольору/розміру при hover (transition)", "автоматичні анімації-заставки, спінери завантаження (animation)", "анімовані підказки й переходи між станами інтерфейсу"],
+    syntax: `.btn { transition: background 0.3s ease; }\n@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }\n.dot { animation: pulse 1.5s infinite; }`,
+    attributes: [
+      { name: "transition-property", desc: "яку властивість анімувати (напр. background, transform)" },
+      { name: "transition-duration", desc: "тривалість переходу, напр. 0.3s" },
+      { name: "transition-timing-function", desc: "крива швидкості: ease, linear, ease-in-out..." },
+      { name: "@keyframes", desc: "описує кроки анімації у відсотках (0%, 50%, 100%)" },
+      { name: "animation-duration / animation-iteration-count", desc: "тривалість одного циклу й кількість повторів (infinite — нескінченно)" },
+    ],
+    example: `<style>
+  .btn { padding: 10px 20px; background: #7c3aed; color: white; border: none; border-radius: 6px; transition: background 0.3s ease, transform 0.3s ease; }
+  .btn:hover { background: #0ea5e9; transform: translateY(-3px); }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+  .dot { width: 14px; height: 14px; border-radius: 50%; background: #ef4444; display: inline-block; margin-left: 12px; animation: pulse 1.5s infinite; }
+</style>
+<button class="btn">Наведи на мене</button><span class="dot"></span>`,
+    pitfalls: [
+      "transition спрацьовує лише при реальній зміні значення властивості (напр. через :hover чи JS) — сам по собі нічого не анімує.",
+      "Анімація властивостей layout (width, height, top) гірша для продуктивності, ніж transform/opacity — варто віддавати перевагу останнім.",
+      "Забутий animation-fill-mode — після завершення анімація може «стрибнути» назад до початкового стану.",
+    ],
+    related: ["css-transform"],
+  },
+  "css-at-rules": {
+    badge: "CSS",
+    title: "@-правила (@media, @keyframes, @font-face...)",
+    whatIsIt: "@-правила — особливі інструкції CSS, що не описують стиль елемента напряму, а задають умови (адаптивність), імпорти, анімації чи підключення шрифтів. Починаються з символу @.",
+    useCases: ["адаптивна верстка під різні розміри екрана (@media)", "власна анімація (@keyframes)", "підключення кастомного шрифту (@font-face)", "імпорт іншого CSS-файлу (@import)"],
+    syntax: `@media (max-width: 600px) {\n  .box { flex-direction: column; }\n}`,
+    attributes: [
+      { name: "@media", desc: "застосовує стилі лише за певної умови, напр. ширини екрана" },
+      { name: "@keyframes", desc: "описує кроки для animation" },
+      { name: "@font-face", desc: "підключає власний файл шрифту" },
+      { name: "@import", desc: "імпортує стилі з іншого CSS-файлу (на початку файлу)" },
+      { name: "@supports", desc: "застосовує стилі лише якщо браузер підтримує вказану властивість" },
+    ],
+    example: `<style>
+  .responsive { display: flex; gap: 8px; background: #f4f4f4; padding: 10px; border-radius: 6px; }
+  .responsive div { background: #7c3aed; color: white; padding: 10px; border-radius: 6px; flex: 1; text-align: center; }
+  @media (max-width: 300px) {
+    .responsive { flex-direction: column; }
+  }
+</style>
+<div class="responsive"><div>1</div><div>2</div><div>3</div></div>
+<p style="font-size:13px;color:#666;">Зменш ширину вікна (чи iframe) менше 300px — колонки стануть рядком.</p>`,
+    pitfalls: [
+      "@import сповільнює завантаження сторінки, якщо йде не першим правилом у файлі — браузер має завантажити його послідовно.",
+      "Плутанина max-width і min-width у @media — max-width спрацьовує до вказаної ширини, min-width — від неї.",
+      "@keyframes без анімаційного імені, застосованого через animation, не робить нічого — вони мають бути пов'язані.",
+    ],
+    related: ["css-animation-transition", "css-flexbox"],
   },
 
 };
