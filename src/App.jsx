@@ -1046,6 +1046,23 @@ const SYMBOLS = [
   { cat: "SVG: Фільтри", sym: "feFlood / feTile / feImage / feTurbulence", en: "Fill/texture filters", ua: "Фільтри заливки й текстури", langs: "SVG", example: '<feTurbulence baseFrequency="0.05" />', explain: "Заповнюють область кольором, повторюваним фрагментом чи згенерованим шумом (для текстур)." },
   { cat: "SVG: Фільтри", sym: "feDiffuseLighting / feSpecularLighting / feDistantLight / fePointLight / feSpotLight", en: "Lighting filters", ua: "Фільтри освітлення", langs: "SVG", example: '<feDiffuseLighting>...</feDiffuseLighting>', explain: "Симулюють освітлення 3D-подібних поверхонь на основі карти висот." },
 
+  { cat: "SVG: Атрибути", sym: "viewBox / xmlns / preserveAspectRatio", en: "SVG viewport attrs", ua: "Атрибути області перегляду", langs: "SVG", example: 'viewBox="0 0 100 100"', explain: "viewBox задає систему координат, xmlns — простір імен (обов'язковий для inline SVG), preserveAspectRatio — як масштабувати при невідповідності пропорцій." },
+  { cat: "SVG: Атрибути", sym: "width / height", en: "SVG dimensions", ua: "Розміри SVG", langs: "SVG", example: 'width="200" height="100"', explain: "Розмір SVG-елемента на сторінці (може відрізнятись від координат viewBox)." },
+  { cat: "SVG: Атрибути", sym: "x / y / cx / cy", en: "Position attrs", ua: "Атрибути позиції", langs: "SVG", example: 'cx="50" cy="50"', explain: "x/y — координати лівого верхнього кута (rect, image), cx/cy — координати центру (circle, ellipse)." },
+  { cat: "SVG: Атрибути", sym: "r / rx / ry", en: "Radius attrs", ua: "Атрибути радіуса", langs: "SVG", example: 'r="40"', explain: "r — радіус кола, rx/ry — радіуси еліпса чи заокруглення кутів прямокутника." },
+  { cat: "SVG: Атрибути", sym: "x1 / y1 / x2 / y2", en: "Line coordinates", ua: "Координати лінії", langs: "SVG", example: 'x1="0" y1="0" x2="100" y2="100"', explain: "Координати початку й кінця лінії чи вісі градієнта." },
+  { cat: "SVG: Атрибути", sym: "d", en: "Path data", ua: "Дані контуру", langs: "SVG", example: 'd="M10 10 L90 90 Z"', explain: "Опис форми контуру через команди: M (рух), L (лінія), C (крива), Z (замкнути)." },
+  { cat: "SVG: Атрибути", sym: "points", en: "Points list", ua: "Список точок", langs: "SVG", example: 'points="0,0 50,50 100,0"', explain: "Список координат для polyline чи polygon." },
+  { cat: "SVG: Атрибути", sym: "fill / fill-opacity / fill-rule", en: "Fill attrs", ua: "Атрибути заливки", langs: "SVG", example: 'fill="red" fill-opacity="0.5"', explain: "fill — колір заливки, fill-opacity — її прозорість, fill-rule — як визначати внутрішню область складних фігур." },
+  { cat: "SVG: Атрибути", sym: "stroke / stroke-width / stroke-opacity", en: "Stroke attrs", ua: "Атрибути контуру", langs: "SVG", example: 'stroke="black" stroke-width="2"', explain: "Колір, товщина й прозорість обвідної лінії фігури." },
+  { cat: "SVG: Атрибути", sym: "stroke-dasharray / stroke-dashoffset", en: "Dashed stroke attrs", ua: "Атрибути пунктирної лінії", langs: "SVG", example: 'stroke-dasharray="5,5"', explain: "Задають пунктирний малюнок лінії й зсув початку пунктиру (часто для анімації малювання)." },
+  { cat: "SVG: Атрибути", sym: "stroke-linecap / stroke-linejoin / stroke-miterlimit", en: "Stroke joint attrs", ua: "Атрибути з'єднань лінії", langs: "SVG", example: 'stroke-linecap="round"', explain: "Керують формою кінців лінії (linecap) і з'єднань кутів (linejoin)." },
+  { cat: "SVG: Атрибути", sym: "transform", en: "SVG transform", ua: "Трансформація SVG", langs: "SVG", example: 'transform="rotate(45 50 50)"', explain: "Обертає, масштабує чи зсуває SVG-елемент, як CSS transform." },
+  { cat: "SVG: Атрибути", sym: "patternUnits / gradientUnits", en: "Fill unit systems", ua: "Системи одиниць заливки", langs: "SVG", example: 'gradientUnits="userSpaceOnUse"', explain: "Визначають, в яких координатах вимірюються розміри патерну чи градієнта." },
+  { cat: "SVG: Атрибути", sym: "clip-path / mask", en: "Clip/mask reference", ua: "Посилання на обрізання/маску", langs: "SVG", example: 'clip-path="url(#c)"', explain: "Застосовують раніше визначений clipPath чи mask до елемента." },
+  { cat: "SVG: Атрибути", sym: "marker-start / marker-mid / marker-end", en: "Marker placement attrs", ua: "Атрибути розміщення маркера", langs: "SVG", example: 'marker-end="url(#arrow)"', explain: "Вказують, який marker поставити на початку, посередині чи в кінці лінії/контуру." },
+  { cat: "SVG: Атрибути", sym: "opacity", en: "Opacity", ua: "Прозорість", langs: "SVG", example: 'opacity="0.5"', explain: "Загальна прозорість усього елемента (і заливки, і контуру разом)." },
+
 ];
 
 const LIBRARY_HTML = [
