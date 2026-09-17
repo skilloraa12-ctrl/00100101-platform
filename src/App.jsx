@@ -5691,6 +5691,98 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-promises"],
   },
 
+  "js-sets-maps": {
+    badge: "JS",
+    title: "Set і Map",
+    whatIsIt: "Set — колекція УНІКАЛЬНИХ значень (дублікати автоматично ігноруються). Map — колекція пар ключ-значення, де ключем може бути будь-який тип (на відміну від звичайного об'єкта, де ключі завжди рядки).",
+    useCases: ["видалення дублікатів зі списку (через Set)", "лічильник входжень чи кеш з довільними ключами (через Map)", "зберігання додаткових даних, прив'язаних до DOM-елементів чи об'єктів"],
+    syntax: `const unique = new Set([1, 2, 2, 3]);\nconst map = new Map();\nmap.set('key', 'value');`,
+    attributes: [
+      { name: "new Set(iterable)", desc: "створює множину, автоматично прибираючи дублікати" },
+      { name: "add() / has() / delete()", desc: "додають значення, перевіряють наявність, видаляють з Set" },
+      { name: "new Map(entries)", desc: "створює колекцію пар ключ-значення з будь-яким типом ключа" },
+      { name: "set() / get() / has() / delete()", desc: "записують, читають, перевіряють, видаляють пару в Map" },
+      { name: "size", desc: "кількість елементів (властивість, не метод — без дужок)" },
+      { name: "[...set] / [...map]", desc: "spread перетворює Set/Map назад у масив для роботи зі звичними методами" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const nums = [1, 2, 2, 3, 3, 3];
+  const unique = [...new Set(nums)];
+
+  const inventory = new Map();
+  inventory.set('яблука', 10);
+  inventory.set('банани', 5);
+
+  document.getElementById('out').innerHTML =
+    'Унікальні: ' + unique.join(',') + '<br>Яблук: ' + inventory.get('яблука');
+<\/script>`,
+    pitfalls: [
+      "Set.size і Map.size — це ВЛАСТИВОСТІ, не методи; size() з дужками дасть помилку.",
+      "Об'єкти в Set порівнюються за посиланням, не за вмістом — два різні об'єкти з однаковими полями вважаються різними.",
+      "JSON.stringify() не працює напряму з Map/Set — спершу потрібно перетворити на масив чи об'єкт.",
+    ],
+    related: ["js-arrays", "js-objects"],
+  },
+  "js-iterators-generators": {
+    badge: "JS",
+    title: "Ітератори й генератори (function*, yield)",
+    whatIsIt: "Протокол ітератора робить об'єкт сумісним з for...of і spread. Генератори — спеціальні функції (function*), що можуть призупиняти виконання через yield і повертати значення одне за одним, замість обчислення всіх одразу.",
+    useCases: ["власна логіка перебору для нестандартної структури даних", "генерація потенційно нескінченної послідовності (напр. чисел Фібоначчі) без обчислення всієї одразу", "лінива обробка великих наборів даних по одному елементу"],
+    syntax: `function* range(start, end) {\n  for (let i = start; i <= end; i++) yield i;\n}\nfor (const n of range(1, 3)) console.log(n);`,
+    attributes: [
+      { name: "function* name() {}", desc: "оголошує функцію-генератор" },
+      { name: "yield значення", desc: "призупиняє виконання й повертає значення викликаючому коду" },
+      { name: "Symbol.iterator", desc: "спеціальний метод, що робить об'єкт сумісним з for...of" },
+      { name: "generator.next()", desc: "продовжує виконання генератора до наступного yield, повертає { value, done }" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  function* countTo(n) {
+    for (let i = 1; i <= n; i++) yield i;
+  }
+  const results = [];
+  for (const num of countTo(5)) {
+    results.push(num);
+  }
+  document.getElementById('out').textContent = 'Згенеровано: ' + results.join(', ');
+<\/script>`,
+    pitfalls: [
+      "Виклик функції-генератора не виконує її тіло одразу — повертає об'єкт-ітератор, код виконується лише при переборі (for...of чи .next()).",
+      "Генератор можна перебрати лише ОДИН раз — після завершення потрібно створити новий виклик функції.",
+    ],
+    related: ["js-arrays"],
+  },
+  "js-proxy-reflect": {
+    badge: "JS",
+    title: "Proxy і Reflect",
+    whatIsIt: "Proxy дозволяє перехопити й перевизначити базові операції над об'єктом — читання, запис, виклик методу, перевірку властивості. Reflect надає ті самі базові операції у вигляді звичайних функцій — часто використовується всередині Proxy-обробників.",
+    useCases: ["логування чи валідація при зверненні до властивостей об'єкта", "реактивність (напр. як влаштований Vue 3 «під капотом»)", "об'єкти зі значенням за замовчуванням для відсутніх ключів"],
+    syntax: `const proxy = new Proxy(target, {\n  get(obj, prop) {\n    console.log('Читання:', prop);\n    return obj[prop];\n  }\n});`,
+    attributes: [
+      { name: "new Proxy(target, handler)", desc: "створює обгортку над об'єктом target з перехопленими операціями через handler" },
+      { name: "get(obj, prop)", desc: "перехоплює читання властивості obj[prop]" },
+      { name: "set(obj, prop, value)", desc: "перехоплює запис значення у властивість" },
+      { name: "Reflect.get() / Reflect.set()", desc: "стандартна реалізація базової операції — зручно викликати всередині власного handler" },
+    ],
+    example: `<p id="out"></p>
+<script>
+  const user = { name: 'Оля' };
+  const logged = new Proxy(user, {
+    get(obj, prop) {
+      console.log('Прочитано:', prop);
+      return Reflect.get(obj, prop);
+    }
+  });
+  document.getElementById('out').textContent = 'Ім\\'я: ' + logged.name + ' (деталі логування — у консолі браузера)';
+<\/script>`,
+    pitfalls: [
+      "Proxy рідко потрібен у звичайних застосунках — переважно для бібліотек/фреймворків; надмірне використання ускладнює дебаг.",
+      "Не всі операції автоматично перехоплюються — для повної консистентності handler часто делегує до Reflect.*.",
+    ],
+    related: ["js-objects"],
+  },
+
 };
 
 const TERM_GUIDES = {
