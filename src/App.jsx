@@ -5463,6 +5463,70 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-objects", "js-fetch"],
   },
 
+  "js-dom-select": {
+    badge: "JS",
+    title: "Пошук елементів у DOM",
+    whatIsIt: "Методи document для знаходження HTML-елементів на сторінці, щоб потім читати чи змінювати їх через JavaScript. querySelector/querySelectorAll — найгнучкіші, приймають будь-який CSS-селектор.",
+    useCases: ["знайти елемент за id для зміни його вмісту", "знайти всі елементи певного класу для навішування обробників", "перевірити, чи елемент відповідає певному селектору"],
+    syntax: `const el = document.querySelector('.card');\nconst all = document.querySelectorAll('.item');`,
+    attributes: [
+      { name: "getElementById()", desc: "знаходить один елемент за id (без #), найшвидший спосіб" },
+      { name: "querySelector()", desc: "знаходить перший елемент, що відповідає будь-якому CSS-селектору" },
+      { name: "querySelectorAll()", desc: "знаходить УСІ елементи за селектором, повертає NodeList" },
+      { name: "getElementsByClassName()", desc: "застаріліший спосіб, повертає «живу» HTMLCollection за класом" },
+      { name: "closest()", desc: "шукає найближчого предка (чи сам елемент), що відповідає селектору" },
+    ],
+    example: `<div class="card">
+  <p>Картка товару</p>
+</div>
+<button id="btn">Знайти й підсвітити</button>
+<script>
+  document.getElementById('btn').onclick = () => {
+    const card = document.querySelector('.card');
+    card.style.background = '#fef08a';
+  };
+<\/script>`,
+    pitfalls: [
+      "querySelectorAll() повертає СТАТИЧНИЙ NodeList — не оновлюється автоматично, якщо DOM змінюється після виклику.",
+      "querySelector() повертає лише ПЕРШИЙ елемент, навіть якщо селектор відповідає кільком — для всіх потрібен querySelectorAll.",
+      "Виклик querySelector до того, як елемент з'явився в DOM (напр. скрипт у <head> без defer) — поверне null.",
+    ],
+    related: ["js-dom-manipulate", "js-events"],
+  },
+  "js-dom-manipulate": {
+    badge: "JS",
+    title: "Зміна DOM (створення, вміст, класи)",
+    whatIsIt: "Набір методів для програмної зміни сторінки: створення нових елементів, зміна тексту/HTML, керування CSS-класами, вставка й видалення елементів з дерева документа.",
+    useCases: ["динамічно додати новий елемент у список", "перемкнути CSS-клас для показу/приховування блоку", "оновити текст лічильника чи статусу"],
+    syntax: `const li = document.createElement('li');\nli.textContent = 'Новий пункт';\nlist.appendChild(li);`,
+    attributes: [
+      { name: "createElement()", desc: "створює новий DOM-елемент, який ще не вставлений на сторінку" },
+      { name: "textContent / innerHTML", desc: "textContent — чистий текст (безпечно), innerHTML — парсить рядок як HTML" },
+      { name: "appendChild() / append() / prepend()", desc: "вставляють елемент у кінець чи на початок списку дітей" },
+      { name: "remove()", desc: "видаляє елемент з DOM" },
+      { name: "classList.add() / .remove() / .toggle()", desc: "додають, видаляють чи перемикають CSS-клас" },
+      { name: "setAttribute() / getAttribute()", desc: "задають чи читають будь-який HTML-атрибут" },
+    ],
+    example: `<button id="add">Додати пункт</button>
+<ul id="list"></ul>
+<script>
+  let count = 0;
+  document.getElementById('add').onclick = () => {
+    count++;
+    const li = document.createElement('li');
+    li.textContent = 'Пункт ' + count;
+    li.classList.add('item');
+    document.getElementById('list').appendChild(li);
+  };
+<\/script>`,
+    pitfalls: [
+      "innerHTML з користувацьким вводом без екранування — вразливість XSS; для тексту завжди textContent.",
+      "Створення елементів у циклі без DocumentFragment — кожен appendChild викликає перемальовування сторінки, повільно для великих списків.",
+      "classList.toggle() без другого аргументу перемикає стан — якщо потрібно точно «додати», краще classList.add().",
+    ],
+    related: ["js-dom-select", "js-events"],
+  },
+
 };
 
 const TERM_GUIDES = {
