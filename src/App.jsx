@@ -480,6 +480,135 @@ const HTML_LESSONS = [
       return { pass: true, message: "del/ins показують історію змін тексту, sub/sup — позицію символу відносно рядка." };
     },
   },
+  {
+    id: "html-21",
+    title: "code, pre, blockquote, q",
+    theory:
+      "<code> — інлайн фрагмент коду прямо в тексті (браузер показує моноширинним шрифтом). <blockquote> — блок цитати, зазвичай довгої, з окремим абзацом. <q> — коротка інлайн-цитата прямо в реченні; браузер сам додає лапки навколо неї, тобі не треба писати їх вручну.",
+    example: { code: `<p>Виклич <code>console.log()</code>.</p>\n<blockquote>Життя коротке, мистецтво вічне.</blockquote>\n<p>Диктор сказав: <q>Обережно, двері зачиняються.</q></p>`, explain: "code — усередині речення, blockquote — окремий блок, q — теж усередині речення, але з автоматичними лапками." },
+    task: 'Створи абзац з інлайн-кодом console.log() у тегу code. Потім blockquote з текстом "Життя коротке, мистецтво вічне." Потім абзац з інлайн-цитатою (q) "Обережно, двері зачиняються."',
+    starter: "",
+    hints: [
+      "code — усередині p, разом зі звичайним текстом навколо.",
+      "blockquote — окремий блок, не всередині p.",
+      'Приклад: <p>Виклич <code>console.log()</code>.</p><blockquote>Життя коротке, мистецтво вічне.</blockquote><p>Диктор сказав: <q>Обережно, двері зачиняються.</q></p>',
+    ],
+    solution: `<p>Виклич <code>console.log()</code>.</p>\n<blockquote>Життя коротке, мистецтво вічне.</blockquote>\n<p>Диктор сказав: <q>Обережно, двері зачиняються.</q></p>`,
+    type: "html",
+    check: (doc) => {
+      const code = doc.querySelector("code");
+      if (!code || !code.textContent.includes("console.log()")) return { pass: false, message: "Потрібен <code> з текстом console.log()." };
+      const blockquote = doc.querySelector("blockquote");
+      if (!blockquote || !blockquote.textContent.includes("Життя коротке")) return { pass: false, message: 'Потрібен <blockquote> з текстом "Життя коротке, мистецтво вічне."' };
+      const q = doc.querySelector("q");
+      if (!q || !q.textContent.includes("Обережно, двері зачиняються")) return { pass: false, message: 'Потрібен <q> з текстом "Обережно, двері зачиняються."' };
+      return { pass: true, message: "q сама додає лапки в браузері — писати їх вручну в тексті не треба." };
+    },
+  },
+  {
+    id: "html-22",
+    title: "abbr і атрибут title",
+    theory:
+      "<abbr> позначає абревіатуру чи скорочення. Атрибут title (доступний для БУДЬ-ЯКОГО тега, не лише abbr) додає підказку, що з'являється при наведенні миші — розшифровку скорочення, додаткове пояснення.",
+    example: { code: `<abbr title="HyperText Markup Language">HTML</abbr>`, explain: "Наведи мишею на HTML у браузері — з'явиться повна назва." },
+    task: 'Створи абзац з текстом "Ми вивчаємо" і абревіатурою HTML у тегу abbr з title="HyperText Markup Language".',
+    starter: "",
+    hints: [
+      "abbr — інлайн-тег, пишеться прямо в тексті абзацу.",
+      "title — атрибут усередині відкриваючого тега abbr, значення в лапках.",
+      'Приклад: <p>Ми вивчаємо <abbr title="HyperText Markup Language">HTML</abbr>.</p>',
+    ],
+    solution: `<p>Ми вивчаємо <abbr title="HyperText Markup Language">HTML</abbr>.</p>`,
+    type: "html",
+    check: (doc) => {
+      const abbr = doc.querySelector("abbr");
+      if (!abbr) return { pass: false, message: "Потрібен тег <abbr>." };
+      if (abbr.textContent.trim() !== "HTML") return { pass: false, message: 'Текст усередині <abbr> має бути точно "HTML".' };
+      if (abbr.getAttribute("title") !== "HyperText Markup Language") return { pass: false, message: 'Атрибут title має дорівнювати "HyperText Markup Language".' };
+      return { pass: true, message: "title працює на будь-якому тегу, але найчастіше зустрічається саме з abbr." };
+    },
+  },
+  {
+    id: "html-23",
+    title: "Вкладені списки",
+    theory:
+      "Списки можна вкладати один в інший — маркований усередині нумерованого чи навпаки. Вкладений список пишеться ВСЕРЕДИНІ того <li>, до якого він відноситься, а не після нього.",
+    example: { code: `<ol>\n  <li>Крок 1\n    <ul>\n      <li>Деталь А</li>\n    </ul>\n  </li>\n  <li>Крок 2</li>\n</ol>`, explain: "Вкладений <ul> лежить УСЕРЕДИНІ першого <li>, перед його закриттям." },
+    task: "Створи нумерований список (ol) із двома пунктами (li). Усередині ПЕРШОГО пункту додай вкладений маркований список (ul) з двома під-пунктами.",
+    starter: "",
+    hints: [
+      "Вкладений ul пишеться ДО закриваючого </li> першого пункту, не після нього.",
+      "Загалом два рівні: ol > li > ul > li.",
+      "Приклад: <ol><li>Крок 1<ul><li>Деталь А</li><li>Деталь Б</li></ul></li><li>Крок 2</li></ol>",
+    ],
+    solution: `<ol>\n  <li>Крок 1\n    <ul>\n      <li>Деталь А</li>\n      <li>Деталь Б</li>\n    </ul>\n  </li>\n  <li>Крок 2</li>\n</ol>`,
+    type: "html",
+    check: (doc) => {
+      const ol = doc.querySelector("ol");
+      if (!ol) return { pass: false, message: "Потрібен тег <ol>." };
+      const topLis = ol.querySelectorAll(":scope > li");
+      if (topLis.length !== 2) return { pass: false, message: `У <ol> потрібно рівно 2 прямих пункти <li>, зараз: ${topLis.length}.` };
+      const nestedUl = topLis[0].querySelector("ul");
+      if (!nestedUl) return { pass: false, message: "У першому пункті <ol> потрібен вкладений <ul>." };
+      if (nestedUl.querySelectorAll("li").length < 2) return { pass: false, message: "Вкладений <ul> має містити хоча б 2 пункти <li>." };
+      return { pass: true, message: "Вкладені списки — стандартний спосіб показати ієрархію: розділи й підпункти, меню й підменю." };
+    },
+  },
+  {
+    id: "html-24",
+    title: "Список визначень: dl, dt, dd",
+    theory:
+      "<dl> (description list) — список пар «термін — визначення». <dt> — сам термін, <dd> — його опис. На відміну від ul/ol, тут кожен пункт складається з ДВОХ тегів: dt і dd, що йдуть один за одним.",
+    example: { code: `<dl>\n  <dt>HTML</dt>\n  <dd>Мова розмітки</dd>\n</dl>`, explain: "dt — слово, dd — його пояснення одразу під ним." },
+    task: 'Створи dl з двома парами: dt "HTML" + dd "Мова розмітки", і dt "CSS" + dd "Мова стилів".',
+    starter: "",
+    hints: [
+      "Чотири теги підряд усередині dl: dt, dd, dt, dd.",
+      "Кожен dt іде ПЕРЕД своїм dd, не після.",
+      "Приклад: <dl><dt>HTML</dt><dd>Мова розмітки</dd><dt>CSS</dt><dd>Мова стилів</dd></dl>",
+    ],
+    solution: `<dl>\n  <dt>HTML</dt>\n  <dd>Мова розмітки</dd>\n  <dt>CSS</dt>\n  <dd>Мова стилів</dd>\n</dl>`,
+    type: "html",
+    check: (doc) => {
+      const dl = doc.querySelector("dl");
+      if (!dl) return { pass: false, message: "Потрібен тег <dl>." };
+      const dts = dl.querySelectorAll("dt");
+      const dds = dl.querySelectorAll("dd");
+      if (dts.length !== 2 || dds.length !== 2) return { pass: false, message: "Потрібно рівно по 2 теги <dt> і <dd>." };
+      const dtTexts = [...dts].map((d) => d.textContent.trim());
+      if (!dtTexts.includes("HTML") || !dtTexts.includes("CSS")) return { pass: false, message: "Терміни мають бути точно «HTML» і «CSS»." };
+      return { pass: true, message: "dl/dt/dd ідеально підходять для глосаріїв, FAQ, характеристик товару." };
+    },
+  },
+  {
+    id: "html-25",
+    title: "thead, tbody, tfoot, caption",
+    theory:
+      "Велика таблиця логічно ділиться на три частини: <thead> — рядок(и) заголовків, <tbody> — основні дані, <tfoot> — підсумковий рядок. <caption> — підпис усієї таблиці, пишеться одразу після відкриття <table>.",
+    example: { code: `<table>\n  <caption>Замовлення</caption>\n  <thead><tr><th>Товар</th></tr></thead>\n  <tbody><tr><td>Книга</td></tr></tbody>\n</table>`, explain: "Три логічні секції замість однієї купи <tr>." },
+    task: 'Створи table з caption "Замовлення", thead з рядком th "Товар" і th "Ціна", tbody з рядком td "Книга" і td "150", і tfoot з рядком td "Разом" і td "150".',
+    starter: "",
+    hints: [
+      "Порядок усередині table: caption, потім thead, tbody, tfoot.",
+      "У кожній секції — свій <tr> з двома комірками.",
+      "Приклад: <table><caption>Замовлення</caption><thead><tr><th>Товар</th><th>Ціна</th></tr></thead><tbody><tr><td>Книга</td><td>150</td></tr></tbody><tfoot><tr><td>Разом</td><td>150</td></tr></tfoot></table>",
+    ],
+    solution: `<table>\n  <caption>Замовлення</caption>\n  <thead>\n    <tr><th>Товар</th><th>Ціна</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Книга</td><td>150</td></tr>\n  </tbody>\n  <tfoot>\n    <tr><td>Разом</td><td>150</td></tr>\n  </tfoot>\n</table>`,
+    type: "html",
+    check: (doc) => {
+      const table = doc.querySelector("table");
+      if (!table) return { pass: false, message: "Потрібен тег <table>." };
+      const caption = table.querySelector("caption");
+      if (!caption || caption.textContent.trim() !== "Замовлення") return { pass: false, message: '<caption> має містити точно "Замовлення".' };
+      const thead = table.querySelector("thead");
+      if (!thead || thead.querySelectorAll("th").length !== 2) return { pass: false, message: "У <thead> потрібен рядок з рівно 2 <th>." };
+      const tbody = table.querySelector("tbody");
+      if (!tbody || tbody.querySelectorAll("td").length !== 2) return { pass: false, message: "У <tbody> потрібен рядок з рівно 2 <td>." };
+      const tfoot = table.querySelector("tfoot");
+      if (!tfoot || tfoot.querySelectorAll("td").length !== 2) return { pass: false, message: "У <tfoot> потрібен рядок з рівно 2 <td>." };
+      return { pass: true, message: "thead/tbody/tfoot допомагають і стилізації (CSS), і браузеру — напр. закріпити шапку таблиці при прокрутці." };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
