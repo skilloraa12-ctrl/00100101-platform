@@ -4524,6 +4524,78 @@ const TERM_PAGES_V2 = {
     related: ["css-box-model", "css-position"],
   },
 
+  "css-filter-backdrop": {
+    badge: "CSS",
+    title: "filter і backdrop-filter",
+    whatIsIt: "filter застосовує графічні ефекти (розмиття, яскравість, відтінки сірого) до самого елемента й усього його вмісту. backdrop-filter натомість застосовує ефект до того, що знаходиться ПОЗАДУ елемента — класичний приклад: ефект матового скла (glassmorphism).",
+    useCases: ["чорно-білий ефект для неактивних елементів", "розмитий фон під напівпрозорою панеллю навігації", "затемнення/освітлення зображення при наведенні", "тінь, що повторює форму зображення (drop-shadow)"],
+    syntax: `.glass {\n  backdrop-filter: blur(10px);\n  background: rgba(255,255,255,0.2);\n}`,
+    attributes: [
+      { name: "blur(px)", desc: "розмиває вміст елемента" },
+      { name: "brightness() / contrast()", desc: "змінюють яскравість чи контраст" },
+      { name: "grayscale() / sepia() / invert()", desc: "чорно-білий, сепія, інверсія кольорів (0-100%)" },
+      { name: "drop-shadow()", desc: "тінь, що повторює реальну форму елемента (не прямокутник, як box-shadow)" },
+      { name: "backdrop-filter", desc: "той самий набір функцій, але для фону ПОЗАДУ елемента" },
+    ],
+    example: `<div style="position:relative;height:120px;background-image:url('https://picsum.photos/400/200');background-size:cover;border-radius:8px;overflow:hidden;">
+  <div style="position:absolute;bottom:10px;left:10px;right:10px;padding:10px;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);border-radius:6px;color:white;font-size:14px;">
+    Ефект матового скла (backdrop-filter: blur)
+  </div>
+</div>`,
+    pitfalls: [
+      "Плутанина filter і backdrop-filter — filter змінює сам елемент, backdrop-filter — те, що позаду нього.",
+      "backdrop-filter вимагає, щоб фон елемента був напівпрозорим (rgba з альфа-каналом), інакше ефекту не видно.",
+      "Багато фільтрів на великих елементах можуть знижувати продуктивність на слабких пристроях.",
+    ],
+    related: ["css-mask-clip", "css-shadows"],
+  },
+  "css-mask-clip": {
+    badge: "CSS",
+    title: "mask і clip-path",
+    whatIsIt: "clip-path обрізає елемент за геометричною формою — колом, багатокутником чи довільним контуром, показуючи лише частину всередині фігури. mask робить подібне, але на основі прозорості/яскравості зображення-маски, а не простої геометрії.",
+    useCases: ["зображення у формі шестикутника чи зірки замість прямокутника", "плавна поява елемента через анімацію clip-path", "складні форми вирізу з градієнтною маскою (плавне зникнення країв)"],
+    syntax: `.hex {\n  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);\n}`,
+    attributes: [
+      { name: "circle() / ellipse()", desc: "обрізає елемент по колу чи еліпсу" },
+      { name: "polygon()", desc: "обрізає за довільним багатокутником через список точок" },
+      { name: "inset()", desc: "обрізає прямокутну область з відступами від країв" },
+      { name: "mask-image", desc: "використовує зображення/градієнт як маску прозорості" },
+    ],
+    example: `<div style="display:flex;gap:16px;">
+  <img src="https://picsum.photos/150/150" style="width:100px;height:100px;clip-path:circle(50%);" alt="circle">
+  <img src="https://picsum.photos/150/150" style="width:100px;height:100px;clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);" alt="star-ish">
+</div>`,
+    pitfalls: [
+      "clip-path: circle(50%) на прямокутному елементі дає еліпс, а не коло — потрібен квадратний елемент.",
+      "Анімація clip-path з різною кількістю точок у полігоні не інтерполюється плавно.",
+      "Обрізаний clip-path вміст все ще займає своє місце в макеті — не впливає на layout сусідів.",
+    ],
+    related: ["css-filter-backdrop", "css-transform"],
+  },
+  "css-cursor-interaction": {
+    badge: "CSS",
+    title: "cursor, pointer-events, user-select",
+    whatIsIt: "Група властивостей керує тим, як користувач взаємодіє з елементом мишею й вибором тексту: який курсор показувати, чи реагує елемент на кліки, чи можна виділити його текст.",
+    useCases: ["курсор-рука на клікабельних елементах без <a>/<button>", "заблокований елемент, крізь який клік проходить до того, що під ним", "заборона виділення тексту на іконках чи кнопках"],
+    syntax: `.disabled {\n  pointer-events: none;\n  cursor: not-allowed;\n}`,
+    attributes: [
+      { name: "cursor", desc: "pointer, grab, not-allowed, text, wait, crosshair — вигляд курсора при наведенні" },
+      { name: "pointer-events: none", desc: "клік/наведення проходить крізь елемент до того, що під ним" },
+      { name: "user-select", desc: "none забороняє виділення тексту елемента мишею" },
+      { name: "touch-action", desc: "керує, які жести дотику браузер обробляє сам (для мобільних)" },
+    ],
+    example: `<div style="display:flex;gap:10px;">
+  <button style="cursor:pointer;padding:8px 16px;border:1px solid #ccc;border-radius:6px;background:white;">pointer</button>
+  <button style="cursor:not-allowed;opacity:0.5;padding:8px 16px;border:1px solid #ccc;border-radius:6px;background:#eee;" disabled>not-allowed</button>
+  <span style="cursor:grab;padding:8px 16px;border:1px dashed #999;border-radius:6px;">grab</span>
+</div>`,
+    pitfalls: [
+      "pointer-events: none також блокує події для скрінрідерів і клавіатурної навігації — використовуй обережно.",
+      "cursor: pointer на елементі без реальної дії (не посилання/кнопка) вводить користувача в оману.",
+    ],
+    related: ["css-filter-backdrop", "css-pseudo-classes"],
+  },
+
 };
 
 const TERM_GUIDES = {
