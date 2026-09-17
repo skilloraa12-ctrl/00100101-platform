@@ -1572,6 +1572,27 @@ const SYMBOLS = [
   { cat: "SQL: Умовні вирази", sym: "CASE WHEN THEN ELSE END", en: "Case expression", ua: "Умовний вираз CASE", langs: "SQL", example: "CASE WHEN age < 18 THEN 'дитина' ELSE 'дорослий' END", explain: "SQL-еквівалент if/else всередині запиту." },
   { cat: "SQL: Умовні вирази", sym: "COALESCE() / NULLIF()", en: "Null handling functions", ua: "Функції обробки NULL", langs: "SQL", example: "COALESCE(nickname, name, 'Аноним')", explain: "COALESCE повертає перше не-NULL значення зі списку, NULLIF повертає NULL, якщо два значення рівні." },
 
+  { cat: "SQL: Рядкові функції", sym: "CONCAT() / ||", en: "String concatenation", ua: "З'єднання рядків", langs: "SQL", example: "first_name || ' ' || last_name", explain: "Об'єднують кілька рядків в один; у PostgreSQL || і CONCAT() роблять те саме." },
+  { cat: "SQL: Рядкові функції", sym: "UPPER() / LOWER()", en: "Case functions", ua: "Функції регістру", langs: "SQL", example: "UPPER(name)", explain: "Перетворюють рядок у верхній чи нижній регістр." },
+  { cat: "SQL: Рядкові функції", sym: "LENGTH() / SUBSTRING()", en: "Length/substring functions", ua: "Функції довжини/підрядка", langs: "SQL", example: "SUBSTRING(name FROM 1 FOR 3)", explain: "Повертають довжину рядка чи його частину." },
+  { cat: "SQL: Рядкові функції", sym: "TRIM() / LTRIM() / RTRIM()", en: "Trim functions", ua: "Функції обрізання пробілів", langs: "SQL", example: "TRIM('  text  ')", explain: "Прибирають пробіли з обох країв, зліва чи справа рядка." },
+  { cat: "SQL: Числові функції", sym: "ROUND() / CEIL() / FLOOR()", en: "Rounding functions", ua: "Функції округлення", langs: "SQL", example: "ROUND(price, 2)", explain: "Округлюють число до заданої кількості знаків, вгору чи вниз." },
+  { cat: "SQL: Числові функції", sym: "ABS() / POWER() / SQRT()", en: "Math functions", ua: "Математичні функції", langs: "SQL", example: "SQRT(area)", explain: "Модуль числа, піднесення до степеня, квадратний корінь." },
+  { cat: "SQL: Дата й час", sym: "CURRENT_DATE / CURRENT_TIMESTAMP / NOW()", en: "Current date/time", ua: "Поточна дата/час", langs: "SQL", example: "SELECT NOW();", explain: "Повертають поточну дату чи момент часу на сервері БД." },
+  { cat: "SQL: Дата й час", sym: "EXTRACT() / DATE_PART()", en: "Date extraction functions", ua: "Функції витягування дати", langs: "SQL", example: "EXTRACT(YEAR FROM order_date)", explain: "Витягують конкретну частину дати — рік, місяць, день, годину." },
+  { cat: "SQL: Дата й час", sym: "DATE_TRUNC()", en: "Date truncation", ua: "Обрізання дати", langs: "SQL", example: "DATE_TRUNC('month', order_date)", explain: "Обрізає дату до вказаної точності — зручно для групування за місяцем/днем." },
+  { cat: "SQL: Дата й час", sym: "INTERVAL", en: "Interval type", ua: "Тип інтервалу", langs: "SQL", example: "order_date + INTERVAL '7 days'", explain: "Представляє проміжок часу — можна додавати/віднімати від дат." },
+  { cat: "SQL: Приведення типу", sym: "CAST() / ::type", en: "Type casting", ua: "Приведення типу", langs: "SQL", example: "'123'::integer", explain: "Явно перетворюють значення на інший тип даних." },
+  { cat: "SQL: PostgreSQL типи", sym: "SERIAL / BIGSERIAL", en: "Auto-increment types", ua: "Типи з автоінкрементом", langs: "PostgreSQL", example: "id SERIAL PRIMARY KEY", explain: "Ціле число, що автоматично збільшується при кожній вставці — типово для первинних ключів." },
+  { cat: "SQL: PostgreSQL типи", sym: "INTEGER / BIGINT / SMALLINT", en: "Integer types", ua: "Цілочисельні типи", langs: "PostgreSQL", example: "age INTEGER", explain: "Цілі числа різного розміру діапазону." },
+  { cat: "SQL: PostgreSQL типи", sym: "NUMERIC / DECIMAL / REAL", en: "Decimal types", ua: "Дробові типи", langs: "PostgreSQL", example: "price NUMERIC(10, 2)", explain: "Числа з плаваючою чи фіксованою комою — NUMERIC точний, для грошей." },
+  { cat: "SQL: PostgreSQL типи", sym: "TEXT / VARCHAR / CHAR", en: "Text types", ua: "Текстові типи", langs: "PostgreSQL", example: "name VARCHAR(100)", explain: "TEXT — необмежений текст, VARCHAR(n) — з обмеженням довжини, CHAR — фіксованої довжини." },
+  { cat: "SQL: PostgreSQL типи", sym: "DATE / TIME / TIMESTAMP / TIMESTAMPTZ", en: "Date/time types", ua: "Типи дати й часу", langs: "PostgreSQL", example: "created_at TIMESTAMPTZ", explain: "Зберігають дату, час чи обидва разом; TZ-варіант враховує часовий пояс." },
+  { cat: "SQL: PostgreSQL типи", sym: "BOOLEAN", en: "Boolean type", ua: "Логічний тип", langs: "PostgreSQL", example: "active BOOLEAN DEFAULT true", explain: "Зберігає true/false." },
+  { cat: "SQL: PostgreSQL типи", sym: "JSON / JSONB", en: "JSON types", ua: "JSON-типи", langs: "PostgreSQL", example: "metadata JSONB", explain: "Зберігають JSON-документ у колонці; JSONB — бінарний, швидший для запитів і індексації." },
+  { cat: "SQL: PostgreSQL типи", sym: "UUID", en: "UUID type", ua: "Тип UUID", langs: "PostgreSQL", example: "id UUID DEFAULT gen_random_uuid()", explain: "Універсальний унікальний ідентифікатор — альтернатива SERIAL, не розкриває кількість записів." },
+  { cat: "SQL: PostgreSQL типи", sym: "ARRAY", en: "Array type", ua: "Тип масив", langs: "PostgreSQL", example: "tags TEXT[]", explain: "Зберігає масив значень в одній колонці — специфічна можливість PostgreSQL." },
+
 ];
 
 const LIBRARY_HTML = [
