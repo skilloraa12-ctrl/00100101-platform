@@ -52,7 +52,7 @@ const HTML_LESSONS = [
     id: "html-2",
     title: "Структура документа",
     theory:
-      "Кожна повноцінна HTML-сторінка має скелет: <html> — корінь документа, <head> — службова частина (заголовок вкладки, підключення стилів, метадані — не видима на сторінці), <body> — усе, що бачить користувач. Тег <title> всередині <head> задає назву вкладки браузера.\n\nПеред <html> зазвичай стоїть рядок <!DOCTYPE html>. Це не тег і не елемент* — це вказівка браузеру, що сторінка написана за сучасним стандартом HTML5. Без нього старі браузери могли б перейти в «режим сумісності» й верстати сторінку за застарілими, дивними правилами 1990-х. У сучасній розробці DOCTYPE пишуть завжди, одним рядком, на самому початку файлу.\n\n<head> — це «закулісся» сторінки: користувач нічого з нього не бачить напряму, але браузер бере звідти критично важливі дані — назву вкладки (title), кодування символів (meta charset), підключені стилі (link) і скрипти (script). Якщо в head щось написано з помилкою, сторінка може виглядати зламаною, хоч у body все правильно.\n\n<body> — рівно один на сторінку, і в ньому лежить АБСОЛЮТНО все, що бачить відвідувач: текст, картинки, кнопки, форми. Якщо елемента немає в body, користувач його не побачить, хай навіть код синтаксично правильний.\n\nВідступи (по 2 чи 4 пробіли на кожен рівень вкладеності) браузеру не важливі — він прекрасно зрозуміє HTML і без жодного відступу. Але для людини, яка читає код, вкладеність без відступів перетворюється на суцільну кашу. Тому професійні розробники завжди форматують HTML з відступами — це негласний стандарт, який роблять автоматично навіть редактори коду.",
+      "Кожна повноцінна HTML-сторінка має скелет: <html> — корінь документа, <head> — службова частина (заголовок вкладки, підключення стилів, метадані — не видима на сторінці), <body> — усе, що бачить користувач. Тег <title> всередині <head> задає назву вкладки браузера.\n\nПеред <html> зазвичай стоїть рядок <!DOCTYPE html>. Це не тег і не елемент* — це вказівка браузеру, що сторінка написана за сучасним стандартом HTML5. Без нього старі браузери могли б перейти в «режим сумісності» й верстати сторінку за застарілими, дивними правилами 1990-х. У сучасній розробці DOCTYPE пишуть завжди, одним рядком, на самому початку файлу.\n\n<head> — це «закулісся» сторінки: користувач нічого з нього не бачить напряму, але браузер бере звідти критично важливі дані — назву вкладки (title), кодування символів (meta charset), підключені стилі (link) і скрипти (script). Якщо в head щось написано з помилкою, сторінка може виглядати зламаною, хоч у body все правильно.\n\n<body> — рівно один на сторінку, і в ньому лежить АБСОЛЮТНО все, що бачить відвідувач: текст, картинки, кнопки, форми. Якщо елемента немає в body, користувач його не побачить, хай навіть код синтаксично правильний.\n\nВідступи (по 2 чи 4 пробіли на кожен рівень вкладеності) браузеру не важливі — він прекрасно зрозуміє HTML і без жодного відступу. Але для людини, яка читає код, вкладеність без відступів перетворюється на суцільну кашу. Тому професійні розробники завжди форматують HTML з відступами — це негласний стандарт, який роблять автоматично навіть редактори коду.\n\nЦей скелет — не абстрактна вправа: саме з нього починається файл будь-якого реального сайту, включно з твоїм власним у розділі «Мій сайт». Відкрий там вкладку HTML — побачиш точно такий самий DOCTYPE, <html lang=\"uk\">, і <head> з title та meta charset/viewport, які платформа вже заповнила за тебе на основі обраної теми й назви сайту. Розділи <header>/<main>/<footer> усередині body — це якраз те, що поступово наповнюється результатами твоїх уроків.",
     examples: [
       { title: "Повний скелет", code: `<!DOCTYPE html>\n<html>\n  <head>\n    <title>Моя сторінка</title>\n  </head>\n  <body>\n    <h1>Привіт!</h1>\n  </body>\n</html>`, explain: "DOCTYPE — перший рядок файлу, ще до <html>. head не показується на сторінці, а body — показується повністю." },
       { title: "head з кодуванням", code: `<head>\n  <meta charset="UTF-8">\n  <title>Мій сайт</title>\n</head>`, explain: "meta charset=\"UTF-8\" каже браузеру, як розшифровувати символи — без нього українські літери можуть показатись «кракозябрами»." },
@@ -1791,18 +1791,21 @@ function defaultProject() {
 const HEADER_MILESTONE = "html-17";
 const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-8"];
 
+// Produces the FULL document — DOCTYPE, <html lang>, <head> with the meta
+// tags taught in html-2/html-14, and <body> with the growing header/main/footer —
+// so "Мій сайт" always looks like a real file, not just a body fragment.
 function renderProjectHtml(project, theme, siteName) {
   const name = siteName ?? project.siteName;
   const blocks = project.blocks || {};
   const header =
     blocks[HEADER_MILESTONE] ||
-    `<header>\n  <h1>${name}</h1>\n  <nav>\n${theme.navLinks.map((l) => `    <a href="#">${l}</a>`).join("\n")}\n  </nav>\n</header>`;
+    `<header>\n    <h1>${name}</h1>\n    <nav>\n${theme.navLinks.map((l) => `      <a href="#">${l}</a>`).join("\n")}\n    </nav>\n  </header>`;
   const mainBlocks = MAIN_MILESTONES.map((id) => blocks[id]).filter(Boolean);
   const main = mainBlocks.length
-    ? `<main>\n${mainBlocks.map((b) => "  " + b.split("\n").join("\n  ")).join("\n\n")}\n</main>`
-    : `<main>\n  <!-- Тут з'являться нові блоки в міру проходження уроків -->\n</main>`;
-  const footer = `<footer>\n  <p>© 2025 ${name}</p>\n</footer>`;
-  return `${header}\n${main}\n${footer}`;
+    ? `<main>\n${mainBlocks.map((b) => "    " + b.split("\n").join("\n    ")).join("\n\n")}\n  </main>`
+    : `<main>\n    <!-- Тут з'являться нові блоки в міру проходження уроків -->\n  </main>`;
+  const footer = `<footer>\n    <p>© 2025 ${name}</p>\n  </footer>`;
+  return `<!DOCTYPE html>\n<html lang="uk">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>${name}</title>\n  <meta name="description" content="${name} — ${theme.description}">\n</head>\n<body>\n  ${header}\n  ${main}\n  ${footer}\n</body>\n</html>`;
 }
 
 async function loadProject() {
@@ -13029,7 +13032,11 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
   if (!theme) return null;
   const accent = ACCENT_MAP[theme.accent];
 
-  const previewDoc = `<!DOCTYPE html><html><head><style>${project.css || ""}</style></head><body>${project.html || ""}<script>${project.js || ""}<\/script></body></html>`;
+  // project.html is already a full document (DOCTYPE/head/body) — inject css/js
+  // into it rather than wrapping it in a second, nested <html>.
+  const previewDoc = (project.html || "<!DOCTYPE html><html><head></head><body></body></html>")
+    .replace("</head>", `<style>${project.css || ""}</style></head>`)
+    .replace("</body>", `<script>${project.js || ""}<\/script></body>`);
 
   const milestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
   const doneIds = progress?.completed?.html || [];
