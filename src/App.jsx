@@ -6743,6 +6743,96 @@ test('shows greeting after click', () => {
     related: ["fe-build-tools"],
   },
 
+  "py-classes": {
+    badge: "Python",
+    title: "class, __init__, self",
+    whatIsIt: "Класи в Python описують шаблон для створення об'єктів з даними й поведінкою. __init__ — спеціальний метод-конструктор, що викликається автоматично при створенні об'єкта. self — перший параметр кожного методу, посилання на сам об'єкт.",
+    useCases: ["модель даних з поведінкою (напр. клас User)", "наслідування спільної логіки між схожими класами", "інкапсуляція внутрішнього стану об'єкта"],
+    syntax: `class User:\n    def __init__(self, name):\n        self.name = name\n\n    def greet(self):\n        return f"Привіт, {self.name}"`,
+    attributes: [
+      { name: "class Name:", desc: "оголошує клас" },
+      { name: "__init__(self, ...)", desc: "конструктор — викликається автоматично при User(...)" },
+      { name: "self", desc: "перший параметр методу — посилання на сам об'єкт (аналог this)" },
+      { name: "class Child(Parent):", desc: "наслідування від батьківського класу" },
+      { name: "super().__init__()", desc: "викликає конструктор батьківського класу" },
+      { name: "@property / @staticmethod / @classmethod", desc: "спеціальні декоратори методів" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return f"{self.name} видає звук"
+
+class Dog(Animal):
+    def speak(self):
+        return super().speak() + " (Гав!)"
+
+d = Dog("Рекс")
+print(d.speak())</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Рекс видає звук (Гав!)</pre>`,
+    pitfalls: [
+      "Забутий self як перший параметр методу — TypeError при виклику.",
+      "self.name = name всередині __init__ — забутий self. попереду (просто name = name) створює ЛОКАЛЬНУ змінну, а не атрибут об'єкта.",
+      "Плутанина instance-атрибутів (self.x, унікальні для кожного об'єкта) і class-атрибутів (спільні для всіх екземплярів класу).",
+    ],
+    related: ["py-functions", "py-dataclasses"],
+  },
+  "py-exceptions": {
+    badge: "Python",
+    title: "try/except/finally, raise",
+    whatIsIt: "Механізм обробки помилок: try виконує потенційно небезпечний код, except ловить конкретний тип винятку, finally виконується завжди. raise дозволяє самому згенерувати виняток.",
+    useCases: ["обробка помилки ділення на нуль чи відсутнього ключа словника", "валідація вхідних даних з власними повідомленнями про помилку", "гарантоване закриття ресурсу (файлу) навіть при помилці"],
+    syntax: `try:\n    result = 10 / divisor\nexcept ZeroDivisionError:\n    print("Ділення на нуль!")\nfinally:\n    print("Завершено")`,
+    attributes: [
+      { name: "try / except / finally", desc: "try — небезпечний код, except — обробка, finally — виконується завжди" },
+      { name: "except Тип as e:", desc: "ловить конкретний тип винятку, e — об'єкт помилки з деталями" },
+      { name: "raise", desc: "генерує виняток, можна з власним повідомленням: raise ValueError('текст')" },
+      { name: "ValueError / TypeError / KeyError", desc: "поширені вбудовані типи винятків" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">def divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "Помилка: ділення на нуль"
+
+print(divide(10, 2))
+print(divide(10, 0))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">5.0
+Помилка: ділення на нуль</pre>`,
+    pitfalls: [
+      "Порожній except: (без вказання типу) ловить взагалі ВСІ винятки, включно з тими, що не мали б ловитись — краще завжди вказувати конкретний тип.",
+      "raise довільного значення (не через Exception-клас) — заборонено в Python 3, на відміну від деяких інших мов.",
+    ],
+    related: ["py-classes"],
+  },
+  "py-fstrings": {
+    badge: "Python",
+    title: "f-рядки (f-strings)",
+    whatIsIt: "Форматовані рядкові літерали (з 'f' перед лапками) дозволяють вставляти значення змінних і вирази прямо в текст через фігурні дужки {} — найзручніший спосіб форматування рядків у сучасному Python.",
+    useCases: ["вставка значень змінних у повідомлення користувачу", "форматування чисел (округлення, ширина поля)", "виконання виразів прямо всередині рядка"],
+    syntax: `name = "Оля"\nage = 25\nprint(f"{name} має {age} років")`,
+    attributes: [
+      { name: "f\"текст {змінна}\"", desc: "вставляє значення змінної прямо в рядок" },
+      { name: "f\"{вираз}\"", desc: "усередині {} можна писати будь-який Python-вираз, не лише змінну" },
+      { name: "f\"{value:.2f}\"", desc: "форматування — тут округлення до 2 знаків після коми" },
+      { name: "f\"{value=}\"", desc: "показує і назву змінної, і її значення (зручно для дебагу)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">price = 19.999
+name = "Оля"
+print(f"{name} купила товар за {price:.2f} грн")
+print(f"Сума з ПДВ: {price * 1.2:.2f}")</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Оля купила товар за 20.00 грн
+Сума з ПДВ: 24.00</pre>`,
+    pitfalls: [
+      "f-рядки з'явились у Python 3.6 — у старішому коді (чи середовищах) можна зустріти .format() чи % — теж працюють, але менш зручні.",
+      "Забута літера f перед лапками — фігурні дужки {} просто виведуться як текст, а не обчислений вираз.",
+    ],
+    related: ["py-strings"],
+  },
+
 };
 
 const TERM_GUIDES = {
