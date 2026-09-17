@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from "react";
 import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
@@ -11772,6 +11772,89 @@ function CodeEditor({ value, onChange, placeholder }) {
 }
 
 /* =========================================================================
+   JARGON GLOSSARY — auto-marks complex IT-only words in lesson theory
+   ========================================================================= */
+
+// stem: lowercase word start to match (covers Ukrainian inflected endings).
+const JARGON_TERMS = [
+  { stem: "семантичн", label: "семантичний", def: "Такий, що передає ЗНАЧЕННЯ й роль вмісту для браузера й пошуковика, а не лише зовнішній вигляд. Наприклад, <header> семантично означає «це шапка сторінки», а не просто «якийсь блок»." },
+  { stem: "атрибут", label: "атрибут", def: "Додаткова властивість тега, яка пишеться всередині відкриваючого тега у форматі ім'я=\"значення\" — наприклад href чи src." },
+  { stem: "скрінрідер", label: "скрінрідер", def: "Програма, яка вголос читає вміст сторінки людям з порушенням зору — «озвучує» текст і структуру сайту." },
+  { stem: "доступніст", label: "доступність", def: "Accessibility (a11y) — наскільки зручно й можливо користуватися сайтом людям з порушеннями зору, слуху чи моторики." },
+  { stem: "елемент", label: "елемент", def: "Одна окрема «деталь» HTML-сторінки: тег разом із його вмістом і атрибутами, наприклад <p>Текст</p>." },
+  { stem: "вкладен", label: "вкладений", def: "Розташований усередині іншого тега — як матрьошка: один елемент лежить всередині іншого." },
+  { stem: "блоков", label: "блоковий", def: "Тип елемента, який завжди починається з нового рядка й займає всю доступну ширину — наприклад <div> чи <p>." },
+  { stem: "рядков", label: "рядковий", def: "Тип елемента, який НЕ розриває рядок і займає рівно стільки місця, скільки потрібно його вмісту — наприклад <span> чи <a>." },
+  { stem: "контейнер", label: "контейнер", def: "Елемент, який сам по собі нічого не показує, а лише групує інші елементи всередині себе — наприклад <div>." },
+  { stem: "унікальн", label: "унікальний", def: "Такий, що може бути лише ОДИН раз на сторінці — наприклад, id має бути унікальним, а не повторюватись." },
+  { stem: "метадан", label: "метадані", def: "Дані ПРО сторінку (опис, автор, кодування), які не показуються користувачу візуально, а лежать у <head>." },
+  { stem: "сутніст", label: "сутність", def: "Спеціальний код на кшталт &lt; чи &amp; (HTML entity), який браузер перетворює на символ, що інакше сплутав би з розміткою." },
+  { stem: "плейсхолдер", label: "плейсхолдер", def: "Підказка сірим текстом усередині порожнього поля вводу — зникає, щойно користувач починає друкувати." },
+  { stem: "фокус", label: "фокус", def: "Стан елемента, коли він «активний» і готовий приймати введення — наприклад, поле, в яке щойно клікнули." },
+  { stem: "валідаці", label: "валідація", def: "Перевірка, чи правильно й повністю заповнені дані, перш ніж їх прийняти чи відправити." },
+  { stem: "рендер", label: "рендер", def: "Процес, коли браузер перетворює код (HTML/CSS/JS) на картинку, яку ти бачиш на екрані." },
+  { stem: "синтаксис", label: "синтаксис", def: "Правила запису коду — як розставляти дужки, лапки, крапки з комою тощо, щоб браузер чи мова програмування зрозуміли текст." },
+  { stem: "парси", label: "парсити", def: "Розбирати текст коду на зрозумілі комп'ютеру частини — саме це робить браузер, коли читає HTML." },
+  { stem: "парсер", label: "парсер", def: "Програма чи частина браузера, яка розбирає («парсить») текст коду на зрозумілі комп'ютеру частини." },
+  { stem: "консол", label: "консоль", def: "Панель у браузері (клавіша F12), де розробник бачить помилки, повідомлення й може виконувати JavaScript-код." },
+  { stem: "дебаж", label: "дебажити", def: "Шукати й виправляти помилку (баг) у коді." },
+  { stem: "фреймворк", label: "фреймворк", def: "Готовий «каркас» із інструментів і правил для побудови програм, який бере частину рутинної роботи на себе." },
+  { stem: "бібліотек", label: "бібліотека", def: "Готовий набір коду, який можна підключити й використовувати в програмуванні, щоб не писати все з нуля." },
+  { stem: "компонент", label: "компонент", def: "Окрема, самодостатня частина інтерфейсу (наприклад, кнопка чи картка товару), яку можна перевикористовувати." },
+  { stem: "асинхрон", label: "асинхронний", def: "Такий, що виконується «паралельно», не блокуючи решту програми — вона не чекає завершення, а працює далі." },
+];
+
+function JargonTerm({ token, entry }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="text-amber-400 border-b border-dotted border-amber-600/70 hover:text-amber-300 hover:border-amber-400"
+      >
+        {token}
+        <sup>*</sup>
+      </button>
+      {open && (
+        <span className="absolute z-30 left-0 top-full mt-1.5 w-64 bg-stone-800 border border-stone-700 rounded-md p-3 text-xs text-stone-200 leading-relaxed shadow-xl normal-case">
+          <strong className="text-amber-400 capitalize">{entry.label}*</strong> — {entry.def}
+        </span>
+      )}
+    </span>
+  );
+}
+
+// Splits theory text into plain text and clickable jargon markers, without
+// needing to hand-annotate every lesson's theory string.
+function JargonText({ text }) {
+  if (!text) return null;
+  const tokens = text.split(/(\s+)/);
+  return (
+    <>
+      {tokens.map((tok, i) => {
+        if (!tok || /^\s+$/.test(tok)) return tok;
+        const lead = tok.match(/^[«"'(]*/)[0];
+        const trail = tok.match(/[.,!?:;"»')]*$/)[0];
+        const core = tok.slice(lead.length, tok.length - trail.length || undefined);
+        const lower = core.toLowerCase();
+        const entry = JARGON_TERMS.filter((t) => lower.startsWith(t.stem) && lower.length <= t.stem.length + 6).sort(
+          (a, b) => b.stem.length - a.stem.length
+        )[0];
+        if (!entry || !core) return <Fragment key={i}>{tok}</Fragment>;
+        return (
+          <Fragment key={i}>
+            {lead}
+            <JargonTerm token={core} entry={entry} />
+            {trail}
+          </Fragment>
+        );
+      })}
+    </>
+  );
+}
+
+/* =========================================================================
    LESSON VIEW
    ========================================================================= */
 
@@ -11887,7 +11970,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       </div>
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
 
-      <p className="text-stone-300 leading-relaxed mb-5">{lesson.theory}</p>
+      <p className="text-stone-300 leading-relaxed mb-1"><JargonText key={lesson.id} text={lesson.theory} /></p>
+      <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
 
       <div className="mb-5">
         <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Приклад</div>
