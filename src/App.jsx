@@ -8872,6 +8872,89 @@ Deploying...
     ],
     related: ["fullstack-cicd"],
   },
+  "fullstack-linux-navigation": {
+    badge: "Full Stack",
+    title: "pwd/cd/ls, mkdir/touch, cp/mv/rm",
+    whatIsIt: "Базові команди навігації та роботи з файлами в терміналі Linux/macOS — основа роботи розробника поза графічним інтерфейсом: де я знаходжусь, що тут є, створити/скопіювати/перемістити/видалити.",
+    useCases: ["переміщення між директоріями проєкту з командного рядка", "перегляд вмісту папки перед виконанням дій", "створення нових файлів/папок, копіювання чи видалення без графічного файлового менеджера"],
+    syntax: `cd projects/app\npwd\nls -la\nmkdir new-folder\ntouch index.js\ncp file.txt backup/\nrm -rf old-folder`,
+    attributes: [
+      { name: "pwd", desc: "показує поточну директорію (print working directory)" },
+      { name: "cd <path>", desc: "переходить в іншу директорію; cd .. — на рівень вище, cd ~ — у домашню" },
+      { name: "ls -la", desc: "показує вміст директорії; -l детальний формат, -a разом з прихованими файлами" },
+      { name: "mkdir / touch", desc: "mkdir створює директорію, touch — порожній файл (чи оновлює час зміни існуючого)" },
+      { name: "cp / mv", desc: "cp копіює файл/папку, mv переміщує чи перейменовує" },
+      { name: "rm -rf", desc: "видаляє файли/директорії; -r рекурсивно, -f без підтвердження (НЕБЕЗПЕЧНО)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">pwd
+mkdir src
+touch src/index.js
+ls -la src/</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">/home/user/myapp
+total 8
+drwxr-xr-x  2 user user 4096 Sep 17 12:00 .
+drwxr-xr-x  5 user user 4096 Sep 17 12:00 ..
+-rw-r--r--  1 user user    0 Sep 17 12:00 index.js</pre>`,
+    pitfalls: [
+      "rm -rf БЕЗ подвійної перевірки шляху — видаляє файли НАЗАВЖДИ, без кошика чи можливості відновлення.",
+      "rm -rf / чи rm -rf ~ через друкарську помилку в шляху — катастрофічне видалення всієї системи чи домашньої папки.",
+      "Плутанина відносних і абсолютних шляхів (./file проти /file) — команда виконується не там, де очікувалось.",
+    ],
+    related: ["fullstack-linux-search-view", "fullstack-linux-permissions-process"],
+  },
+  "fullstack-linux-search-view": {
+    badge: "Full Stack",
+    title: "cat/less/head/tail, grep, find",
+    whatIsIt: "Команди для перегляду вмісту файлів і пошуку — тексту всередині файлів чи самих файлів у файловій системі, без відкриття графічного редактора.",
+    useCases: ["швидкий перегляд вмісту конфігураційного чи лог-файлу", "стеження за логами застосунку в реальному часі (tail -f)", "пошук конкретного рядка чи помилки в купі файлів (grep)", "пошук файлів за іменем чи типом у великому дереві директорій (find)"],
+    syntax: `cat file.txt\ntail -f log.txt\ngrep -r "TODO" src/\nfind . -name "*.js"`,
+    attributes: [
+      { name: "cat <file>", desc: "виводить увесь вміст файлу одразу" },
+      { name: "less <file>", desc: "показує файл з прокруткою — зручно для великих файлів" },
+      { name: "head / tail", desc: "показують перші / останні N рядків файлу; tail -f стежить за новими рядками в реальному часі" },
+      { name: "grep 'pattern' file", desc: "шукає рядки, що відповідають шаблону, у файлах чи виводі команди" },
+      { name: "grep -r 'pattern' dir/", desc: "рекурсивний пошук у всіх файлах директорії" },
+      { name: "find . -name '*.js'", desc: "шукає файли за іменем, типом чи іншими критеріями, починаючи з поточної директорії" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">grep -rn "TODO" src/</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">src/app.js:14:// TODO: додати валідацію
+src/utils.js:8:// TODO: оптимізувати цю функцію</pre>`,
+    pitfalls: [
+      "cat на дуже великому файлі (гігабайтний лог) — заповнює весь термінал; краще less чи tail для таких файлів.",
+      "grep без -r у директорії з кількома файлами — шукає лише в одному вказаному файлі, пропускаючи решту.",
+      "find за іменем без лапок навколо шаблону (find . -name *.js замість '*.js') — оболонка може розкрити зірочку ДО того, як find її отримає.",
+    ],
+    related: ["fullstack-linux-navigation"],
+  },
+  "fullstack-linux-permissions-process": {
+    badge: "Full Stack",
+    title: "chmod/chown, sudo, ps/kill/top",
+    whatIsIt: "Команди для керування правами доступу до файлів, виконання дій з підвищеними правами й керування процесами, що зараз виконуються в системі.",
+    useCases: ["надання файлу прав на виконання (напр. скрипту деплою)", "виконання команди, що потребує прав адміністратора (встановлення пакета)", "перегляд процесів, що споживають ресурси, і завершення завислого"],
+    syntax: `chmod +x script.sh\nsudo apt install curl\nps aux\nkill -9 1234`,
+    attributes: [
+      { name: "chmod +x <file>", desc: "змінює права доступу до файлу — тут додає право на виконання" },
+      { name: "chown <user> <file>", desc: "змінює власника файлу" },
+      { name: "sudo <command>", desc: "виконує команду з правами адміністратора (root)" },
+      { name: "ps aux", desc: "показує список усіх запущених процесів у системі" },
+      { name: "kill -9 <pid>", desc: "примусово завершує процес за його ідентифікатором (PID)" },
+      { name: "top", desc: "показує процеси в реальному часі з використанням CPU/пам'яті" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">ps aux | grep node</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">user  1234  0.5  2.1  node server.js
+user  1235  0.0  0.0  grep node</pre>
+<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;margin-top:8px;">kill -9 1234</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: процес 1234 (node server.js) примусово завершено</p>`,
+    pitfalls: [
+      "sudo перед КОЖНОЮ командою «про всяк випадок» — небезпечна звичка, підвищені права варто використовувати лише коли справді потрібно.",
+      "chmod 777 (повні права всім) для вирішення проблем з доступом — серйозна діра в безпеці замість правильного налаштування власника/групи.",
+      "kill -9 замість звичайного kill (SIGTERM) як типовий вибір — не дає процесу шанс коректно завершити роботу й зберегти стан.",
+    ],
+    related: ["fullstack-linux-navigation", "fullstack-linux-network-archive"],
+  },
 
 };
 
