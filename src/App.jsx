@@ -1829,6 +1829,241 @@ const CSS_LESSONS = [
       { re: /main\s+form\s+button\s*{[^}]*cursor\s*:\s*pointer\s*;/i, msg: "Потрібен cursor: pointer у правилі main form button." },
     ],
   },
+  {
+    id: "css-21",
+    title: "Flexbox основи: вирівняй меню",
+    theory:
+      "display: flex перетворює елемент на flex-контейнер — його прямі діти вишиковуються в ряд (за замовчуванням горизонтально), замінюючи свою типову блокову поведінку на гнучку. Це розв'язало проблему, яка десятиліттями мучила верстальників: розташувати кілька елементів рівномірно в рядок без «магічних» обчислень margin.\n\nflex-direction визначає напрямок головної осі: row (типово, горизонтально зліва направо), column (вертикально згори вниз), і їхні реверсні варіанти. Зміна напрямку не вимагає жодних змін у самому HTML — лише один рядок CSS.\n\njustify-content керує розподілом вільного простору вздовж ГОЛОВНОЇ осі: flex-start (типово, усе притиснуто до початку), center (по центру), space-between (перший і останній елемент по краях, решта рівномірно між ними) — саме space-between часто застосовують у меню з логотипом зліва й посиланнями справа.\n\nalign-items вирівнює елементи по ПОПЕРЕЧНІЙ осі (типово вертикально, якщо ряд горизонтальний): center вирівнює елементи різної висоти по одній лінії, що зручно, коли в одному ряду є, наприклад, логотип-картинка і текстові посилання різної висоти.",
+    previewHTML: `<header><nav class="menu"><a href="#">Головна</a><a href="#">Про нас</a><a href="#">Контакти</a></nav></header>`,
+    examples: [
+      { title: "Горизонтальне меню з gap", code: `header nav {\n  display: flex;\n  gap: 16px;\n  align-items: center;\n}`, explain: "Посилання вишиковуються в ряд з рівним відступом і вирівнюються по центру одне відносно одного." },
+      { title: "space-between для логотипу й меню", code: `.topbar {\n  display: flex;\n  justify-content: space-between;\n}`, explain: "Логотип притискається ліворуч, а меню — праворуч, з вільним простором рівномірно між ними." },
+      { title: "Вертикальний ряд (column)", code: `.sidebar {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}`, explain: "Той самий flex, лише інший напрямок головної осі — елементи йдуть згори вниз." },
+    ],
+    presentation: [
+      { title: "display: flex", points: ["Прямі діти вишиковуються в ряд (типово горизонтально)", "flex-direction: row/column — напрямок головної осі", "gap — відступ між елементами без margin"] },
+      { title: "Вирівнювання", points: ["justify-content — розподіл уздовж головної осі", "align-items — вирівнювання по поперечній осі", "space-between — типово для меню з логотипом і посиланнями"] },
+    ],
+    task: "Зроби nav усередині header свого сайту flex-контейнером (селектор header nav): display: flex, gap, align-items.",
+    starter: "",
+    hints: ["Селектор — header nav (два слова через пробіл).", "Потрібні display: flex, gap і align-items.", "header nav {\n  display: flex;\n  gap: 16px;\n  align-items: center;\n}"],
+    solution: `header nav {\n  display: flex;\n  gap: 16px;\n  align-items: center;\n}`,
+    type: "css",
+    tests: [
+      { re: /header\s+nav\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у правилі header nav." },
+      { re: /header\s+nav\s*{[^}]*gap\s*:\s*[^;]+;/i, msg: "Потрібен gap у правилі header nav." },
+    ],
+  },
+  {
+    id: "css-22",
+    title: "Flexbox: flex-wrap і перенесення рядів",
+    theory:
+      "За замовчуванням flex-контейнер намагається впхнути ВСІ елементи в ОДИН рядок, навіть якщо їм там тісно — вони просто стискаються. flex-wrap: wrap дозволяє елементам переноситись на новий рядок, коли не вистачає місця, замість стиснення чи виходу за межі контейнера.\n\nЦе особливо важливо для адаптивності: ряд карток товарів, що на широкому екрані вміщується в один рядок по 4, на вузькому екрані телефону автоматично перенесеться в кілька рядків по 1-2 — без єдиного медіазапиту, лише завдяки flex-wrap.\n\nflex-flow — скорочений запис flex-direction і flex-wrap одним рядком: flex-flow: row wrap означає «горизонтально, з переносом при потребі» — саме цю комбінацію обирають найчастіше для сіток карток.\n\ngap так само коректно працює й після переносу рядків — він додає однаковий відступ і між елементами в рядку, і між самими рядками, без потреби окремо стилізовувати margin для другого й наступних рядків.",
+    previewHTML: `<div class="cards"><div class="card-item">1</div><div class="card-item">2</div><div class="card-item">3</div><div class="card-item">4</div></div>`,
+    examples: [
+      { title: "Перенесення рядків", code: `.cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}`, explain: "Картки переносяться на новий рядок, коли не вистачає ширини контейнера, замість стиснення в один рядок." },
+      { title: "Скорочений запис", code: `.cards {\n  display: flex;\n  flex-flow: row wrap;\n}`, explain: "flex-flow одним рядком задає і напрямок, і перенесення." },
+    ],
+    presentation: [
+      { title: "flex-wrap", points: ["За замовчуванням усе намагається влізти в один рядок", "wrap дозволяє переносити елементи на новий рядок", "Ключовий інструмент адаптивності без медіазапитів"] },
+      { title: "На практиці", points: ["Сітка карток товарів — типовий приклад", "flex-flow: row wrap — скорочений запис двох властивостей", "gap коректно працює і між рядками теж"] },
+    ],
+    task: "Стилізуй .cards: display: flex, flex-wrap: wrap, gap.",
+    starter: "",
+    hints: ["Потрібні всі три властивості.", "flex-wrap: wrap дозволяє перенесення рядів.", ".cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}"],
+    solution: `.cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.cards\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у .cards." },
+      { re: /\.cards\s*{[^}]*flex-wrap\s*:\s*wrap\s*;/i, msg: "Потрібно flex-wrap: wrap у .cards." },
+    ],
+  },
+  {
+    id: "css-23",
+    title: "Flexbox: flex-grow, flex-shrink, flex-basis",
+    theory:
+      "Три властивості, які часто плутають, задають поведінку ОКРЕМОГО елемента ВСЕРЕДИНІ flex-контейнера (на відміну від display: flex, justify-content тощо, які задаються на самому контейнері). flex-basis — «стартовий» розмір елемента ДО того, як flexbox почне розподіляти вільне чи бракуюче місце.\n\nflex-grow (число, типово 0) визначає, наскільки елемент МОЖЕ рости, забираючи собі частку вільного простору, якщо він є. Якщо в ряду з трьох елементів один має flex-grow: 1, а інші — 0, увесь вільний простір дістанеться саме йому, розтягуючи його на всю решту ширини.\n\nflex-shrink (число, типово 1) визначає, наскільки елемент МОЖЕ стискатись, якщо місця не вистачає. flex-shrink: 0 забороняє елементу стискатись узагалі — корисно для логотипу чи іконки, яка не повинна деформуватись, хай там решта елементів хоч зникає.\n\nflex: 1 — поширене скорочення (flex-grow: 1, flex-shrink: 1, flex-basis: 0), яке означає «займи РІВНУ частку доступного простору» — саме так роблять колонки однакової ширини в flex-макеті, не задаючи width напряму.",
+    previewHTML: `<div class="row"><div class="col">Колонка 1</div><div class="col">Колонка 2</div></div>`,
+    examples: [
+      { title: "Рівні колонки через flex: 1", code: `.row {\n  display: flex;\n  gap: 16px;\n}\n.col {\n  flex: 1;\n}`, explain: "Обидві .col займають рівну частку простору, автоматично підлаштовуючись під ширину .row." },
+      { title: "Елемент, що не стискається", code: `.logo {\n  flex-shrink: 0;\n}`, explain: "Логотип зберігає свій розмір, навіть якщо решті елементів у ряду бракує місця." },
+    ],
+    presentation: [
+      { title: "Три властивості елемента", points: ["flex-basis — стартовий розмір до розподілу простору", "flex-grow — наскільки елемент може РОСТИ", "flex-shrink — наскільки елемент може СТИСКАТИСЬ"] },
+      { title: "flex: 1 — популярне скорочення", points: ["Означає «займи РІВНУ частку простору»", "Типово для колонок однакової ширини", "flex-shrink: 0 забороняє елементу стискатись узагалі"] },
+    ],
+    task: "Стилізуй .row як flex-контейнер, а .col — flex: 1 для рівних колонок.",
+    starter: "",
+    hints: [".row отримує display: flex.", ".col отримує flex: 1.", ".row {\n  display: flex;\n}\n.col {\n  flex: 1;\n}"],
+    solution: `.row {\n  display: flex;\n  gap: 16px;\n}\n.col {\n  flex: 1;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.row\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у .row." },
+      { re: /\.col\s*{[^}]*flex\s*:\s*1\s*;/i, msg: "Потрібно flex: 1 у .col." },
+    ],
+  },
+  {
+    id: "css-24",
+    title: "CSS Grid основи",
+    theory:
+      "display: grid перетворює елемент на сітковий контейнер. grid-template-columns описує кількість і ширину колонок: 1fr 1fr 1fr — три однакові колонки, що діляться доступний простір порівну.\n\nОдиниця fr (fraction, «частка») унікальна для Grid: вона означає «одна частка з-поміж усіх доступних fr у рядку», а не фіксований розмір. grid-template-columns: 1fr 2fr означає, що друга колонка вдвічі ширша за першу, хай яка загальна ширина контейнера.\n\nРізниця між Flexbox і Grid, яка часто плутає на початку: Flexbox — ОДНОВИМІРНИЙ (керує розташуванням в один рядок ЧИ одну колонку), тоді як Grid — ДВОВИМІРНИЙ (керує рядками Й колонками одночасно). Для меню чи ряду карток зазвичай досить Flexbox; для складної сітки товарів у кілька рядків і колонок Grid зручніший.\n\ngrid-template-columns: repeat(3, 1fr) — скорочений спосіб написати «1fr 1fr 1fr» для великої кількості однакових колонок. Ця функція repeat() стає особливо корисною, коли колонок 6, 12 чи більше.",
+    previewHTML: `<div class="grid"><div class="cell">1</div><div class="cell">2</div><div class="cell">3</div></div>`,
+    examples: [
+      { title: "Три рівні колонки", code: `.grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n}`, explain: "Три клітинки стануть у три рівні колонки, що діляться доступний простір." },
+      { title: "repeat() для багатьох колонок", code: `.gallery {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 12px;\n}`, explain: "repeat(4, 1fr) — те саме, що 1fr 1fr 1fr 1fr, лише коротше." },
+    ],
+    presentation: [
+      { title: "display: grid", points: ["Перетворює елемент на сітковий контейнер", "grid-template-columns задає кількість і ширину колонок", "fr — «частка» доступного простору, не фіксований розмір"] },
+      { title: "Grid проти Flexbox", points: ["Flexbox — одновимірний (один рядок чи одна колонка)", "Grid — двовимірний (рядки Й колонки одночасно)", "repeat(n, 1fr) — скорочення для багатьох однакових колонок"] },
+    ],
+    task: "Зроби .grid grid-контейнером (display: grid) із grid-template-columns на 3 колонки.",
+    starter: "",
+    hints: ["Потрібна властивість display: grid.", "grid-template-columns: 1fr 1fr 1fr задає три рівні колонки.", ".grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n}"],
+    solution: `.grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.grid\s*{[^}]*display\s*:\s*grid\s*;/i, msg: "Потрібно display: grid у .grid." },
+      { re: /\.grid\s*{[^}]*grid-template-columns\s*:\s*[^;]+;/i, msg: "Потрібен grid-template-columns у .grid." },
+    ],
+  },
+  {
+    id: "css-25",
+    title: "CSS Grid: grid-template-areas",
+    theory:
+      "grid-template-areas дозволяє описати макет сторінки СЛОВАМИ, буквально намалювавши розкладку іменами блоків у лапках — кожен рядок лапок відповідає рядку сітки, а слова в ньому — які області які клітинки займають.\n\nКожна назва області присвоюється конкретному елементу через властивість grid-area: header { grid-area: header; }. Однакова назва в кількох сусідніх клітинках grid-template-areas означає, що ця область ОБ'ЄДНУЄ ці клітинки в один більший блок.\n\nЦей підхід робить макет сторінки НАЗИВНО зрозумілим просто з погляду на CSS — не треба рахувати номери рядків і колонок, досить прочитати «карту» імен, яка виглядає майже як ескіз макета на папері.\n\nТиповий макет сторінки — header зверху на всю ширину, sidebar зліва, main справа, footer знизу на всю ширину — описується буквально чотирма рядками лапок, що робить grid-template-areas особливо зручним для верстки цілих сторінок, а не окремих дрібних компонентів.",
+    previewHTML: `<div class="layout"><header>Шапка</header><nav>Меню</nav><main>Вміст</main></div>`,
+    examples: [
+      { title: "Макет сторінки словами", code: `.layout {\n  display: grid;\n  grid-template-areas:\n    "header header"\n    "nav main";\n  grid-template-columns: 200px 1fr;\n}\nheader { grid-area: header; }\nnav { grid-area: nav; }\nmain { grid-area: main; }`, explain: "header займає весь верхній рядок (обидві колонки), nav і main ділять нижній рядок." },
+    ],
+    presentation: [
+      { title: "grid-template-areas", points: ["Описує макет словами прямо в лапках CSS", "Кожен рядок лапок — рядок сітки", "Однакова назва в сусідніх клітинках — об'єднаний блок"] },
+      { title: "Навіщо це зручно", points: ["Читається як ескіз макета, без підрахунку номерів", "grid-area прив'язує елемент до іменованої області", "Ідеально для макета цілої сторінки: header/nav/main/footer"] },
+    ],
+    task: "Створи .layout з grid-template-areas на два рядки: header на всю ширину, і main знизу.",
+    starter: "",
+    hints: ['Формат: grid-template-areas: "header" "main";', "Кожен рядок лапок — окремий рядок сітки.", '.layout {\n  display: grid;\n  grid-template-areas:\n    "header"\n    "main";\n}'],
+    solution: `.layout {\n  display: grid;\n  grid-template-areas:\n    "header"\n    "main";\n}\nheader { grid-area: header; }\nmain { grid-area: main; }`,
+    type: "css",
+    tests: [{ re: /\.layout\s*{[^}]*grid-template-areas\s*:[^;]+;/i, msg: "Потрібен grid-template-areas у .layout." }],
+  },
+  {
+    id: "css-26",
+    title: "Grid проти Flexbox: коли що обирати",
+    theory:
+      "Обидва інструменти розв'язують схожу задачу — гнучке розташування елементів — але з різною логікою. Практичне правило: якщо думаєш РЯДКОМ («розташувати ці елементи в один рядок чи колонку») — Flexbox. Якщо думаєш СІТКОЮ («розташувати елементи по рядках І колонках одночасно, як таблицю») — Grid.\n\nFlexbox чудово підходить для: навігаційного меню, ряду кнопок, вирівнювання іконки й тексту, розподілу простору між кількома елементами. Grid підходить для: макета цілої сторінки (header/sidebar/main/footer), сітки карток товарів з чіткими рядками й колонками, календарів, галерей зображень.\n\nНа практиці два інструменти часто комбінують в одному проєкті: Grid для загального макета сторінки, а Flexbox — усередині окремих компонентів (наприклад, кнопки з іконкою та текстом усередині картки, яка сама розташована в Grid-сітці).\n\nОбидва інструменти НЕ взаємовиключні і не «застарілий проти нового» — Grid з'явився пізніше й вирішує іншу задачу, а не замінює Flexbox. Досвідчені розробники обирають інструмент під конкретну задачу, а не «улюблений один назавжди».",
+    previewHTML: `<div class="page"><div class="grid-layout">Grid: макет сторінки</div><div class="flex-row">Flexbox: ряд кнопок</div></div>`,
+    examples: [
+      { title: "Grid для макета сторінки", code: `.page {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n}`, explain: "Двовимірний макет: бічна панель фіксованої ширини й основний вміст." },
+      { title: "Flexbox усередині компонента", code: `.button-group {\n  display: flex;\n  gap: 8px;\n}`, explain: "Одновимірний ряд кнопок — саме задача Flexbox, а не Grid." },
+    ],
+    presentation: [
+      { title: "Просте правило вибору", points: ["Один рядок чи колонка? → Flexbox", "Рядки Й колонки одночасно? → Grid", "Обидва часто комбінують в одному проєкті"] },
+      { title: "Типові застосування", points: ["Flexbox: меню, ряд кнопок, вирівнювання іконки й тексту", "Grid: макет сторінки, сітка карток, галереї", "Не взаємовиключні — Grid не «замінює» Flexbox"] },
+    ],
+    task: "Стилізуй .page як grid з двома колонками (200px і 1fr), а .button-group — як flex-ряд з gap.",
+    starter: "",
+    hints: [".page — display: grid з grid-template-columns.", ".button-group — display: flex з gap.", ".page {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n}\n.button-group {\n  display: flex;\n  gap: 8px;\n}"],
+    solution: `.page {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n}\n.button-group {\n  display: flex;\n  gap: 8px;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.page\s*{[^}]*display\s*:\s*grid\s*;/i, msg: "Потрібно display: grid у .page." },
+      { re: /\.button-group\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у .button-group." },
+    ],
+  },
+  {
+    id: "css-27",
+    title: "Позиціонування: static, relative, absolute",
+    theory:
+      "За замовчуванням КОЖЕН елемент має position: static — «звичайний потік», де елементи йдуть один за одним, а властивості top/right/bottom/left взагалі ігноруються. Лише щойно задати position: relative чи absolute, ці властивості вмикаються.\n\nposition: relative зсуває елемент відносно його ЗВИЧАЙНОГО місця, не виймаючи інших елементів з потоку — сусіди поводяться так, ніби елемент і не рухався. position: absolute, навпаки, ПОВНІСТЮ виймає елемент з потоку — сусіди займають місце так, ніби його там немає, а сам елемент позиціонується відносно найближчого предка з position, відмінним від static.\n\nНайважливіший, часто незрозумілий новачкам момент: якщо жоден предок не має position: relative (чи іншого не-static), absolute-елемент прив'яжеться до всієї СТОРІНКИ, а не до сусіднього видимого блоку — і «з'їде» в неочікуване місце. Тому пара .frame { position: relative } + .badge { position: absolute } завжди йде РАЗОМ.\n\nЦе основа для типового прийому: бейдж «Нове» чи «-20%» у кутку картки товару — картка отримує position: relative, а бейдж усередині неї — position: absolute з top/right, приліплюючись до її кутка незалежно від розміру картки.",
+    previewHTML: `<div class="frame"><div class="badge">NEW</div></div>`,
+    examples: [
+      { title: "relative + absolute разом", code: `.frame { position: relative; }\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`, explain: "badge приліпає до кутка frame, бо frame — його найближчий relative-предок." },
+      { title: "Без relative-батька (проблема)", code: `.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`, explain: "Без position: relative у батька badge прив'яжеться до всієї сторінки — типова помилка новачків." },
+    ],
+    presentation: [
+      { title: "static, relative, absolute", points: ["static — типова поведінка, top/right/bottom/left ігноруються", "relative — зсув відносно звичайного місця, сусіди не рухаються", "absolute — виймає з потоку, прив'язка до relative-предка"] },
+      { title: "Типовий прийом: бейдж на картці", points: [".frame — position: relative (точка відліку)", ".badge — position: absolute з top/right", "Без relative-предка absolute «з'їде» на всю сторінку"] },
+    ],
+    task: "Зроби .frame position: relative, а .badge — position: absolute з top: 8px і right: 8px.",
+    starter: "",
+    hints: [".frame має position: relative.", ".badge має position: absolute з top і right.", ".frame { position: relative; }\n.badge { position: absolute; top: 8px; right: 8px; }"],
+    solution: `.frame { position: relative; }\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.frame\s*{[^}]*position\s*:\s*relative\s*;/i, msg: ".frame має бути position: relative." },
+      { re: /\.badge\s*{[^}]*position\s*:\s*absolute\s*;/i, msg: ".badge має бути position: absolute." },
+    ],
+  },
+  {
+    id: "css-28",
+    title: "Позиціонування: fixed, sticky, z-index",
+    theory:
+      "position: fixed прив'язує елемент до ВІКНА БРАУЗЕРА, а не до сторінки — елемент лишається на тому самому місці екрана, навіть коли користувач прокручує сторінку вниз. Типове застосування — «прилипла» шапка сайту чи кнопка «нагору», які завжди видно.\n\nposition: sticky — гібрид: елемент поводиться як звичайний (static/relative), поки не досягне заданої межі прокручування (наприклад, top: 0), а потім «приклеюється» до цієї межі й перестає прокручуватись далі, доки не закінчиться його батьківський контейнер. Це популярний прийом для заголовків секцій у довгому списку чи шапки таблиці.\n\nz-index визначає порядок накладання елементів один на одного по осі «глибини» — елемент з більшим z-index малюється ПОВЕРХ елемента з меншим. z-index діє лише на елементах з position, відмінним від static — на звичайних елементах ця властивість просто ігнорується.\n\nСтек накладання (stacking context) — тема, яка іноді дивує: z-index порівнюється лише між елементами В ОДНОМУ «контексті накладання», і високий z-index глибоко вкладеного елемента не завжди «переб'є» елемент з нижчим z-index, але в іншому контексті. На базовому рівні досить пам'ятати: більше число — вище на екрані, і z-index working потребує будь-якого position, крім static.",
+    previewHTML: `<div class="page"><header class="sticky-header">Шапка, що прилипає</header><div class="content">Контент для прокрутки</div></div>`,
+    examples: [
+      { title: "Прилипла шапка", code: `.sticky-header {\n  position: sticky;\n  top: 0;\n  background: white;\n}`, explain: "Шапка прокручується разом зі сторінкою, доки не досягне верху екрана, а потім «приклеюється» там." },
+      { title: "Кнопка, що завжди видна", code: `.back-to-top {\n  position: fixed;\n  bottom: 20px;\n  right: 20px;\n}`, explain: "fixed прив'язує кнопку до вікна браузера — вона лишається на місці при будь-якій прокрутці." },
+      { title: "Порядок накладання", code: `.modal {\n  position: fixed;\n  z-index: 100;\n}`, explain: "Високий z-index гарантує, що модальне вікно намалюється поверх решти вмісту сторінки." },
+    ],
+    presentation: [
+      { title: "fixed і sticky", points: ["fixed — прив'язка до вікна, не рухається при скролі", "sticky — «приклеюється» при досягненні заданої межі", "Типово для прилиплих шапок і кнопок «нагору»"] },
+      { title: "z-index", points: ["Більше число — елемент вище (поверх інших)", "Працює лише з position, відмінним від static", "Модальні вікна й спливні підказки — типове застосування"] },
+    ],
+    task: "Стилізуй .sticky-header: position: sticky, top: 0.",
+    starter: "",
+    hints: ["position: sticky вимагає top (чи інший бік) для роботи.", "top: 0 означає «приклеїтись до самого верху».", ".sticky-header {\n  position: sticky;\n  top: 0;\n}"],
+    solution: `.sticky-header {\n  position: sticky;\n  top: 0;\n  background: white;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.sticky-header\s*{[^}]*position\s*:\s*sticky\s*;/i, msg: "Потрібен position: sticky у .sticky-header." },
+      { re: /\.sticky-header\s*{[^}]*top\s*:\s*[^;]+;/i, msg: "Потрібен top у .sticky-header." },
+    ],
+  },
+  {
+    id: "css-29",
+    title: "CSS-змінні (custom properties)",
+    theory:
+      "CSS-змінна оголошується з двома дефісами на початку (--main-color: #1d4ed8;) і використовується через функцію var(--main-color). На відміну від звичайних значень, змінну достатньо змінити В ОДНОМУ місці, щоб оновити ВСІ правила, які на неї посилаються.\n\nЗмінні зазвичай оголошують у спеціальному селекторі :root — він відповідає кореневому елементу документа (html) і робить змінну доступною ГЛОБАЛЬНО, для всіх елементів сторінки, оскільки всі вони є нащадками :root.\n\nГоловна практична перевага — підтримка й тематизація: якщо основний колір бренду використано в 20 різних місцях коду напряму (#1d4ed8), зміна кольору вимагає 20 правок. Якщо ж усюди стоїть var(--main-color), досить змінити ОДИН рядок у :root.\n\nvar() приймає другий, необов'язковий аргумент — запасне значення, якщо змінна не визначена: var(--gap, 16px) використає 16px, якщо --gap ніде не оголошено. Це схоже на запасні варіанти шрифтів у font-family, лише для будь-якого значення CSS.",
+    previewHTML: `<button class="btn">Кнопка</button><div class="card">Картка</div>`,
+    examples: [
+      { title: "Оголошення й використання", code: `:root {\n  --main-color: #1d4ed8;\n}\n.btn {\n  background: var(--main-color);\n}\n.card {\n  border-color: var(--main-color);\n}`, explain: "Зміна одного рядка в :root одразу оновить колір і кнопки, і рамки картки." },
+      { title: "Запасне значення", code: `.box {\n  gap: var(--gap, 16px);\n}`, explain: "Якщо --gap ніде не оголошено, використається 16px за замовчуванням." },
+    ],
+    presentation: [
+      { title: "Що таке CSS-змінні", points: ["Оголошуються з --: --main-color: #1d4ed8;", "Використовуються через var(--main-color)", ":root робить змінну доступною для всієї сторінки"] },
+      { title: "Навіщо потрібні", points: ["Зміна кольору теми в ОДНОМУ місці замість десятків", "var() приймає запасне значення другим аргументом", "Основа для темної/світлої теми сайту"] },
+    ],
+    task: "Оголоси змінну --main-color у :root і використай її через var() у .btn.",
+    starter: "",
+    hints: ["Змінна пишеться з двома дефісами: --main-color", ":root { --main-color: #1d4ed8; }", ":root {\n  --main-color: #1d4ed8;\n}\n.btn {\n  background: var(--main-color);\n}"],
+    solution: `:root {\n  --main-color: #1d4ed8;\n}\n.btn {\n  background: var(--main-color);\n}`,
+    type: "css",
+    tests: [
+      { re: /:root\s*{[^}]*--main-color\s*:\s*[^;]+;/i, msg: "Потрібна змінна --main-color у :root." },
+      { re: /\.btn\s*{[^}]*background\s*:\s*var\(--main-color\)\s*;/i, msg: "Потрібно background: var(--main-color) у .btn." },
+    ],
+  },
+  {
+    id: "css-30",
+    title: "calc() та математичні функції",
+    theory:
+      "calc() дозволяє обчислювати значення CSS-властивості ПРЯМО в коді, змішуючи різні одиниці виміру в одному виразі: width: calc(100% - 40px) означає «уся ширина батька мінус 40 пікселів» — щось, що неможливо виразити жодною окремою одиницею напряму.\n\nЦе особливо корисно для макетів з фіксованим елементом (наприклад, бічною панеллю 250px) поруч зі змінним (основний вміст, що займає РЕШТУ простору): width: calc(100% - 250px) для основного вмісту точно підлаштовується під будь-яку ширину екрана.\n\nВажливо: усередині calc() навколо знаків + і - ОБОВ'ЯЗКОВІ пробіли (100% - 40px, не 100%-40px) — без них браузер не розпізнає вираз як математичну операцію. Для * і / пробіли не обов'язкові, але для узгодженості стилю їх теж зазвичай пишуть.\n\nСучасний CSS має ще функції min(), max() і clamp() для гнучкіших обчислень: clamp(16px, 4vw, 24px) означає «розмір шрифту адаптивно масштабується від viewport-ширини, але не менше 16px і не більше 24px» — одна з основ адаптивної типографіки без медіазапитів.",
+    previewHTML: `<div class="sidebar">Панель</div><div class="content">Контент на всю решту ширини</div>`,
+    examples: [
+      { title: "Ширина мінус фіксований відступ", code: `.content {\n  width: calc(100% - 250px);\n}`, explain: "Основний вміст точно займає всю ширину, окрім 250px бічної панелі." },
+      { title: "Адаптивний розмір шрифту", code: `h1 {\n  font-size: clamp(24px, 5vw, 48px);\n}`, explain: "Розмір масштабується з шириною екрана, але завжди лишається між 24px і 48px." },
+    ],
+    presentation: [
+      { title: "calc()", points: ["Обчислює значення, змішуючи різні одиниці", "width: calc(100% - 40px) — типовий приклад", "Пробіли навколо + і - обов'язкові"] },
+      { title: "min(), max(), clamp()", points: ["clamp(мін, бажане, макс) — адаптивні значення без медіазапитів", "Основа сучасної адаптивної типографіки", "Працюють так само, як звичайні значення CSS"] },
+    ],
+    task: "Стилізуй .content: width: calc(100% - 250px).",
+    starter: "",
+    hints: ["Пробіли навколо знака мінус обов'язкові.", "Формат: calc(100% - 250px)", ".content {\n  width: calc(100% - 250px);\n}"],
+    solution: `.content {\n  width: calc(100% - 250px);\n}`,
+    type: "css",
+    tests: [{ re: /\.content\s*{[^}]*width\s*:\s*calc\([^)]+\)\s*;/i, msg: "Потрібен width: calc(...) у .content." }],
+  },
 ];
 
 const JS_LESSONS = [
