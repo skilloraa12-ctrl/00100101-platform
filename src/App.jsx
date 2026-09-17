@@ -1913,7 +1913,14 @@ const REF_NAV = {
     "Стандартна бібліотека": ["py-stdlib-collections", "py-stdlib-itertools-functools", "py-stdlib-datetime", "py-stdlib-os-sys", "py-stdlib-json-csv", "py-stdlib-re", "py-stdlib-math-random"],
     "Тестування та веб": ["py-testing", "py-web-frameworks", "py-sqlite"],
   },
-  SQL: {},
+  SQL: {
+    "Вибірка даних": ["sql-select-where", "sql-filtering", "sql-aggregation-grouping"],
+    "З'єднання таблиць": ["sql-joins", "sql-set-operators", "sql-cte"],
+    "Зміна даних і структури": ["sql-insert-update-delete", "sql-create-alter-table", "sql-constraints"],
+    "Продуктивність і надійність": ["sql-index-views", "sql-transactions", "sql-window-functions"],
+    "Функції в запитах": ["sql-case-coalesce", "sql-string-functions", "sql-number-functions"],
+    "Дата, типи, доступ": ["sql-date-functions", "sql-type-casting", "sql-data-types", "sql-permissions"],
+  },
   Backend: {},
   "Full Stack": {},
 };
@@ -7983,6 +7990,120 @@ FROM products;</pre>
       "Плаваюча точка (FLOAT) не гарантує точності для грошових розрахунків — для цього краще NUMERIC/DECIMAL.",
     ],
     related: ["sql-data-types"],
+  },
+  "sql-date-functions": {
+    badge: "SQL",
+    title: "NOW, DATE_TRUNC, EXTRACT, INTERVAL",
+    whatIsIt: "Вбудовані функції для роботи з датами й часом прямо в запиті — отримання поточного часу, округлення дати до одиниці (місяць, рік), витягування частини дати (рік, день тижня), додавання/віднімання часових проміжків.",
+    useCases: ["групування замовлень по місяцях (DATE_TRUNC)", "фільтрація записів за останні 7 днів (INTERVAL)", "витягування року чи дня тижня з дати (EXTRACT)"],
+    syntax: `SELECT DATE_TRUNC('month', created_at) as month, COUNT(*)\nFROM orders\nWHERE created_at > NOW() - INTERVAL '30 days'\nGROUP BY month;`,
+    attributes: [
+      { name: "NOW() / CURRENT_DATE", desc: "поточні дата й час / лише поточна дата" },
+      { name: "DATE_TRUNC('unit', date)", desc: "округлює дату вниз до вказаної одиниці (день, місяць, рік)" },
+      { name: "EXTRACT(unit FROM date)", desc: "витягує частину дати: рік, місяць, день, день тижня тощо" },
+      { name: "date + INTERVAL '7 days'", desc: "додає/віднімає часовий проміжок до дати" },
+      { name: "AGE(date1, date2)", desc: "повертає різницю між двома датами як інтервал" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT
+  DATE_TRUNC('month', created_at) as month,
+  COUNT(*) as orders_count
+FROM orders
+WHERE created_at > NOW() - INTERVAL '90 days'
+GROUP BY month
+ORDER BY month;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">month</th><th style="border:1px solid #ccc;padding:4px 10px;">orders_count</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">2024-07-01</td><td style="border:1px solid #ccc;padding:4px 10px;">42</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">2024-08-01</td><td style="border:1px solid #ccc;padding:4px 10px;">58</td></tr>
+</table>`,
+    pitfalls: [
+      "Синтаксис функцій дат сильно відрізняється між СУБД (DATE_TRUNC у PostgreSQL, DATE_FORMAT у MySQL) — код не завжди портативний.",
+      "Порівняння дат без урахування часового поясу (timezone) — сервер і клієнт можуть бути в різних поясах, що зсуває результат фільтрації.",
+      "Зберігання дати як TEXT замість DATE/TIMESTAMP — втрачаються всі переваги функцій дат і правильного сортування.",
+    ],
+    related: ["sql-data-types"],
+  },
+  "sql-type-casting": {
+    badge: "SQL",
+    title: "CAST, ::type",
+    whatIsIt: "Явне перетворення значення з одного типу даних в інший — наприклад, текст у число, чи число у текст. Без явного приведення деякі порівняння чи операції можуть спрацювати неочікувано або викинути помилку.",
+    useCases: ["перетворення текстового поля на число для математичних операцій", "форматування числа чи дати як тексту для виводу", "порівняння значень різних типів у WHERE"],
+    syntax: `SELECT CAST(price AS INTEGER) FROM products;\nSELECT price::INTEGER FROM products; -- скорочений синтаксис PostgreSQL`,
+    attributes: [
+      { name: "CAST(value AS type)", desc: "стандартний SQL-синтаксис явного перетворення типу" },
+      { name: "value::type", desc: "скорочений синтаксис приведення типу (PostgreSQL)" },
+      { name: "TO_CHAR(date, format)", desc: "форматує дату чи число як текст за шаблоном" },
+      { name: "TO_NUMBER(text) / TO_DATE(text)", desc: "перетворюють текст у число чи дату" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT '42' :: INTEGER + 8 as result;
+-- result: 50
+
+SELECT CAST('2024-01-15' AS DATE) as parsed_date;
+-- parsed_date: 2024-01-15</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання: 50 та 2024-01-15 відповідно</p>`,
+    pitfalls: [
+      "Приведення тексту, що не відповідає формату числа/дати, кидає помилку виконання запиту — варто перевіряти дані заздалегідь.",
+      "Неявне приведення типів (СУБД робить це автоматично) не завжди дає очікуваний результат — краще привести тип явно.",
+      "Втрата точності при приведенні дробового числа до цілого (CAST AS INTEGER) — значення обрізається чи округлюється залежно від СУБД.",
+    ],
+    related: ["sql-data-types"],
+  },
+  "sql-data-types": {
+    badge: "SQL",
+    title: "INTEGER, TEXT, BOOLEAN, NUMERIC, TIMESTAMP",
+    whatIsIt: "Кожна колонка таблиці має тип даних, що визначає, які значення в ній можна зберігати і як вони порівнюються й сортуються. Правильний вибір типу — основа коректної й ефективної бази даних.",
+    useCases: ["вибір INTEGER для лічильників чи ідентифікаторів", "вибір NUMERIC/DECIMAL для грошових сум (точність)", "вибір TIMESTAMP для дати й часу події"],
+    syntax: `CREATE TABLE products (\n  id INTEGER,\n  name TEXT,\n  price NUMERIC(10, 2),\n  in_stock BOOLEAN,\n  created_at TIMESTAMP\n);`,
+    attributes: [
+      { name: "INTEGER / BIGINT / SERIAL", desc: "цілі числа; SERIAL — автоінкрементний ідентифікатор" },
+      { name: "NUMERIC(p, s) / DECIMAL", desc: "точні дробові числа — для грошей, на відміну від FLOAT" },
+      { name: "TEXT / VARCHAR(n) / CHAR(n)", desc: "текстові типи: без обмеження, з обмеженням довжини, фіксованої довжини" },
+      { name: "BOOLEAN", desc: "true/false — для прапорців типу is_active" },
+      { name: "DATE / TIMESTAMP / TIMESTAMPTZ", desc: "дата / дата+час / дата+час з часовим поясом" },
+      { name: "JSON / JSONB", desc: "зберігання структурованих JSON-даних прямо в колонці (сучасні СУБД)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">CREATE TABLE orders (
+  id SERIAL PRIMARY KEY,
+  total NUMERIC(10, 2) NOT NULL,
+  status TEXT DEFAULT 'pending',
+  is_paid BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: таблиця orders створена з правильними типами для кожного поля</p>`,
+    pitfalls: [
+      "FLOAT/REAL для грошей — накопичена похибка округлення з часом; завжди NUMERIC/DECIMAL для фінансових даних.",
+      "VARCHAR без ліміту довжини там, де довжина насправді обмежена (напр. код країни) — втрачена можливість валідації на рівні БД.",
+      "TIMESTAMP без часового поясу (TIMESTAMPTZ) у застосунку з користувачами з різних поясів — плутанина при відображенні часу.",
+    ],
+    related: ["sql-create-alter-table", "sql-type-casting"],
+  },
+  "sql-permissions": {
+    badge: "SQL",
+    title: "GRANT, REVOKE, ROLE",
+    whatIsIt: "Керування правами доступу до бази даних — хто може читати, змінювати чи адмініструвати які таблиці. GRANT надає права, REVOKE забирає. ROLE — іменований набір прав, який можна призначити кільком користувачам.",
+    useCases: ["надання застосунку лише прав читання й запису, без прав видалення таблиць", "створення окремої ролі для аналітиків з доступом лише на читання", "обмеження доступу до чутливих таблиць (напр. таблиця з паролями)"],
+    syntax: `GRANT SELECT, INSERT, UPDATE ON orders TO app_user;\nREVOKE DELETE ON orders FROM app_user;`,
+    attributes: [
+      { name: "GRANT права ON об'єкт TO роль/користувач", desc: "надає вказані права на таблицю/схему користувачу чи ролі" },
+      { name: "REVOKE права ON об'єкт FROM ...", desc: "забирає раніше надані права" },
+      { name: "CREATE ROLE name", desc: "створює нову роль — іменований набір прав" },
+      { name: "GRANT role TO user", desc: "призначає роль користувачу — той отримує всі її права" },
+      { name: "принцип найменших привілеїв", desc: "надавай лише ті права, що дійсно потрібні для задачі, не більше" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">CREATE ROLE analyst;
+GRANT SELECT ON orders, users TO analyst;
+GRANT analyst TO maria;
+
+-- Марія тепер може ЛИШЕ читати orders і users,
+-- не може змінювати чи видаляти дані</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: роль analyst створена й призначена користувачу maria з правами лише на читання</p>`,
+    pitfalls: [
+      "Надання прав SUPERUSER чи повного доступу застосунку «про всяк випадок» — серйозний ризик безпеки, якщо застосунок буде скомпрометований.",
+      "Забуте REVOKE після завершення тимчасового доступу — права накопичуються й ускладнюють аудит безпеки.",
+      "Один спільний користувач БД для всіх сервісів замість окремих ролей — неможливо відстежити, хто саме зробив зміну.",
+    ],
+    related: ["sql-create-alter-table"],
   },
 
 };
