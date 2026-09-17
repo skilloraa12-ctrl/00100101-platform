@@ -1593,6 +1593,25 @@ const SYMBOLS = [
   { cat: "SQL: PostgreSQL типи", sym: "UUID", en: "UUID type", ua: "Тип UUID", langs: "PostgreSQL", example: "id UUID DEFAULT gen_random_uuid()", explain: "Універсальний унікальний ідентифікатор — альтернатива SERIAL, не розкриває кількість записів." },
   { cat: "SQL: PostgreSQL типи", sym: "ARRAY", en: "Array type", ua: "Тип масив", langs: "PostgreSQL", example: "tags TEXT[]", explain: "Зберігає масив значень в одній колонці — специфічна можливість PostgreSQL." },
 
+  { cat: "Backend: HTTP методи", sym: "GET", en: "GET method", ua: "Метод GET", langs: "HTTP", example: "GET /users/42", explain: "Отримує дані, не змінюючи стан сервера — найпоширеніший метод." },
+  { cat: "Backend: HTTP методи", sym: "POST", en: "POST method", ua: "Метод POST", langs: "HTTP", example: "POST /users", explain: "Створює новий ресурс, відправляє дані в тілі запиту." },
+  { cat: "Backend: HTTP методи", sym: "PUT / PATCH", en: "Update methods", ua: "Методи оновлення", langs: "HTTP", example: "PATCH /users/42", explain: "PUT повністю замінює ресурс, PATCH оновлює лише вказані поля." },
+  { cat: "Backend: HTTP методи", sym: "DELETE", en: "Delete method", ua: "Метод DELETE", langs: "HTTP", example: "DELETE /users/42", explain: "Видаляє ресурс за вказаною адресою." },
+  { cat: "Backend: HTTP статуси", sym: "200 / 201 / 204", en: "Success status codes", ua: "Коди успіху", langs: "HTTP", example: "201 Created", explain: "200 — успіх, 201 — успішно створено, 204 — успіх без вмісту у відповіді." },
+  { cat: "Backend: HTTP статуси", sym: "301 / 302 / 304", en: "Redirect status codes", ua: "Коди перенаправлення", langs: "HTTP", example: "301 Moved Permanently", explain: "301 — постійне перенаправлення, 302 — тимчасове, 304 — вміст не змінився (кеш)." },
+  { cat: "Backend: HTTP статуси", sym: "400 / 401 / 403", en: "Client error codes", ua: "Коди помилок клієнта", langs: "HTTP", example: "401 Unauthorized", explain: "400 — невірний запит, 401 — не авторизований, 403 — доступ заборонено." },
+  { cat: "Backend: HTTP статуси", sym: "404 / 409 / 422", en: "More client error codes", ua: "Ще коди помилок клієнта", langs: "HTTP", example: "404 Not Found", explain: "404 — не знайдено, 409 — конфлікт стану, 422 — дані не пройшли валідацію." },
+  { cat: "Backend: HTTP статуси", sym: "429", en: "Too many requests", ua: "Забагато запитів", langs: "HTTP", example: "429 Too Many Requests", explain: "Клієнт перевищив ліміт запитів (rate limiting)." },
+  { cat: "Backend: HTTP статуси", sym: "500 / 502 / 503", en: "Server error codes", ua: "Коди помилок сервера", langs: "HTTP", example: "500 Internal Server Error", explain: "500 — внутрішня помилка сервера, 502 — поганий шлюз, 503 — сервіс недоступний." },
+  { cat: "Backend: HTTP заголовки", sym: "Content-Type", en: "Content type header", ua: "Заголовок типу вмісту", langs: "HTTP", example: "Content-Type: application/json", explain: "Вказує формат тіла запиту/відповіді." },
+  { cat: "Backend: HTTP заголовки", sym: "Authorization", en: "Authorization header", ua: "Заголовок авторизації", langs: "HTTP", example: "Authorization: Bearer <token>", explain: "Передає токен/облікові дані для автентифікації запиту." },
+  { cat: "Backend: HTTP заголовки", sym: "Cache-Control", en: "Cache control header", ua: "Заголовок керування кешем", langs: "HTTP", example: "Cache-Control: no-cache", explain: "Керує кешуванням відповіді браузером і проміжними серверами." },
+  { cat: "Backend: HTTP заголовки", sym: "Access-Control-Allow-Origin", en: "CORS header", ua: "Заголовок CORS", langs: "HTTP", example: "Access-Control-Allow-Origin: *", explain: "Дозволяє браузеру робити крос-доменні запити до цього сервера." },
+  { cat: "Backend: API", sym: "REST", en: "REST architecture", ua: "Архітектура REST", langs: "Backend", example: "GET /api/users/42", explain: "Архітектурний стиль API через HTTP-методи й ресурси, ідентифіковані URL." },
+  { cat: "Backend: API", sym: "GraphQL", en: "GraphQL query language", ua: "Мова запитів GraphQL", langs: "Backend", example: "{ user(id: 1) { name email } }", explain: "Клієнт сам описує, які саме поля даних йому потрібні, в одному запиті." },
+  { cat: "Backend: API", sym: "WebSocket", en: "WebSocket protocol", ua: "Протокол WebSocket", langs: "Backend", example: "new WebSocket('wss://...')", explain: "Постійне двостороннє з'єднання для обміну даними в реальному часі (чати, ігри)." },
+  { cat: "Backend: API", sym: "Webhook", en: "Webhook", ua: "Вебхук", langs: "Backend", example: "POST https://mysite.com/webhook", explain: "Сервер сам відправляє HTTP-запит іншому сервісу, коли трапляється подія." },
+
 ];
 
 const LIBRARY_HTML = [
