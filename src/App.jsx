@@ -6671,6 +6671,118 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     pitfalls: ["Code smell — це не помилка й не обов'язково потребує негайного виправлення; це сигнал звернути увагу, не наказ переписати все негайно."],
     related: ["eng-spaghetti-code", "eng-nitpick"],
   },
+  "eng-yak-shaving": {
+    badge: "English",
+    title: "yak shaving",
+    whatIsIt: "Коли для виконання простої задачі доводиться спершу зробити десяток інших, ніяк на перший погляд не пов'язаних дрібних справ — довгий ланцюжок відволікань, що привів тебе дуже далеко від початкової мети.",
+    useCases: ["опис ситуації, коли проста задача розрослась у ланцюжок непов'язаних підзадач", "жартівливе пояснення, чому щось зайняло весь день"],
+    syntax: `I just wanted to fix a typo, but that led to yak shaving — updating the linter, then Node version, then half the dependencies.`,
+    attributes: [
+      { name: "yak shaving", desc: "ланцюжок дрібних непов'язаних задач на шляху до простої мети" },
+      { name: "down the rabbit hole", desc: "схожий вираз — «провалитись» у несподівано глибоку побічну задачу" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У чаті:</b> "Sorry for the delay, total yak shaving — fixing the test required updating three unrelated packages first."
+</p>`,
+    pitfalls: ["Йдеться саме про НЕПОВ'ЯЗАНІ на перший погляд підзадачі — якщо підзадачі логічно випливають одна з одної, це вже просто «залежності», не yak shaving."],
+    related: ["eng-scope-creep"],
+  },
+  "eng-bikeshedding": {
+    badge: "English",
+    title: "bikeshedding",
+    whatIsIt: "Витрачання непропорційно багато часу на обговорення дрібної, легкої для розуміння деталі (напр. назва змінної чи колір кнопки), тоді як складніші й важливіші питання лишаються майже без уваги.",
+    useCases: ["зауваження, що обговорення застрягло на неважливій дрібниці", "пояснення, чому просте рішення не можуть прийняти годинами"],
+    syntax: `We spent 40 minutes bikeshedding the button color and 5 minutes on the actual database schema.`,
+    attributes: [
+      { name: "bikeshedding", desc: "надмірна дискусія про дрібну, легку для обговорення деталь" },
+      { name: "Parkinson's law of triviality", desc: "формальна назва цього ефекту — джерело терміну bikeshedding" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На зустрічі:</b> "Let's not bikeshed the naming here — can we agree on anything reasonable and move to the actual logic?"
+</p>`,
+    pitfalls: ["Термін походить від жарту про комітет, що годинами обговорює колір велосипедного накриття, замість дизайну атомної електростанції — сама назва натякає на іронію ситуації."],
+    related: ["eng-nitpick"],
+  },
+  "eng-footgun": {
+    badge: "English",
+    title: "footgun",
+    whatIsIt: "Функція, API чи патерн у мові/бібліотеці, що легко використати неправильно й ненавмисно «вистрелити собі в ногу» — код, що технічно працює, але провокує на помилки навіть досвідчених розробників.",
+    useCases: ["попередження про небезпечну, легку для зловживання функцію мови/API", "пояснення, чому певний патерн краще уникати попри його зручність"],
+    syntax: `Mutable default arguments in Python are a classic footgun — the default value is shared across all calls.`,
+    attributes: [
+      { name: "footgun", desc: "легко зловживана функція/API, що провокує на помилки" },
+      { name: "gotcha", desc: "менш драматичний синонім — несподівана, контрінтуїтивна поведінка" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "Careful with == in JS for type coercion — it's a well-known footgun. Use === instead."
+</p>`,
+    pitfalls: ["«Footgun» описує саму МОЖЛИВІСТЬ помилки в дизайні інструменту, а не факт, що хтось уже помилився — це попередження, а не звинувачення."],
+    related: ["eng-code-smell"],
+  },
+  "eng-cargo-cult": {
+    badge: "English",
+    title: "cargo cult programming",
+    whatIsIt: "Копіювання коду чи практик без розуміння, навіщо вони насправді потрібні — «так завжди робили», «в іншому проєкті так було» — ритуал заради ритуалу, без справжнього ефекту.",
+    useCases: ["критика бездумного копіювання коду зі Stack Overflow чи іншого проєкту", "пояснення, чому «просто скопіювати» — не завжди правильний підхід"],
+    syntax: `We're cargo culting this config from the old project — nobody actually knows why half these flags are set.`,
+    attributes: [
+      { name: "cargo cult programming", desc: "копіювання коду/практик без розуміння їхньої мети" },
+      { name: "copy-paste programming", desc: "суміжний термін — буквальне копіювання коду без адаптації" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This try/catch doesn't actually do anything — looks like cargo culted error handling from another file."
+</p>`,
+    pitfalls: ["Назва походить від культів на тихоокеанських островах, що будували муляжі аеродромів, сподіваючись, що це «викличе» вантажні літаки — ритуал без розуміння механізму."],
+    related: ["eng-spaghetti-code"],
+  },
+  "eng-glue-code": {
+    badge: "English",
+    title: "glue code",
+    whatIsIt: "Код, що не реалізує бізнес-логіку сам по собі, а лише з'єднує різні частини системи між собою — перетворює дані з одного формату в інший, викликає одне API й передає результат іншому.",
+    useCases: ["опис коду, що просто з'єднує різні сервіси чи бібліотеки", "пояснення, чому частина кодової бази виглядає «нецікавою», але необхідною"],
+    syntax: `Most of this file is just glue code connecting the payment API to our internal order format.`,
+    attributes: [
+      { name: "glue code", desc: "код, що з'єднує різні частини системи, без власної бізнес-логіки" },
+      { name: "wiring", desc: "синонім, часто вживаний саме про з'єднання компонентів/сервісів між собою" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This service is basically glue code between Stripe and our database — nothing fancy, just needs to be reliable."
+</p>`,
+    pitfalls: ["Glue code часто недооцінюють як «просту» роботу, хоча саме там найчастіше ховаються помилки інтеграції між системами."],
+    related: ["eng-boilerplate"],
+  },
+  "eng-gold-plating": {
+    badge: "English",
+    title: "gold plating",
+    whatIsIt: "Додавання зайвих, ніким не замовлених покращень чи функцій понад те, що реально потрібно — «прикрашання» задачі часом, який краще було б витратити на щось важливіше.",
+    useCases: ["попередження про надмірну роботу над деталями, які ніхто не просив", "пояснення затримки через непотрібну «поліровку» фічі"],
+    syntax: `The ticket just asked for a basic form — adding animations and three themes is gold plating at this point.`,
+    attributes: [
+      { name: "gold plating", desc: "зайва робота над непотрібними покращеннями поза вимогами задачі" },
+      { name: "over-engineering", desc: "суміжний термін — надмірно складне рішення для простої задачі" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This is nice, but feels like gold plating — the ticket didn't ask for configurable themes."
+</p>`,
+    pitfalls: ["На відміну від «недбалості», gold plating зазвичай робиться з добрих намірів — але все одно коштує часу, який можна витратити ефективніше."],
+    related: ["eng-scope-creep", "eng-mvp"],
+  },
+  "eng-happy-path": {
+    badge: "English",
+    title: "happy path",
+    whatIsIt: "Сценарій, коли все йде як задумано — без помилок, без несподіваних вводів, без збоїв мережі. Протилежність — усі edge case і сценарії з помилками, які теж треба обробити.",
+    useCases: ["опис базового сценарію тестування, коли все працює правильно", "нагадування, що недостатньо протестувати лише ідеальний сценарій"],
+    syntax: `The happy path works fine, but what happens if the API call times out?`,
+    attributes: [
+      { name: "happy path", desc: "сценарій без помилок, коли все відбувається як задумано" },
+      { name: "sad path", desc: "менш поширений, але вживаний антонім — сценарій з помилкою чи збоєм" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This covers the happy path well, but I don't see handling for an empty cart — can you add a test for that?"
+</p>`,
+    pitfalls: ["Тестування лише happy path — поширена пастка: код виглядає готовим, але падає при першому ж несподіваному вводі в реальному використанні."],
+    related: ["eng-edge-case"],
+  },
 
   "fe-react-basics": {
     badge: "Frontend",
