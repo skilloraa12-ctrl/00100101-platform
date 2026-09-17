@@ -347,6 +347,139 @@ const HTML_LESSONS = [
       return { pass: true, message: "Це вже фрагмент, схожий на реальну сторінку адмін-панелі чи каталогу товарів." };
     },
   },
+  {
+    id: "html-16",
+    title: "Порожні (self-closing) елементи",
+    theory:
+      "Деякі теги не мають вмісту і закриваючої пари — вони самі по собі є завершеною командою для браузера. Такі теги називають «порожніми» (void elements): <br> (розрив рядка), <hr> (горизонтальна лінія-роздільник), а також уже знайомі тобі <img>, <input>, <meta>. Писати </br> чи </hr> — помилка, у них просто немає закриваючого тега.",
+    example: { code: `<p>Рядок один<br>Рядок два</p>\n<hr>`, explain: "<br> розриває рядок усередині абзацу, <hr> малює горизонтальну лінію між блоками контенту." },
+    task: 'Створи абзац (p) з текстом "Перший рядок", розривом рядка (br) і текстом "Другий рядок". Після абзацу додай горизонтальну лінію (hr).',
+    starter: "",
+    hints: [
+      "br і hr не мають закриваючого тега — просто <br> і <hr>.",
+      "br ставиться МІЖ двома текстами всередині одного <p>.",
+      'Приклад: <p>Перший рядок<br>Другий рядок</p><hr>',
+    ],
+    solution: `<p>Перший рядок<br>Другий рядок</p>\n<hr>`,
+    type: "html",
+    check: (doc) => {
+      const p = doc.querySelector("p");
+      if (!p) return { pass: false, message: "Потрібен тег <p>." };
+      if (!p.querySelector("br")) return { pass: false, message: "Усередині <p> потрібен розрив рядка <br>." };
+      const text = p.textContent.replace(/\s+/g, " ").trim();
+      if (!text.includes("Перший рядок") || !text.includes("Другий рядок"))
+        return { pass: false, message: "Текст має містити «Перший рядок» і «Другий рядок»." };
+      if (!doc.querySelector("hr")) return { pass: false, message: "Після абзацу потрібен тег <hr>." };
+      return { pass: true, message: "br і hr — void-елементи: без закриваючого тега і без вмісту, лише мітка в потоці сторінки." };
+    },
+  },
+  {
+    id: "html-17",
+    title: "header, nav, footer",
+    theory:
+      "Це семантичні теги для типових частин сторінки. <header> — шапка (лого, заголовок, іноді навігація). <nav> — блок навігаційних посилань. <footer> — підвал сторінки (копірайт, контакти). Вони працюють так само, як <div>, але дають браузеру й скрінрідерам зрозуміти РОЛЬ блоку, а не лише його вигляд.",
+    example: { code: `<header><h1>Мій сайт</h1></header>\n<nav><a href="/">Головна</a></nav>\n<footer>© 2025</footer>`, explain: "Три семантичні блоки замість безликих <div class=\"header\">." },
+    task: 'Створи header з заголовком h1 "Мій сайт" усередині, nav з одним посиланням a (href="#", текст "Головна"), і footer з текстом "© 2025".',
+    starter: "",
+    hints: [
+      "header, nav, footer — окремі теги на одному рівні, не вкладені один в одного.",
+      "h1 лежить УСЕРЕДИНІ header, посилання a — усередині nav.",
+      'Приклад: <header><h1>Мій сайт</h1></header><nav><a href="#">Головна</a></nav><footer>© 2025</footer>',
+    ],
+    solution: `<header><h1>Мій сайт</h1></header>\n<nav><a href="#">Головна</a></nav>\n<footer>© 2025</footer>`,
+    type: "html",
+    check: (doc) => {
+      const header = doc.querySelector("header");
+      if (!header || !header.querySelector("h1")) return { pass: false, message: "Потрібен <header> з <h1> усередині." };
+      const nav = doc.querySelector("nav");
+      if (!nav || !nav.querySelector("a")) return { pass: false, message: "Потрібен <nav> з посиланням <a> усередині." };
+      const footer = doc.querySelector("footer");
+      if (!footer || !footer.textContent.includes("2025")) return { pass: false, message: "Потрібен <footer> з текстом, що містить «2025»." };
+      return { pass: true, message: "header/nav/footer — три найпоширеніші семантичні блоки на будь-якій сторінці." };
+    },
+  },
+  {
+    id: "html-18",
+    title: "main, section, article, aside",
+    theory:
+      "<main> — головний унікальний вміст сторінки, лише ОДИН на сторінку. <section> — тематична секція всередині нього. <article> — самодостатній блок (пост, картка товару) усередині секції. <aside> — побічний вміст (бічна панель, реклама), розташований ПОЗА main, як окремий блок сторінки.",
+    example: { code: `<main>\n  <section>\n    <article>Стаття</article>\n  </section>\n</main>\n<aside>Бічна панель</aside>`, explain: "aside — поза main, бо це не головний контент, а додатковий." },
+    task: "Створи main, усередині нього section, усередині section — article з будь-яким текстом. Окремо, ПОЗА main, додай aside з будь-яким текстом.",
+    starter: "",
+    hints: [
+      "Вкладеність: main → section → article — кожен наступний усередині попереднього.",
+      "aside пишеться окремо, після закриття </main>, не всередині нього.",
+      "Приклад: <main><section><article>Текст</article></section></main><aside>Текст</aside>",
+    ],
+    solution: `<main>\n  <section>\n    <article>Стаття</article>\n  </section>\n</main>\n<aside>Бічна панель</aside>`,
+    type: "html",
+    check: (doc) => {
+      const main = doc.querySelector("main");
+      if (!main) return { pass: false, message: "Потрібен тег <main>." };
+      const article = main.querySelector("section article");
+      if (!article) return { pass: false, message: "Усередині <main> потрібен <section>, а всередині нього — <article>." };
+      const aside = doc.querySelector("aside");
+      if (!aside) return { pass: false, message: "Потрібен тег <aside>." };
+      if (main.contains(aside)) return { pass: false, message: "<aside> має бути ПОЗА <main>, як окремий блок сторінки, а не всередині нього." };
+      return { pass: true, message: "main — один на сторінку, для головного вмісту; aside навмисно лежить окремо від нього." };
+    },
+  },
+  {
+    id: "html-19",
+    title: "strong, em, mark — смислові акценти",
+    theory:
+      "Ці теги виділяють текст не просто візуально, а ЗА ЗМІСТОМ. <strong> — щось важливе/серйозне (браузер типово показує жирним). <em> — логічний наголос на слові, ніби ти вимовляєш його з притиском (типово курсивом). <mark> — виділення, ніби маркером у книзі, «зверни увагу саме тут».",
+    example: { code: `<p><strong>Важливо</strong>: <em>обов'язково</em> перевір <mark>цей рядок</mark>.</p>`, explain: "Кожен тег має власний СЕНС, а не лише інший вигляд шрифту." },
+    task: 'Створи абзац (p) зі словом "Важливо" в тегу strong, словом "терміново" в тегу em, і словом "Увага" в тегу mark.',
+    starter: "",
+    hints: [
+      "Три різні теги, кожен навколо одного слова.",
+      "Порядок слів у реченні можеш обрати сам — головне, щоб теги обгортали правильні слова.",
+      "Приклад: <p><strong>Важливо</strong>: зроби це <em>терміново</em>! <mark>Увага</mark>: дедлайн сьогодні.</p>",
+    ],
+    solution: `<p><strong>Важливо</strong>: зроби це <em>терміново</em>! <mark>Увага</mark>: дедлайн сьогодні.</p>`,
+    type: "html",
+    check: (doc) => {
+      const p = doc.querySelector("p");
+      if (!p) return { pass: false, message: "Потрібен тег <p>." };
+      const strong = p.querySelector("strong");
+      if (!strong || strong.textContent.trim() !== "Важливо") return { pass: false, message: '<strong> має містити рівно "Важливо".' };
+      const em = p.querySelector("em");
+      if (!em || em.textContent.trim() !== "терміново") return { pass: false, message: '<em> має містити рівно "терміново".' };
+      const mark = p.querySelector("mark");
+      if (!mark || mark.textContent.trim() !== "Увага") return { pass: false, message: '<mark> має містити рівно "Увага".' };
+      return { pass: true, message: "strong/em/mark несуть сенс, а не лише стиль — це відчувають скрінрідери, хоч і не бачить око." };
+    },
+  },
+  {
+    id: "html-20",
+    title: "small, del, ins, sub, sup",
+    theory:
+      "<small> — дрібний шрифт приміток (умови, копірайт). <del> — видалений текст (закреслення), <ins> — вставлений текст (підкреслення) — часто йдуть у парі, показуючи «було / стало». <sub> і <sup> — підрядковий і надрядковий текст, для формул (H₂O) чи степенів (x²).",
+    example: { code: `<p><del>100 грн</del> <ins>80 грн</ins> <small>(тимчасова знижка)</small></p>\n<p>H<sub>2</sub>O</p>`, explain: "del+ins показують зміну ціни, sub — хімічний індекс." },
+    task: 'Створи два абзаци: перший з <del>100 грн</del>, потім <ins>80 грн</ins>, потім <small>(тимчасова знижка)</small>; другий — з текстом "H" + <sub>2</sub> + "O".',
+    starter: "",
+    hints: [
+      "Перший абзац містить три теги підряд: del, ins, small.",
+      "Другий абзац: буква H, тег sub з цифрою 2 всередині, буква O — усе без пробілів між ними.",
+      "Приклад: <p><del>100 грн</del> <ins>80 грн</ins> <small>(тимчасова знижка)</small></p><p>H<sub>2</sub>O</p>",
+    ],
+    solution: `<p><del>100 грн</del> <ins>80 грн</ins> <small>(тимчасова знижка)</small></p>\n<p>H<sub>2</sub>O</p>`,
+    type: "html",
+    check: (doc) => {
+      const ps = doc.querySelectorAll("p");
+      if (ps.length < 2) return { pass: false, message: "Потрібні два окремі абзаци <p>." };
+      const [p1, p2] = ps;
+      if (!p1.querySelector("del")) return { pass: false, message: "У першому абзаці потрібен <del>." };
+      if (!p1.querySelector("ins")) return { pass: false, message: "У першому абзаці потрібен <ins>." };
+      if (!p1.querySelector("small")) return { pass: false, message: "У першому абзаці потрібен <small>." };
+      const sub = p2.querySelector("sub");
+      if (!sub || sub.textContent.trim() !== "2") return { pass: false, message: 'У другому абзаці потрібен <sub>2</sub>.' };
+      const p2text = p2.textContent.replace(/\s+/g, "");
+      if (!p2text.includes("H2O")) return { pass: false, message: 'Другий абзац має читатись як "H2O" (H, підрядкова 2, O).' };
+      return { pass: true, message: "del/ins показують історію змін тексту, sub/sup — позицію символу відносно рядка." };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
