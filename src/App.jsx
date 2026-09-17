@@ -1856,14 +1856,15 @@ const LIBRARY_SQL = [
 
 const REF_NAV = {
   HTML: {
-    "Форми": ["form", "input", "label", "button", "select", "option", "textarea", "fieldset", "legend", "datalist", "output", "progress", "meter"],
+    "Форми": ["form", "input", "label", "button", "select", "option", "optgroup", "textarea", "fieldset", "legend", "datalist", "output", "progress", "meter"],
     "Типи input": ["text", "password", "email", "number", "date", "time", "checkbox", "radio", "file", "range", "color", "search", "tel", "url", "hidden"],
-    "Семантика": ["header", "nav", "main", "section", "article", "footer", "aside"],
-    "Списки": ["ul", "ol", "li", "dl"],
-    "Таблиці": ["table", "tr", "th", "td"],
+    "Семантика": ["header", "nav", "main", "section", "article", "footer", "aside", "address", "hgroup", "search-landmark"],
+    "Заголовки й абзаци": ["h1", "h2", "h3", "h4", "h5", "h6", "p"],
+    "Списки": ["ul", "ol", "li", "dl", "dt", "dd"],
+    "Таблиці": ["table", "tr", "th", "td", "caption", "thead", "tbody", "tfoot", "colgroup", "col"],
     "Медіа": ["img", "video", "audio", "picture", "iframe", "embed", "object", "figure", "figcaption", "source", "track", "map", "area"],
     "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
-    "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
+    "Структура документа": ["html", "head", "body", "title", "base", "link", "meta", "script", "style", "noscript"],
     "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
     "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
     "Інше": ["a", "div", "span", "menu"],
@@ -4114,6 +4115,168 @@ const TERM_PAGES_V2 = {
       "Не замінює <input type=\"search\"> всередині — це обгортка для всього блоку пошуку/фільтрів, а не самого поля.",
     ],
     related: ["form", "input"],
+  },
+  caption: {
+    badge: "HTML",
+    title: "<caption>",
+    whatIsIt: "Задає заголовок/підпис для всієї таблиці — має бути першим дочірнім елементом <table>. Допомагає користувачам і скрінрідерам зрозуміти, про що таблиця, без читання самих даних.",
+    useCases: ["назва таблиці зі статистикою", "опис вмісту складної таблиці для доступності"],
+    syntax: `<table>\n  <caption>Продажі за 2024 рік</caption>\n  ...\n</table>`,
+    attributes: [],
+    example: `<table style="border-collapse:collapse;width:100%;">
+  <caption style="font-weight:bold;margin-bottom:6px;">Продажі за квартал</caption>
+  <tr><th style="border:1px solid #ccc;padding:4px;">Місяць</th><th style="border:1px solid #ccc;padding:4px;">Сума</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px;">Січень</td><td style="border:1px solid #ccc;padding:4px;">1000</td></tr>
+</table>`,
+    pitfalls: [
+      "caption не першим елементом усередині table — невалідна розмітка, браузер може проігнорувати.",
+      "Використання окремого <p> над таблицею замість <caption> — втрачається семантичний зв'язок із таблицею.",
+    ],
+    related: ["table", "thead"],
+  },
+  thead: {
+    badge: "HTML",
+    title: "<thead>",
+    whatIsIt: "Групує рядки заголовка таблиці окремо від основних даних (<tbody>). Допомагає браузеру (при друку) повторювати шапку на кожній сторінці, і дає чітку семантичну структуру таблиці.",
+    useCases: ["шапка таблиці з назвами колонок", "фіксована шапка при прокрутці великої таблиці (разом з CSS)"],
+    syntax: `<table>\n  <thead><tr><th>Ім'я</th><th>Вік</th></tr></thead>\n  <tbody>...</tbody>\n</table>`,
+    attributes: [],
+    example: `<table style="border-collapse:collapse;width:100%;">
+  <thead style="background:#f4f4f4;">
+    <tr><th style="border:1px solid #ccc;padding:4px;">Ім'я</th><th style="border:1px solid #ccc;padding:4px;">Вік</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="border:1px solid #ccc;padding:4px;">Оля</td><td style="border:1px solid #ccc;padding:4px;">25</td></tr>
+  </tbody>
+</table>`,
+    pitfalls: [
+      "thead без tbody — таблиця все одно працює, але втрачається явний поділ шапки й даних.",
+      "Кілька thead в одній таблиці — недопустимо, лише один.",
+    ],
+    related: ["tbody", "tfoot", "table"],
+  },
+  tbody: {
+    badge: "HTML",
+    title: "<tbody>",
+    whatIsIt: "Групує основні рядки даних таблиці, окремо від шапки (<thead>) і підвалу (<tfoot>). Якщо не вказаний явно, браузер все одно створює неявний tbody навколо звичайних рядків.",
+    useCases: ["основний блок даних таблиці", "кілька tbody в одній таблиці для логічного групування рядків (напр. по категоріях)"],
+    syntax: `<table>\n  <thead>...</thead>\n  <tbody><tr><td>1</td></tr></tbody>\n</table>`,
+    attributes: [],
+    example: `<table style="border-collapse:collapse;">
+  <tbody>
+    <tr><td style="border:1px solid #ccc;padding:4px;">Рядок 1</td></tr>
+    <tr><td style="border:1px solid #ccc;padding:4px;">Рядок 2</td></tr>
+  </tbody>
+</table>`,
+    pitfalls: ["Плутанина: tbody не обов'язковий явно, але корисний для стилізації (CSS-селектори по tbody) і для кількох логічних груп рядків."],
+    related: ["thead", "tfoot"],
+  },
+  tfoot: {
+    badge: "HTML",
+    title: "<tfoot>",
+    whatIsIt: "Групує підсумкові рядки таблиці — суми, середні значення, примітки. Семантично і за замовчуванням у браузерах показується внизу таблиці, навіть якщо в розмітці стоїть перед tbody.",
+    useCases: ["рядок «Разом» з підсумковою сумою", "примітки чи легенда під таблицею"],
+    syntax: `<table>\n  <tbody>...</tbody>\n  <tfoot><tr><td>Разом: 1000</td></tr></tfoot>\n</table>`,
+    attributes: [],
+    example: `<table style="border-collapse:collapse;width:100%;">
+  <tbody>
+    <tr><td style="border:1px solid #ccc;padding:4px;">Товар А</td><td style="border:1px solid #ccc;padding:4px;">500</td></tr>
+    <tr><td style="border:1px solid #ccc;padding:4px;">Товар Б</td><td style="border:1px solid #ccc;padding:4px;">700</td></tr>
+  </tbody>
+  <tfoot style="font-weight:bold;background:#f4f4f4;">
+    <tr><td style="border:1px solid #ccc;padding:4px;">Разом</td><td style="border:1px solid #ccc;padding:4px;">1200</td></tr>
+  </tfoot>
+</table>`,
+    pitfalls: ["Забутий tfoot для підсумкового рядка — використання звичайного tr у tbody втрачає семантику й можливість стилізувати підсумок окремо."],
+    related: ["thead", "tbody"],
+  },
+  colgroup: {
+    badge: "HTML",
+    title: "<colgroup>",
+    whatIsIt: "Групує елементи <col> для застосування стилів чи атрибутів до цілих колонок таблиці одразу, без потреби ставити клас на кожну комірку кожного рядка.",
+    useCases: ["виділити кольором усю колонку таблиці", "задати ширину колонок наперед"],
+    syntax: `<table>\n  <colgroup>\n    <col style="background:#eee">\n    <col>\n  </colgroup>\n  ...\n</table>`,
+    attributes: [{ name: "span", desc: "скільки колонок охоплює colgroup, якщо не перелічені col по одному" }],
+    example: `<table style="border-collapse:collapse;width:100%;">
+  <colgroup>
+    <col style="background:#ede9fe;">
+    <col>
+  </colgroup>
+  <tr><td style="border:1px solid #ccc;padding:4px;">Виділена колонка</td><td style="border:1px solid #ccc;padding:4px;">Звичайна</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px;">Ще рядок</td><td style="border:1px solid #ccc;padding:4px;">Дані</td></tr>
+</table>`,
+    pitfalls: ["colgroup має йти одразу після caption (якщо є) і перед thead/tbody — неправильний порядок ламає розмітку."],
+    related: ["col", "table"],
+  },
+  col: {
+    badge: "HTML",
+    title: "<col>",
+    whatIsIt: "Описує стиль чи ширину однієї конкретної колонки таблиці всередині <colgroup>. Самозакривний тег, не містить вмісту.",
+    useCases: ["задати фіксовану ширину конкретній колонці", "виділити кольором лише одну колонку"],
+    syntax: `<colgroup>\n  <col span="2" style="background:yellow;">\n</colgroup>`,
+    attributes: [{ name: "span", desc: "скільки послідовних колонок охоплює цей col" }],
+    example: `<table style="border-collapse:collapse;">
+  <colgroup>
+    <col style="width:150px;background:#fef9c3;">
+    <col style="width:80px;">
+  </colgroup>
+  <tr><td style="border:1px solid #ccc;padding:4px;">Широка й жовта</td><td style="border:1px solid #ccc;padding:4px;">Вузька</td></tr>
+</table>`,
+    pitfalls: ["col впливає лише на обмежений набір CSS-властивостей (ширина, фон, видимість) — не можна стилізувати текст усередині комірок через col."],
+    related: ["colgroup", "table"],
+  },
+  dt: {
+    badge: "HTML",
+    title: "<dt>",
+    whatIsIt: "Позначає термін усередині списку визначень <dl> — слово чи фразу, яку далі пояснює <dd>. Може йти кілька <dt> підряд перед одним <dd>, якщо в них спільне визначення.",
+    useCases: ["термін у глосарії", "назва питання в FAQ (з dd як відповіддю)"],
+    syntax: `<dl>\n  <dt>HTML</dt>\n  <dd>Мова розмітки гіпертексту</dd>\n</dl>`,
+    attributes: [],
+    example: `<dl>
+  <dt style="font-weight:bold;">CSS</dt>
+  <dd style="margin-left:20px;margin-bottom:8px;">Мова стилів для оформлення сторінок.</dd>
+  <dt style="font-weight:bold;">JS</dt>
+  <dd style="margin-left:20px;">Мова програмування для інтерактивності сторінок.</dd>
+</dl>`,
+    pitfalls: ["dt поза <dl> не має сенсу — завжди дочірній елемент списку визначень."],
+    related: ["dd", "dl"],
+  },
+  dd: {
+    badge: "HTML",
+    title: "<dd>",
+    whatIsIt: "Містить опис/визначення терміна, заданого попереднім <dt>, усередині списку визначень <dl>. Типово має відступ зліва.",
+    useCases: ["визначення терміна в глосарії", "відповідь на питання в FAQ"],
+    syntax: `<dl>\n  <dt>Термін</dt>\n  <dd>Опис терміна</dd>\n</dl>`,
+    attributes: [],
+    example: `<dl>
+  <dt style="font-weight:bold;">API</dt>
+  <dd style="margin-left:20px;">Набір правил, за якими програми звертаються одна до одної.</dd>
+</dl>`,
+    pitfalls: ["dd без відповідного dt перед ним — втрачається сенс «визначення чого саме»."],
+    related: ["dt", "dl"],
+  },
+  optgroup: {
+    badge: "HTML",
+    title: "<optgroup>",
+    whatIsIt: "Групує пов'язані елементи <option> усередині <select> під спільним підписом — зручно, коли список варіантів довгий і логічно ділиться на категорії.",
+    useCases: ["групування країн за континентами у випадаючому списку", "категорії товарів у фільтрі"],
+    syntax: `<select>\n  <optgroup label="Фрукти">\n    <option>Яблуко</option>\n  </optgroup>\n</select>`,
+    attributes: [
+      { name: "label", desc: "підпис групи, показується напівжирним і некликабельним у списку" },
+      { name: "disabled", desc: "вимикає всі опції всередині групи одразу" },
+    ],
+    example: `<select style="padding:6px;border-radius:6px;">
+  <optgroup label="Фрукти">
+    <option>Яблуко</option>
+    <option>Банан</option>
+  </optgroup>
+  <optgroup label="Овочі">
+    <option>Морква</option>
+    <option>Огірок</option>
+  </optgroup>
+</select>`,
+    pitfalls: ["Забутий label — група показується без підпису, користувач не розуміє логіку поділу."],
+    related: ["select", "option"],
   },
   "css-selectors": {
     badge: "CSS",
