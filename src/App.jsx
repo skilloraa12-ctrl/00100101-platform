@@ -1689,156 +1689,6 @@ const SYMBOLS = [
 
 ];
 
-const LIBRARY_HTML = [
-  { name: "<a>", desc: "Посилання на інший ресурс.", syntax: '<a href="url">текст</a>', attrs: "href, target", pitfalls: "Забутий href — посилання нікуди не веде." },
-  { name: "<div>", desc: "Універсальний блоковий контейнер.", syntax: "<div>...</div>", attrs: "class, id", pitfalls: "Зловживання div замість семантичних тегів." },
-  { name: "<span>", desc: "Універсальний рядковий контейнер.", syntax: "<span>...</span>", attrs: "class, id", pitfalls: "Використання замість div там, де потрібен блоковий елемент." },
-  { name: "<p>", desc: "Абзац тексту.", syntax: "<p>...</p>", attrs: "class", pitfalls: "Вкладання блокових елементів (наприклад div) усередину p — недопустимо." },
-  { name: "<h1>–<h6>", desc: "Заголовки шести рівнів важливості.", syntax: "<h1>...</h1>", attrs: "class", pitfalls: "Пропуск рівнів (h1 одразу в h4) ламає структуру для скрінрідерів." },
-  { name: "<img>", desc: "Зображення. Самозакривний тег.", syntax: '<img src="..." alt="...">', attrs: "src, alt, width, height", pitfalls: "Відсутній alt — проблема з доступністю та SEO.", guide: "html-img" },
-  { name: "<button>", desc: "Кнопка дії.", syntax: "<button>...</button>", attrs: "type, disabled", pitfalls: "type за замовчуванням submit — усередині <form> може випадково відправити форму." },
-  { name: "<form>", desc: "Контейнер для елементів вводу даних.", syntax: '<form action="..." method="post">...</form>', attrs: "action, method", pitfalls: "Забутий method — за замовчуванням GET, дані потраплять в URL.", guide: "html-form" },
-  { name: "<input>", desc: "Поле вводу.", syntax: '<input type="text">', attrs: "type, name, value, placeholder", pitfalls: "Немає прив'язаного label — гірша доступність.", guide: "html-input" },
-  { name: "<label>", desc: "Підпис до поля форми.", syntax: '<label for="id">...</label>', attrs: "for", pitfalls: "for не збігається з id відповідного input.", guide: "html-label" },
-  { name: "<ul> / <ol> / <li>", desc: "Маркований / нумерований список і пункт списку.", syntax: "<ul><li>...</li></ul>", attrs: "class", pitfalls: "li поза ul/ol не має сенсу.", guide: "html-list" },
-  { name: "<header>", desc: "Шапка сторінки або секції.", syntax: "<header>...</header>", attrs: "class", pitfalls: "Плутають з <head> (службовою частиною документа) — це різні теги.", guide: "html-header" },
-  { name: "<nav>", desc: "Блок навігаційних посилань.", syntax: "<nav>...</nav>", attrs: "class", pitfalls: "Використання nav для будь-якого списку посилань, а не лише навігації.", guide: "html-nav" },
-  { name: "<main>", desc: "Головний унікальний вміст сторінки. Має бути один на сторінку.", syntax: "<main>...</main>", attrs: "class", pitfalls: "Кілька <main> на одній сторінці — помилка розмітки.", guide: "html-main" },
-  { name: "<footer>", desc: "Підвал сторінки або секції.", syntax: "<footer>...</footer>", attrs: "class", pitfalls: "—", guide: "html-footer" },
-  { name: "<section>", desc: "Тематична секція вмісту, зазвичай із власним заголовком.", syntax: "<section>...</section>", attrs: "class", pitfalls: "Використання замість div без тематичного сенсу.", guide: "html-section" },
-  { name: "<article>", desc: "Самодостатній блок вмісту (пост, картка товару, коментар).", syntax: "<article>...</article>", attrs: "class", pitfalls: "—" },
-  { name: "<aside>", desc: "Побічний вміст: бічна панель, реклама, пов'язані посилання.", syntax: "<aside>...</aside>", attrs: "class", pitfalls: "—" },
-  { name: "<select> / <option>", desc: "Випадний список вибору.", syntax: "<select><option>А</option></select>", attrs: "multiple, disabled, name", pitfalls: "—" },
-  { name: "<textarea>", desc: "Багаторядкове текстове поле.", syntax: "<textarea rows=\"4\"></textarea>", attrs: "rows, cols, maxlength, placeholder", pitfalls: "Початковий текст пишеться між тегами, а не через value." },
-  { name: "<table> / <tr> / <td> / <th>", desc: "Таблиця, рядок, звичайна й заголовкова комірка.", syntax: "<table><tr><th>А</th><td>1</td></tr></table>", attrs: "colspan, rowspan", pitfalls: "Використання таблиць для верстки сторінки замість даних." },
-  { name: "<video> / <audio>", desc: "Відео- та аудіоплеєр з елементами керування.", syntax: '<video src="a.mp4" controls></video>', attrs: "controls, autoplay, loop, muted", pitfalls: "autoplay без muted блокується більшістю браузерів." },
-  { name: "<iframe>", desc: "Вбудовує іншу сторінку всередину поточної.", syntax: '<iframe src="url"></iframe>', attrs: "src, width, height, sandbox", pitfalls: "Без sandbox вбудована сторінка має повний доступ до можливостей браузера." },
-  { name: "<svg>", desc: "Векторна графіка прямо в HTML.", syntax: '<svg viewBox="0 0 100 100">...</svg>', attrs: "viewBox, width, height", pitfalls: "—" },
-  { name: "<canvas>", desc: "Полотно для малювання через JavaScript.", syntax: "<canvas id=\"c\"></canvas>", attrs: "width, height", pitfalls: "Сам по собі порожній — малювання відбувається лише через JS." },
-  { name: "<details> / <summary>", desc: "Розкривний блок «показати ще» без JavaScript.", syntax: "<details><summary>Заголовок</summary>Текст</details>", attrs: "open", pitfalls: "—" },
-  { name: "<figure> / <figcaption>", desc: "Ілюстрація (зображення, код, діаграма) з підписом.", syntax: "<figure><img src=\"x.jpg\"><figcaption>Підпис</figcaption></figure>", attrs: "class", pitfalls: "—" },
-  { name: "<blockquote> / <cite>", desc: "Розгорнута цитата й посилання на її джерело.", syntax: "<blockquote>Текст<cite>Автор</cite></blockquote>", attrs: "cite (URL джерела)", pitfalls: "—" },
-  { name: "<time>", desc: "Дата/час у форматі, зрозумілому і людині, і машині.", syntax: '<time datetime="2026-09-16">16 вересня</time>', attrs: "datetime", pitfalls: "—" },
-  { name: "<meta>", desc: "Метадані сторінки: кодування, viewport, опис для пошуковиків.", syntax: '<meta name="viewport" content="width=device-width, initial-scale=1">', attrs: "charset, name, content", pitfalls: "Забутий viewport ламає вигляд на мобільних." },
-  { name: "<link>", desc: "Підключає зовнішній ресурс (CSS-файл, іконку, шрифт).", syntax: '<link rel="stylesheet" href="style.css">', attrs: "rel, href, type", pitfalls: "—" },
-  { name: "<dialog>", desc: "Вбудоване модальне чи звичайне діалогове вікно.", syntax: "<dialog open>Текст</dialog>", attrs: "open", pitfalls: "Без атрибута open і без showModal() з JS діалог невидимий." },
-  { name: "<picture>", desc: "Різні версії зображення для різних розмірів екрана.", syntax: '<picture><source srcset="big.jpg" media="(min-width: 800px)"><img src="small.jpg"></picture>', attrs: "srcset, media", pitfalls: "img усередині обов'язковий як запасний варіант." },
-  { name: "<progress>", desc: "Візуальний індикатор прогресу виконання задачі.", syntax: '<progress value="70" max="100"></progress>', attrs: "value, max", pitfalls: "Без value — індетермінований (анімація очікування)." },
-  { name: "<meter>", desc: "Вимірювальна шкала для відомого діапазону (не прогрес).", syntax: '<meter value="6" min="0" max="10"></meter>', attrs: "value, min, max, low, high, optimum", pitfalls: "Не для показу процесу завантаження — для цього є <progress>." },
-  { name: "<fieldset> / <legend>", desc: "Групує пов'язані поля форми під спільним підписом.", syntax: "<fieldset><legend>Адреса</legend>...</fieldset>", attrs: "disabled", pitfalls: "—" },
-  { name: "<datalist>", desc: "Список підказок автодоповнення для input.", syntax: '<input list="opts"><datalist id="opts"><option value="Київ"></datalist>', attrs: "id (зв'язується через list у input)", pitfalls: "—" },
-  { name: "<output>", desc: "Показує результат обчислення чи дії форми.", syntax: '<output name="result">42</output>', attrs: "for, name", pitfalls: "—" },
-  { name: "<abbr>", desc: "Абревіатура чи скорочення з розшифровкою в підказці.", syntax: '<abbr title="HyperText Markup Language">HTML</abbr>', attrs: "title", pitfalls: "—" },
-  { name: "<address>", desc: "Контактна інформація автора сторінки чи статті.", syntax: "<address>Пишіть: mail@example.com</address>", attrs: "class", pitfalls: "Не для довільних поштових адрес — лише для контактів." },
-  { name: "<code> / <pre>", desc: "Фрагмент коду та блок з коду зі збереженими пробілами/переносами.", syntax: "<pre><code>function f() {}</code></pre>", attrs: "class", pitfalls: "code без pre не зберігає переноси рядків." },
-  { name: "data-* атрибути", desc: "Власні дані на елементі для JS, без впливу на вигляд.", syntax: '<div data-user-id="42">', attrs: "будь-яке ім'я після data-", pitfalls: "Читаються в JS через el.dataset.userId (camelCase)." },
-];
-
-const LIBRARY_CSS = [
-  { name: "margin", desc: "Зовнішній відступ від сусідніх елементів.", syntax: "margin: 10px;", attrs: "top/right/bottom/left окремо або скорочено", pitfalls: "Плутають з padding." },
-  { name: "padding", desc: "Внутрішній відступ між вмістом і рамкою елемента.", syntax: "padding: 10px;", attrs: "top/right/bottom/left", pitfalls: "—" },
-  { name: "width / height", desc: "Ширина та висота елемента.", syntax: "width: 200px;", attrs: "px, %, em, rem, vw/vh", pitfalls: "За замовчуванням не враховує padding/border (box-sizing: content-box)." },
-  { name: "display", desc: "Тип відображення елемента: block, inline, flex, grid, none.", syntax: "display: flex;", attrs: "block, inline, flex, grid, none", pitfalls: "display: none повністю прибирає елемент з розмітки (не те саме, що visibility: hidden)." },
-  { name: "position", desc: "Спосіб позиціонування: static, relative, absolute, fixed, sticky.", syntax: "position: relative;", attrs: "static, relative, absolute, fixed, sticky", pitfalls: "absolute без relative-батька позиціонується відносно всієї сторінки." },
-  { name: "color", desc: "Колір тексту.", syntax: "color: #1d4ed8;", attrs: "назва, hex, rgb, hsl", pitfalls: "Плутають з background-color." },
-  { name: "background", desc: "Фон елемента (колір, картинка тощо).", syntax: "background: #f5f5f5;", attrs: "background-color, background-image", pitfalls: "—" },
-  { name: "font-size", desc: "Розмір шрифту.", syntax: "font-size: 16px;", attrs: "px, em, rem, %", pitfalls: "rem відносно кореня документа, em — відносно батька; легко переплутати." },
-  { name: "border", desc: "Рамка навколо елемента.", syntax: "border: 1px solid #ccc;", attrs: "ширина, стиль, колір", pitfalls: "—" },
-  { name: "border-radius", desc: "Заокруглення кутів.", syntax: "border-radius: 8px;", attrs: "px, %", pitfalls: "50% на квадратному елементі дає коло." },
-  { name: "flex", desc: "display: flex вмикає гнучкий контейнер для дочірніх елементів.", syntax: "display: flex; gap: 8px;", attrs: "justify-content, align-items, gap", pitfalls: "flex стосується прямих дітей, а не всіх нащадків.", guide: "css-flexbox" },
-  { name: "grid", desc: "display: grid вмикає сітковий контейнер.", syntax: "display: grid; grid-template-columns: 1fr 1fr;", attrs: "grid-template-columns/rows, gap", pitfalls: "—" },
-  { name: "gap", desc: "Відступ між елементами у flex/grid-контейнері.", syntax: "gap: 12px;", attrs: "px", pitfalls: "Не працює без display: flex або grid." },
-  { name: "media query", desc: "Умовні стилі залежно від розміру екрана.", syntax: "@media (max-width: 600px) { ... }", attrs: "max-width, min-width", pitfalls: "Порядок правил має значення — пізніше правило перекриває раніше." },
-  { name: "justify-content / align-items", desc: "Вирівнювання елементів у flex/grid-контейнері.", syntax: "justify-content: center; align-items: center;", attrs: "flex-start, center, space-between...", pitfalls: "justify — по головній осі, align — по поперечній; легко переплутати при flex-direction: column." },
-  { name: "transition", desc: "Плавна анімація зміни властивості (напр. на :hover).", syntax: "transition: background-color 0.3s ease;", attrs: "властивість, тривалість, timing-function, затримка", pitfalls: "Без вказаної властивості transition: all анімує геть усе — важче для продуктивності." },
-  { name: "transform", desc: "Зсув, поворот або масштабування елемента без впливу на layout.", syntax: "transform: rotate(15deg) scale(1.1);", attrs: "translate(), rotate(), scale(), skew()", pitfalls: "—" },
-  { name: "z-index", desc: "Порядок нашарування елементів, що перекриваються.", syntax: "z-index: 10;", attrs: "будь-яке ціле число", pitfalls: "Працює лише коли position не static." },
-  { name: "opacity", desc: "Прозорість усього елемента (0 — невидимий, 1 — повністю видимий).", syntax: "opacity: 0.5;", attrs: "0 до 1", pitfalls: "На відміну від display: none, елемент лишається клікабельним." },
-  { name: "box-shadow", desc: "Тінь навколо елемента.", syntax: "box-shadow: 0 4px 12px rgba(0,0,0,0.2);", attrs: "зсув X, зсув Y, розмиття, колір", pitfalls: "—" },
-  { name: "overflow", desc: "Що робити з вмістом, який не вміщається в елемент.", syntax: "overflow: auto;", attrs: "visible, hidden, scroll, auto", pitfalls: "overflow: hidden іноді ховає потрібний вміст (напр. тінь дочірнього елемента)." },
-  { name: "line-height", desc: "Висота рядка тексту — впливає на читабельність.", syntax: "line-height: 1.5;", attrs: "без одиниці (множник), px, %", pitfalls: "—" },
-  { name: "text-align", desc: "Горизонтальне вирівнювання тексту всередині елемента.", syntax: "text-align: center;", attrs: "left, right, center, justify", pitfalls: "—" },
-  { name: "box-sizing", desc: "Чи входять padding/border у вказану width.", syntax: "box-sizing: border-box;", attrs: "content-box (за замовч.), border-box", pitfalls: "Багато хто ставить * { box-sizing: border-box; } глобально на початку проєкту." },
-  { name: "cursor", desc: "Вигляд курсора миші над елементом.", syntax: "cursor: pointer;", attrs: "pointer, default, not-allowed, grab", pitfalls: "Забутий cursor: pointer на клікабельному div — виглядає не інтерактивним." },
-  { name: "content", desc: "Вставляє вміст через ::before / ::after (лише для псевдоелементів).", syntax: "content: '→';", attrs: "текст, attr(), лічильники", pitfalls: "Без content ::before/::after не рендериться взагалі." },
-  { name: "flex-direction", desc: "Напрямок, у якому вишиковуються елементи flex-контейнера.", syntax: "flex-direction: column;", attrs: "row, row-reverse, column, column-reverse", pitfalls: "При column: justify-content керує вертикаллю, align-items — горизонталлю (осі міняються місцями)." },
-  { name: "align-self", desc: "Перевизначає align-items для одного конкретного елемента.", syntax: "align-self: flex-end;", attrs: "auto, flex-start, center, stretch", pitfalls: "Працює лише на дітях flex/grid-контейнера." },
-  { name: "grid-template-areas", desc: "Іменує ділянки сітки текстовою «картою» — дуже наочно.", syntax: 'grid-template-areas: "header header" "sidebar content";', attrs: "рядки в лапках", pitfalls: "Кількість слів у кожному рядку має збігатись із кількістю колонок." },
-  { name: ":not() / :is() / :has()", desc: "Логічні псевдокласи для складніших селекторів.", syntax: "li:not(:last-child) { margin-bottom: 8px; }", attrs: "приймають список селекторів", pitfalls: ":has() підтримується не в усіх старих браузерах." },
-  { name: "custom properties (--var)", desc: "Власні CSS-змінні, які можна переозначати в різних місцях.", syntax: ":root { --main-color: #1d4ed8; } .btn { color: var(--main-color); }", attrs: "будь-яке ім'я з --", pitfalls: "Регістрозалежні: --Color і --color — різні змінні." },
-  { name: "clamp()", desc: "Значення, яке автоматично тримається в межах між мінімумом і максимумом.", syntax: "font-size: clamp(1rem, 2vw, 2rem);", attrs: "мінімум, бажане, максимум", pitfalls: "Зручно для адаптивної типографіки без media query." },
-  { name: "aspect-ratio", desc: "Задає співвідношення сторін елемента (напр. відео 16:9).", syntax: "aspect-ratio: 16 / 9;", attrs: "ширина / висота", pitfalls: "Сучасна заміна старого «трюку» з padding-top у відсотках." },
-  { name: "filter", desc: "Візуальні ефекти без зміни розмітки (розмиття, яскравість тощо).", syntax: "filter: blur(4px) brightness(1.2);", attrs: "blur(), brightness(), grayscale()...", pitfalls: "Впливає на продуктивність при анімації великих елементів." },
-  { name: "backdrop-filter", desc: "Розмиває/змінює те, що ПІД напівпрозорим елементом.", syntax: "backdrop-filter: blur(10px);", attrs: "ті самі функції, що й filter", pitfalls: "Елемент має бути напівпрозорим (мати opacity або background з альфа-каналом), щоб ефект був видимий." },
-  { name: "will-change", desc: "Підказка браузеру заздалегідь оптимізувати анімацію властивості.", syntax: "will-change: transform;", attrs: "назва властивості", pitfalls: "Зловживання (на все підряд) шкодить продуктивності, а не покращує." },
-  { name: "object-fit", desc: "Як img/video заповнює свою рамку, якщо пропорції не збігаються.", syntax: "object-fit: cover;", attrs: "cover, contain, fill, none", pitfalls: "Працює лише разом із заданими width/height на елементі." },
-];
-
-const LIBRARY_JS = [
-  { name: "let / const", desc: "Оголошення змінних: let — можна змінювати, const — ні.", syntax: "let x = 1; const y = 2;", attrs: "—", pitfalls: "const не робить об'єкт незмінним — забороняє лише переприсвоєння самої змінної." },
-  { name: "function", desc: "Оголошення функції.", syntax: "function name(params) { return ...; }", attrs: "параметри, return", pitfalls: "Забутий return — функція поверне undefined." },
-  { name: "Array", desc: "Впорядкований список значень.", syntax: "const arr = [1, 2, 3];", attrs: ".length, [index], .push(), .map()", pitfalls: "Індексація з 0, а не з 1.", guide: "js-array" },
-  { name: "Object", desc: "Набір пар ключ-значення.", syntax: "const user = { name: 'Оля', age: 20 };", attrs: "крапкова або дужкова нотація доступу", pitfalls: "user.name і user['name'] — однакові, але друге корисне з динамічними ключами.", guide: "js-object" },
-  { name: "for", desc: "Цикл із лічильником.", syntax: "for (let i = 0; i < n; i++) { ... }", attrs: "ініціалізація; умова; крок", pitfalls: "Забутий i++ призводить до нескінченного циклу." },
-  { name: "if / else", desc: "Умовне виконання коду.", syntax: "if (x > 0) { ... } else { ... }", attrs: "—", pitfalls: "= замість === усередині умови — це помилка присвоєння, а не порівняння." },
-  { name: "document.querySelector", desc: "Знаходить перший елемент за CSS-селектором.", syntax: "document.querySelector('.card')", attrs: "—", pitfalls: "Поверне null, якщо елемент не знайдено — звернення до .textContent на null впаде з помилкою." },
-  { name: "addEventListener", desc: "Підписує елемент на подію (клік, введення тощо).", syntax: "el.addEventListener('click', fn)", attrs: "тип події, функція-обробник", pitfalls: "—" },
-  { name: "fetch", desc: "Робить мережевий запит (наприклад, до API).", syntax: "fetch(url).then(r => r.json())", attrs: "—", pitfalls: "fetch не кидає помилку на статуси 4xx/5xx — треба перевіряти response.ok вручну." },
-  { name: "async / await", desc: "Синтаксис для зручнішої роботи з асинхронним кодом (Promise).", syntax: "async function load() { const data = await fetch(url); }", attrs: "—", pitfalls: "await працює лише всередині async-функції." },
-  { name: "try / catch", desc: "Обробка помилок у коді.", syntax: "try { ... } catch (e) { console.log(e.message); }", attrs: "—", pitfalls: "—" },
-  { name: "class", desc: "Шаблон для створення об'єктів зі спільною поведінкою.", syntax: "class User { constructor(name) { this.name = name; } }", attrs: "constructor, методи", pitfalls: "—" },
-  { name: "map / filter / reduce", desc: "Три головні методи трансформації масивів без циклів.", syntax: "arr.map(x => x*2).filter(x => x>2)", attrs: "приймають функцію-колбек", pitfalls: "map і filter повертають НОВИЙ масив — оригінал не змінюється." },
-  { name: "spread ...", desc: "Розгортає масив/об'єкт на окремі елементи.", syntax: "const copy = [...arr]; const merged = {...a, ...b};", attrs: "—", pitfalls: "Робить лише поверхневу (shallow) копію — вкладені об'єкти лишаються спільними." },
-  { name: "деструктуризація", desc: "Дістає значення з масиву/об'єкта в окремі змінні.", syntax: "const { name, age } = user; const [a, b] = arr;", attrs: "—", pitfalls: "—" },
-  { name: "==  vs  ===", desc: "Нестрога проти строгої рівності.", syntax: "5 == '5' // true\n5 === '5' // false", attrs: "—", pitfalls: "Використовуй === майже завжди — == має несподівані приведення типів." },
-  { name: "Promise", desc: "Об'єкт, що представляє результат асинхронної операції в майбутньому.", syntax: "new Promise((resolve, reject) => {...})", attrs: ".then(), .catch(), .finally()", pitfalls: "Забутий .catch() — необроблена помилка Promise падає мовчки в консоль." },
-  { name: "setTimeout", desc: "Виконує код один раз через вказаний час.", syntax: "setTimeout(() => {...}, 1000);", attrs: "функція, мілісекунди", pitfalls: "Час — це мінімум затримки, а не гарантія (браузер може затримати ще більше)." },
-  { name: "JSON.stringify / parse", desc: "Перетворення між JS-об'єктом і текстовим JSON.", syntax: "JSON.stringify(obj); JSON.parse(text)", attrs: "—", pitfalls: "stringify пропускає функції та undefined-властивості." },
-  { name: "localStorage", desc: "Зберігає дані в браузері між сесіями (лише рядки).", syntax: "localStorage.setItem('key', 'value')", attrs: "getItem, setItem, removeItem", pitfalls: "Зберігає лише рядки — об'єкти треба JSON.stringify перед записом." },
-  { name: "Map / Set", desc: "Map — пари ключ-значення з будь-яким типом ключа; Set — унікальні значення.", syntax: "const m = new Map(); const s = new Set([1,2,2]);", attrs: ".set/.get/.has (Map), .add/.has (Set)", pitfalls: "На відміну від Object, ключі Map зберігають порядок і можуть бути будь-якого типу." },
-  { name: "optional chaining ?.", desc: "Безпечний доступ до вкладеної властивості, яка може не існувати.", syntax: "user?.address?.city", attrs: "—", pitfalls: "Поверне undefined замість помилки, якщо якась ланка в ланцюжку відсутня." },
-  { name: "nullish coalescing ??", desc: "Підставляє значення за замовчуванням лише для null/undefined.", syntax: "const name = input ?? 'Гість';", attrs: "—", pitfalls: "На відміну від ||, не спрацьовує на 0, '' чи false — це часто саме те, що потрібно." },
-  { name: "arrow function", desc: "Коротший синтаксис функції; не має власного this.", syntax: "const sum = (a, b) => a + b;", attrs: "—", pitfalls: "Через відсутність власного this не підходить як метод об'єкта, де потрібен this." },
-  { name: "template literals", desc: "Рядки у зворотних лапках з підстановкою змінних.", syntax: "`Привіт, ${name}! У тебе ${count} повідомлень.`", attrs: "${вираз} усередині", pitfalls: "Працює лише в зворотних лапках `, не в звичайних лапках." },
-  { name: "closures", desc: "Функція «пам'ятає» змінні з того місця, де вона була створена.", syntax: "function counter() { let n = 0; return () => ++n; }", attrs: "—", pitfalls: "Часте джерело витоків пам'яті при необережному використанні в циклах." },
-  { name: "this", desc: "Посилання на об'єкт, у контексті якого викликана функція.", syntax: "const obj = { name: 'A', greet() { return this.name; } };", attrs: "—", pitfalls: "Значення this залежить від СПОСОБУ виклику функції, а не від місця її оголошення (крім стрілкових функцій)." },
-  { name: "hoisting", desc: "Оголошення var і function «піднімаються» на початок області видимості.", syntax: "console.log(x); var x = 5; // undefined, не помилка", attrs: "—", pitfalls: "let/const теж «піднімаються», але недоступні до самого оголошення («temporal dead zone»)." },
-  { name: "generator function*", desc: "Функція, яка може призупинятись і повертати кілька значень по черзі.", syntax: "function* gen() { yield 1; yield 2; }", attrs: "yield", pitfalls: "—" },
-  { name: "Symbol", desc: "Унікальний і незмінний примітив, часто для «прихованих» ключів об'єкта.", syntax: "const id = Symbol('id');", attrs: "—", pitfalls: "Кожен Symbol() унікальний, навіть з однаковим описом." },
-  { name: "WeakMap / WeakSet", desc: "Як Map/Set, але не заважають збирачу сміття видаляти невикористані об'єкти-ключі.", syntax: "const cache = new WeakMap();", attrs: "лише об'єкти як ключі", pitfalls: "Не можна перебрати forEach — немає гарантії, що об'єкт ще існує." },
-  { name: "Array.from", desc: "Створює справжній масив із чогось масивоподібного чи ітерованого.", syntax: "Array.from({length: 5}, (_, i) => i)", attrs: "джерело, необов'язкова map-функція", pitfalls: "Часто плутають з простим new Array(5) — той не має map-параметра." },
-];
-
-const LIBRARY_PYTHON = [
-  { name: "def", desc: "Оголошення функції.", syntax: "def greet(name):\n    return f'Привіт, {name}'", attrs: "параметри, значення за замовчуванням", pitfalls: "Відступи (звичайно 4 пробіли) — частина синтаксису, а не стилю." },
-  { name: "list / dict / tuple / set", desc: "Чотири основні колекції Python з різною поведінкою.", syntax: "lst=[1,2]; d={'a':1}; t=(1,2); s={1,2}", attrs: "—", pitfalls: "tuple незмінна після створення; list — змінна.", guide: "py-list" },
-  { name: "for ... in", desc: "Цикл, що перебирає елементи будь-якої колекції.", syntax: "for item in [1, 2, 3]:\n    print(item)", attrs: "—", pitfalls: "На відміну від JS, тут немає класичного for(;;) — лише for...in по ітерованому." },
-  { name: "if / elif / else", desc: "Умовне розгалуження.", syntax: "if x > 0:\n    ...\nelif x == 0:\n    ...\nelse:\n    ...", attrs: "—", pitfalls: "Двокрапка обов'язкова, дужки навколо умови — ні." },
-  { name: "list comprehension", desc: "Стислий спосіб створити список за один рядок.", syntax: "squares = [x**2 for x in range(10)]", attrs: "необов'язковий if у кінці", pitfalls: "Занадто складна логіка всередині погіршує читабельність — тоді краще звичайний цикл." },
-  { name: "class", desc: "Оголошення класу.", syntax: "class Dog:\n    def __init__(self, name):\n        self.name = name", attrs: "self — перший параметр кожного методу", pitfalls: "Забутий self у визначенні методу — типова помилка новачків." },
-  { name: "try / except", desc: "Обробка помилок (виключень).", syntax: "try:\n    risky()\nexcept ValueError as e:\n    print(e)", attrs: "except може вказувати конкретний тип помилки", pitfalls: "Голий except: ловить взагалі все, включно з Ctrl+C — краще уникати." },
-  { name: "with open()", desc: "Безпечно відкриває файл і автоматично закриває його.", syntax: "with open('file.txt') as f:\n    data = f.read()", attrs: "'r', 'w', 'a' — режими читання/запису/додавання", pitfalls: "Без with можна забути f.close()." },
-  { name: "f-рядки", desc: "Форматовані рядки з підстановкою змінних прямо в тексті.", syntax: "f'Мені {age} років'", attrs: "будь-який вираз у {}", pitfalls: "Літера f обов'язкова перед лапками." },
-  { name: "import", desc: "Підключення модуля чи конкретних функцій з нього.", syntax: "import math\nfrom random import choice", attrs: "as для псевдоніма (import numpy as np)", pitfalls: "—" },
-  { name: "*args / **kwargs", desc: "Довільна кількість позиційних / іменованих аргументів функції.", syntax: "def f(*args, **kwargs):\n    print(args, kwargs)", attrs: "—", pitfalls: "Імена умовні — важлива саме зірочка (*, **), а не слово args." },
-  { name: "self", desc: "Посилання на конкретний екземпляр класу всередині його методів.", syntax: "def greet(self):\n    return self.name", attrs: "—", pitfalls: "self передається автоматично — не вказується при виклику obj.greet()." },
-];
-
-const LIBRARY_SQL = [
-  { name: "SELECT ... FROM", desc: "Вибирає колонки з таблиці.", syntax: "SELECT name, age FROM users;", attrs: "* — усі колонки", pitfalls: "SELECT * зручний для дослідження, але повільніший і крихкіший у продакшн-коді.", guide: "sql-select" },
-  { name: "WHERE", desc: "Фільтрує рядки за умовою.", syntax: "SELECT * FROM users WHERE age >= 18;", attrs: "AND, OR, NOT, IN, LIKE, BETWEEN", pitfalls: "WHERE не бачить аліасів, заданих у тому самому SELECT." },
-  { name: "JOIN ... ON", desc: "Об'єднує рядки з двох таблиць за спільним ключем.", syntax: "SELECT * FROM orders\nJOIN users ON orders.user_id = users.id;", attrs: "INNER, LEFT, RIGHT, FULL", pitfalls: "Забутий ON дає декартів добуток — усі можливі комбінації рядків." },
-  { name: "GROUP BY", desc: "Групує рядки для підрахунку агрегатних значень.", syntax: "SELECT city, COUNT(*) FROM users GROUP BY city;", attrs: "—", pitfalls: "Кожна колонка в SELECT, що не в агрегатній функції, має бути в GROUP BY." },
-  { name: "ORDER BY", desc: "Сортує результат запиту.", syntax: "SELECT * FROM users ORDER BY age DESC;", attrs: "ASC (за замовч.), DESC", pitfalls: "—" },
-  { name: "CREATE TABLE", desc: "Створює нову таблицю з визначеною структурою.", syntax: "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(50)\n);", attrs: "типи колонок, обмеження (constraints)", pitfalls: "—" },
-  { name: "PRIMARY KEY / FOREIGN KEY", desc: "Унікальний ключ рядка / посилання на рядок іншої таблиці.", syntax: "user_id INTEGER REFERENCES users(id)", attrs: "—", pitfalls: "FOREIGN KEY захищає від видалення пов'язаного рядка, поки на нього є посилання." },
-  { name: "INSERT INTO", desc: "Додає новий рядок у таблицю.", syntax: "INSERT INTO users (name, age) VALUES ('Оля', 25);", attrs: "—", pitfalls: "Порядок значень має відповідати порядку вказаних колонок." },
-  { name: "UPDATE ... SET", desc: "Змінює значення в існуючих рядках.", syntax: "UPDATE users SET age = 26 WHERE id = 1;", attrs: "—", pitfalls: "UPDATE без WHERE змінює АБСОЛЮТНО ВСІ рядки таблиці." },
-  { name: "DELETE FROM", desc: "Видаляє рядки з таблиці.", syntax: "DELETE FROM users WHERE id = 1;", attrs: "—", pitfalls: "DELETE без WHERE видаляє всі рядки — так само небезпечно, як UPDATE без WHERE." },
-  { name: "COUNT / SUM / AVG", desc: "Агрегатні функції для підрахунку по групі рядків.", syntax: "SELECT AVG(age) FROM users;", attrs: "MIN(), MAX() теж агрегатні", pitfalls: "Агрегатні функції ігнорують NULL-значення при підрахунку." },
-  { name: "NULL", desc: "Позначення відсутності значення — не те саме, що 0 чи порожній рядок.", syntax: "WHERE email IS NULL", attrs: "IS NULL, IS NOT NULL", pitfalls: "age = NULL ніколи не істинне — потрібно саме IS NULL." },
-];
-
 const LIBRARY_SERVERS = [
   { name: "GitHub", desc: "Хостинг git-репозиторіїв, командна робота через Pull Request, автоматизація через Actions.", syntax: "git remote add origin https://github.com/user/repo.git\ngit push -u origin main", attrs: "Безкоштовно: так (необмежено публічних і приватних репо) · 2000 хв/міс Actions", pitfalls: "Токен доступу (PAT) показується один раз — і ніколи не комітиться в репозиторій.", guide: "server-github" },
   { name: "Cloudflare", desc: "CDN, DNS і захист сайту, плюс безкоштовний хостинг фронтенду (Pages) і серверless-функцій (Workers).", syntax: "npx wrangler login\nnpx wrangler deploy", attrs: "Безкоштовно: так · Workers 100k запитів/день · Pages необмежено сайтів", pitfalls: "API-токен без обмеження прав (scopes) — серйозний ризик, якщо витече.", guide: "server-cloudflare" },
@@ -1860,7 +1710,7 @@ const LIBRARY_SERVERS = [
   { name: "Clerk", desc: "Готова автентифікація й керування користувачами (логін, реєстрація, профілі) як вбудовані UI-компоненти.", syntax: "<SignedIn><UserButton /></SignedIn>\n<SignedOut><SignInButton /></SignedOut>", attrs: "Безкоштовно: так · 10 000 місячних активних користувачів (MAU)", pitfalls: "Публічний (publishable) ключ можна лишати у фронтенді, а secret key — лише на сервері.", guide: "server-clerk" },
 ];
 
-const LIBRARY_SLANG = [
+const LIBRARY_TERMS = [
   { name: "legacy code", desc: "Старий код у продакшені, часто без тестів і документації, який бояться чіпати.", syntax: "This is legacy code from 2018 — nobody fully understands it anymore.", attrs: "legacy system — те саме про цілу систему", pitfalls: "«Legacy» не означає автоматично «поганий» — може бути старим, але надійним." },
   { name: "hotfix", desc: "Термінове виправлення критичного багу, що йде напряму в продакшн в обхід звичайного циклу розробки.", syntax: "We need to ship a hotfix ASAP — payments are failing.", attrs: "patch — менш терміновий синонім", pitfalls: "Часто пропускає звичайні перевірки — після нього важливо дописати тести." },
   { name: "WIP", desc: "Work in progress — робота ще не завершена, часто в назві Pull Request, щоб ніхто не змерджив завчасно.", syntax: "[WIP] Add user authentication — don't merge yet.", attrs: "draft PR — формальний еквівалент на GitHub", pitfalls: "Неформальна конвенція — краще використовувати офіційний статус Draft PR." },
@@ -11863,18 +11713,18 @@ function ReferencePage() {
 }
 
 function LibraryPage() {
-  const [tab, setTab] = useState("html");
+  const [tab, setTab] = useState("servers");
   const [openGuide, setOpenGuide] = useState(null);
-  const data = { html: LIBRARY_HTML, css: LIBRARY_CSS, js: LIBRARY_JS, python: LIBRARY_PYTHON, sql: LIBRARY_SQL, servers: LIBRARY_SERVERS, slang: LIBRARY_SLANG }[tab];
+  const data = { servers: LIBRARY_SERVERS, terms: LIBRARY_TERMS }[tab];
 
   if (openGuide) return <TermGuidePage guideId={openGuide} onBack={() => setOpenGuide(null)} />;
 
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-semibold text-stone-100 mb-1 flex items-center gap-2"><Library size={22} className="text-amber-400" /> Бібліотека</h1>
-      <p className="text-stone-500 text-sm mb-5">Довідник тегів, властивостей і концепцій — шукай і читай у будь-якому порядку. {data.length} записів у цьому розділі.</p>
+      <p className="text-stone-500 text-sm mb-5">Сервіси для розробки і словник термінів та сленгу — шукай і читай у будь-якому порядку. {data.length} записів у цьому розділі. Довідник тегів і синтаксису дивись у «Шпаргалках».</p>
       <div className="flex flex-wrap gap-2 mb-5">
-        {[["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["python", "Python"], ["sql", "SQL"], ["servers", "Сервери"], ["slang", "Сленг"]].map(([id, label]) => (
+        {[["servers", "Сервери"], ["terms", "Терміни"]].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`px-3 py-1.5 rounded-md text-sm ${tab === id ? "bg-stone-800 text-amber-400" : "text-stone-400 hover:bg-stone-900"}`}>{label}</button>
         ))}
       </div>
@@ -12128,7 +11978,7 @@ function buildSearchIndex() {
     idx.push({ kind: "Урок", label: l.title, sub: l.theory.slice(0, 70) + "…", nav: { view: "course", courseId, lessonId: l.id } });
   });
   SYMBOLS.forEach((s) => idx.push({ kind: "Символ", label: `${s.sym} — ${s.ua}`, sub: s.en, nav: { view: "symbols" } }));
-  [...LIBRARY_HTML, ...LIBRARY_CSS, ...LIBRARY_JS, ...LIBRARY_PYTHON, ...LIBRARY_SQL, ...LIBRARY_SERVERS, ...LIBRARY_SLANG].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
+  [...LIBRARY_SERVERS, ...LIBRARY_TERMS].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
   ENGLISH_WORDS.forEach((w) => idx.push({ kind: "English", label: w.en, sub: w.ua, nav: { view: "english" } }));
   UKRAINIAN_TERMS.forEach((t) => idx.push({ kind: "Українська", label: t.correct, sub: t.en, nav: { view: "ukrainian" } }));
   Object.entries(CHEATSHEETS).forEach(([id, sheet]) => {
