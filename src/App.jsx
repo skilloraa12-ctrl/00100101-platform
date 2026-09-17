@@ -4288,6 +4288,163 @@ const TERM_PAGES_V2 = {
     pitfalls: ["Забутий label — група показується без підпису, користувач не розуміє логіку поділу."],
     related: ["select", "option"],
   },
+  "eng-lgtm": {
+    badge: "English",
+    title: "LGTM",
+    whatIsIt: "Скорочення від \"Looks Good To Me\" — стандартна фраза в код-рев'ю, якою підтверджують, що зміни в pull request виглядають нормально й можна їх зливати (merge). Одна з найпоширеніших абревіатур у GitHub/GitLab коментарях.",
+    useCases: ["коментар до pull request, коли зміни схвалені", "швидка відповідь у чаті на питання «як тобі мій код?»"],
+    syntax: `LGTM! 👍`,
+    attributes: [
+      { name: "LGTM", desc: "загальне схвалення — «виглядає добре»" },
+      { name: "SGTM", desc: "\"Sounds Good To Me\" — те саме, але про пропозицію/план, не код" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Колега в PR:</b> "I fixed the null check in the login form."<br>
+  <b>Твоя відповідь:</b> "LGTM, thanks for the quick fix!"
+</p>`,
+    pitfalls: [
+      "LGTM не означає «я уважно все перевірив» — часто його пишуть навіть після поверхневого перегляду, тому не варто покладатись лише на нього для критичного коду.",
+      "У формальних код-рев'ю краще додати конкретний коментар, а не лише LGTM без пояснень.",
+    ],
+    related: ["eng-nitpick", "eng-request-changes"],
+  },
+  "eng-nitpick": {
+    badge: "English",
+    title: "nit / nitpick",
+    whatIsIt: "Дрібне, необов'язкове зауваження в код-рев'ю — стиль коду, назва змінної, форматування. Позначаючи коментар як \"nit\", рецензент дає зрозуміти, що це не блокує злиття, лише пропозиція.",
+    useCases: ["коментар у PR про незначну деталь, яку не обов'язково виправляти", "відділення важливих зауважень від косметичних"],
+    syntax: `nit: consider renaming "data" to "userData" for clarity`,
+    attributes: [
+      { name: "nit:", desc: "префікс коментаря, що сигналізує «це необов'язково»" },
+      { name: "nitpicking", desc: "дієслово — прискіпуватись до дрібниць" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Коментар у PR:</b> "nit: maybe use camelCase here instead of snake_case, but not blocking."
+</p>`,
+    pitfalls: [
+      "Забагато nit-коментарів без чіткого позначення nit: може виглядати як блокуючі зауваження й сповільнити злиття PR.",
+      "Плутанина з noSQL чи іншими термінами через схожість звучання — nit тут не пов'язаний з базами даних.",
+    ],
+    related: ["eng-lgtm", "eng-blocker"],
+  },
+  "eng-blocker": {
+    badge: "English",
+    title: "blocker",
+    whatIsIt: "Проблема, яка заважає просуванню роботи — задачу, реліз чи PR не можна завершити, поки blocker не вирішений. Часто згадується на стендапах: «What are your blockers?»",
+    useCases: ["на щоденному стендапі — повідомити, що заважає прогресу", "позначити критичну помилку в PR, яку ОБОВ'ЯЗКОВО треба виправити перед злиттям"],
+    syntax: `I'm blocked on the API not returning the right data.`,
+    attributes: [
+      { name: "blocker", desc: "іменник — перешкода, що зупиняє роботу" },
+      { name: "I'm blocked on...", desc: "фраза — «мене зупиняє...»" },
+      { name: "unblock", desc: "дієслово — усунути перешкоду, розблокувати" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На стендапі:</b> "No blockers on my side today."<br>
+  <b>Або:</b> "I'm blocked on the design review — waiting for feedback from the team."
+</p>`,
+    pitfalls: [
+      "Не варто називати blocker дрібну незручність — це слово має вагу й сигналізує реальну зупинку роботи.",
+      "«I'm blocking» (без -ed) означає «я блокую когось іншого» — протилежне значення до «I'm blocked» (мене блокують).",
+    ],
+    related: ["eng-standup", "eng-eta"],
+  },
+  "eng-request-changes": {
+    badge: "English",
+    title: "request changes",
+    whatIsIt: "Формальна дія в код-рев'ю (напр. на GitHub) — рецензент вимагає конкретних змін перед тим, як PR можна буде злити. Сильніше за просто коментар: PR не зливається, поки автор не внесе правки або рецензент не змінить рішення.",
+    useCases: ["коли в PR є реальна проблема (баг, вразливість), що потребує виправлення", "формальний статус рев'ю на GitHub/GitLab"],
+    syntax: `Requesting changes: please add error handling for the API call.`,
+    attributes: [
+      { name: "Request changes", desc: "статус рев'ю — «вимагаю змін»" },
+      { name: "Approve", desc: "протилежний статус — «схвалюю»" },
+      { name: "Comment", desc: "нейтральний статус — просто коментар без формального рішення" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У рев'ю PR:</b> "Requesting changes — this endpoint doesn't validate user input, which could lead to a security issue."
+</p>`,
+    pitfalls: [
+      "Requesting changes без пояснення причини — фруструє автора PR; завжди додавай конкретний коментар, ЩО саме треба змінити.",
+      "Плутанина з «change request» — це інший термін, що частіше означає формальний запит на зміну вимог проєкту, не код-рев'ю дію.",
+    ],
+    related: ["eng-lgtm", "eng-nitpick"],
+  },
+  "eng-standup": {
+    badge: "English",
+    title: "standup",
+    whatIsIt: "Коротка щоденна зустріч команди (зазвичай 10-15 хвилин), де кожен відповідає на три питання: що робив учора, що робитиме сьогодні, чи є перешкоди (blockers). Назва походить від традиції проводити її стоячи, щоб не затягувати.",
+    useCases: ["щоденна синхронізація команди в Agile/Scrum", "коротке звітування про прогрес без довгої наради"],
+    syntax: `Yesterday I finished the login form. Today I'll work on validation. No blockers.`,
+    attributes: [
+      { name: "daily standup", desc: "повна назва зустрічі" },
+      { name: "async standup", desc: "письмовий варіант — кожен пише статус у чат замість зустрічі" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На стендапі:</b> "Yesterday I fixed the CSS bug on the checkout page. Today I'm starting on the payment integration. No blockers so far."
+</p>`,
+    pitfalls: [
+      "Стендап не для детального обговорення рішень — довгі технічні дискусії варто перенести на окрему зустріч («let's take this offline»).",
+      "«Standup» без контексту команда може сплутати з жанром гумору stand-up comedy — контекст зазвичай рятує.",
+    ],
+    related: ["eng-blocker", "eng-sync"],
+  },
+  "eng-sync": {
+    badge: "English",
+    title: "sync (up) / let's sync",
+    whatIsIt: "Коротка зустріч чи розмова для узгодження статусу, рішення чи наступних кроків — «синхронізуватись». Часто пропонується, коли обговорення в чаті затягується й простіше поговорити напряму.",
+    useCases: ["запросити колегу на коротку розмову для узгодження деталей", "регулярна зустріч 1-on-1 з менеджером"],
+    syntax: `Can we sync up quickly about the API design?`,
+    attributes: [
+      { name: "let's sync", desc: "пропозиція коротко обговорити щось" },
+      { name: "1-on-1 sync", desc: "регулярна особиста зустріч зі своїм менеджером" },
+      { name: "quick sync", desc: "підкреслює, що розмова буде короткою" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У Slack:</b> "This is getting long in the thread — can we sync up for 10 minutes tomorrow morning?"
+</p>`,
+    pitfalls: [
+      "«Sync» тут не пов'язаний з технічною синхронізацією даних — контекст (зустріч vs код) зазвичай зрозумілий, але варто уточнювати в неоднозначних ситуаціях.",
+    ],
+    related: ["eng-standup", "eng-follow-up"],
+  },
+  "eng-follow-up": {
+    badge: "English",
+    title: "follow up",
+    whatIsIt: "Дія — нагадати чи продовжити тему пізніше, після того як щось було обговорено чи відкладено. Часто вживається як «I'll follow up» (я нагадаю пізніше) чи «following up on...» (продовжуючи тему...).",
+    useCases: ["нагадати про питання, на яке ще не відповіли", "продовжити обговорення після зустрічі листом-підсумком"],
+    syntax: `Following up on my previous message — any updates on this?`,
+    attributes: [
+      { name: "follow up (дієслово)", desc: "нагадати/продовжити тему пізніше" },
+      { name: "follow-up (іменник/прикметник)", desc: "\"a follow-up email\" — лист-нагадування" },
+      { name: "as a follow-up to...", desc: "«продовжуючи тему...» на початку повідомлення" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Email:</b> "Hi team, just following up on the deployment schedule we discussed last week. Any updates?"
+</p>`,
+    pitfalls: [
+      "«Follow up» пишеться окремо як дієслово (I'll follow up), але через дефіс як іменник/прикметник (a follow-up meeting) — часто плутають.",
+    ],
+    related: ["eng-sync", "eng-fyi"],
+  },
+  "eng-eta": {
+    badge: "English",
+    title: "ETA",
+    whatIsIt: "Скорочення від \"Estimated Time of Arrival\" — очікуваний час завершення задачі чи доставки. У розробці найчастіше означає «коли це буде готово».",
+    useCases: ["питання менеджера про орієнтовний термін завершення задачі", "оцінка часу перед плануванням спринту"],
+    syntax: `What's the ETA on the bug fix?`,
+    attributes: [
+      { name: "What's the ETA?", desc: "«Коли орієнтовно буде готово?»" },
+      { name: "No ETA yet", desc: "«Поки не можу назвати точний термін»" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Менеджер:</b> "What's the ETA on the payment bug?"<br>
+  <b>Відповідь:</b> "ETA is end of day tomorrow, I still need to test the edge cases."
+</p>`,
+    pitfalls: [
+      "Занадто оптимістична ETA без урахування тестування й рев'ю — краще закладати запас часу.",
+      "ETA — саме ОРІЄНТОВНИЙ термін, не тверда обіцянка; для точних дедлайнів використовують інші слова (deadline, due date).",
+    ],
+    related: ["eng-blocker", "eng-standup"],
+  },
   "css-selectors": {
     badge: "CSS",
     title: "Селектори",
