@@ -1646,6 +1646,26 @@ const SYMBOLS = [
   { cat: "DevOps: Деплой", sym: "Vercel / Netlify", en: "Frontend hosting platforms", ua: "Платформи хостингу фронтенду", langs: "DevOps", example: "vercel deploy", explain: "Хмарні платформи для швидкого деплою фронтенд-застосунків прямо з git-репозиторію." },
   { cat: "DevOps: Деплой", sym: "AWS / Azure / Google Cloud", en: "Cloud providers", ua: "Хмарні провайдери", langs: "DevOps", example: "—", explain: "Найбільші хмарні платформи для розміщення будь-якої backend-інфраструктури." },
 
+  { cat: "Git", sym: "git init / git clone", en: "Repo creation commands", ua: "Команди створення репозиторію", langs: "Git", example: "git clone https://github.com/user/repo.git", explain: "init створює новий репозиторій, clone копіює існуючий з віддаленого сервера." },
+  { cat: "Git", sym: "git status", en: "Status command", ua: "Команда статусу", langs: "Git", example: "git status", explain: "Показує стан робочої директорії — які файли змінені, додані, не відстежуються." },
+  { cat: "Git", sym: "git add", en: "Add command", ua: "Команда додавання", langs: "Git", example: "git add file.js", explain: "Додає зміни у файлі до індексу (staging area) перед комітом." },
+  { cat: "Git", sym: "git commit", en: "Commit command", ua: "Команда коміту", langs: "Git", example: "git commit -m 'Опис змін'", explain: "Зберігає проіндексовані зміни як новий знімок історії з повідомленням." },
+  { cat: "Git", sym: "git push / git pull", en: "Push/pull commands", ua: "Команди відправки/отримання", langs: "Git", example: "git push origin main", explain: "push відправляє локальні коміти на віддалений сервер, pull забирає й зливає зміни звідти." },
+  { cat: "Git", sym: "git fetch", en: "Fetch command", ua: "Команда отримання без злиття", langs: "Git", example: "git fetch origin", explain: "Забирає зміни з віддаленого репозиторію, не зливаючи їх автоматично (на відміну від pull)." },
+  { cat: "Git", sym: "git branch", en: "Branch command", ua: "Команда гілок", langs: "Git", example: "git branch feature-x", explain: "Показує список гілок чи створює нову." },
+  { cat: "Git", sym: "git checkout / git switch", en: "Switch branch commands", ua: "Команди перемикання гілки", langs: "Git", example: "git switch feature-x", explain: "Перемикають робочу директорію на іншу гілку чи коміт." },
+  { cat: "Git", sym: "git merge", en: "Merge command", ua: "Команда злиття", langs: "Git", example: "git merge feature-x", explain: "Зливає зміни з іншої гілки в поточну, зберігаючи повну історію." },
+  { cat: "Git", sym: "git rebase", en: "Rebase command", ua: "Команда перебазування", langs: "Git", example: "git rebase main", explain: "Переносить коміти поточної гілки на нову базу, створюючи лінійну історію." },
+  { cat: "Git", sym: "git log / git diff", en: "History/diff commands", ua: "Команди історії/різниці", langs: "Git", example: "git log --oneline", explain: "log показує історію комітів, diff — конкретні зміни в рядках коду." },
+  { cat: "Git", sym: "git reset", en: "Reset command", ua: "Команда скидання", langs: "Git", example: "git reset --hard HEAD~1", explain: "Переміщує поточну гілку назад до вказаного коміту, з опціональним скиданням змін у файлах." },
+  { cat: "Git", sym: "git stash", en: "Stash command", ua: "Команда тимчасового сховища", langs: "Git", example: "git stash", explain: "Тимчасово відкладає незакомічені зміни, щоб повернутись до чистої робочої директорії." },
+  { cat: "Git", sym: "git remote", en: "Remote command", ua: "Команда віддаленого репозиторію", langs: "Git", example: "git remote add origin <url>", explain: "Керує посиланнями на віддалені репозиторії." },
+  { cat: "Git", sym: ".gitignore", en: "Gitignore file", ua: "Файл виключень git", langs: "Git", example: "node_modules/\n.env", explain: "Список файлів і папок, які git не повинен відстежувати." },
+  { cat: "GitHub", sym: "Pull Request", en: "Pull request", ua: "Запит на злиття", langs: "GitHub", example: "—", explain: "Пропозиція злити зміни з однієї гілки в іншу, з можливістю рев'ю коду перед прийняттям." },
+  { cat: "GitHub", sym: "Issue", en: "Issue tracker item", ua: "Задача/баг-репорт", langs: "GitHub", example: "—", explain: "Запис для відстеження задач, багів чи пропозицій у репозиторії." },
+  { cat: "GitHub", sym: "Fork", en: "Fork repository", ua: "Форк репозиторію", langs: "GitHub", example: "—", explain: "Особиста копія чужого репозиторію для внесення змін без прямого доступу до оригіналу." },
+  { cat: "GitHub", sym: "GitHub Actions", en: "GitHub Actions workflow", ua: "Робочий процес GitHub Actions", langs: "GitHub", example: "on: push", explain: "Автоматизує тести, збірку й деплой при подіях у репозиторії (push, pull request)." },
+
 ];
 
 const LIBRARY_HTML = [
