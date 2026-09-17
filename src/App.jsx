@@ -8105,6 +8105,88 @@ GRANT analyst TO maria;
     ],
     related: ["sql-create-alter-table"],
   },
+  "backend-http-methods": {
+    badge: "Backend",
+    title: "GET, POST, PUT, PATCH, DELETE",
+    whatIsIt: "HTTP-методи вказують намір запиту щодо ресурсу на сервері. Це основа REST API — кожен метод має свою семантику, яку варто дотримуватись, щоб API поводився передбачувано.",
+    useCases: ["отримання даних без зміни стану сервера (GET)", "створення нового ресурсу (POST)", "повна чи часткова заміна існуючого ресурсу (PUT/PATCH)", "видалення ресурсу (DELETE)"],
+    syntax: `GET /users/42 HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>`,
+    attributes: [
+      { name: "GET", desc: "отримує дані, не змінює стан сервера — безпечний і ідемпотентний" },
+      { name: "POST", desc: "створює новий ресурс чи виконує дію; НЕ ідемпотентний (повторний виклик створює дублікат)" },
+      { name: "PUT", desc: "повністю замінює ресурс — ідемпотентний (повторний виклик дає той самий результат)" },
+      { name: "PATCH", desc: "оновлює лише вказані поля ресурсу, не чіпаючи решту" },
+      { name: "DELETE", desc: "видаляє ресурс — зазвичай ідемпотентний" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">fetch('/api/users/42', {
+  method: 'PATCH',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ age: 26 })
+});</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (відповідь сервера):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"id": 42, "name": "Оля", "age": 26}</pre>`,
+    pitfalls: [
+      "Використання GET для дій, що змінюють стан сервера (напр. GET /delete-user/42) — ламає кешування, префетчинг і семантику протоколу.",
+      "POST замість PUT/PATCH там, де операція насправді ідемпотентна — ускладнює повторні спроби при збоях мережі.",
+      "Надсилання тіла запиту (body) з GET — багато серверів і проксі його ігнорують чи відкидають.",
+    ],
+    related: ["backend-http-status-codes", "backend-rest"],
+  },
+  "backend-http-status-codes": {
+    badge: "Backend",
+    title: "Коди статусу: 2xx, 3xx, 4xx, 5xx",
+    whatIsIt: "Кожна HTTP-відповідь містить трицифровий код статусу, що повідомляє клієнту результат запиту. Перша цифра визначає категорію: 2xx — успіх, 3xx — перенаправлення, 4xx — помилка клієнта, 5xx — помилка сервера.",
+    useCases: ["сигналізація успіху операції (200, 201, 204)", "повідомлення клієнту про його помилку — невірні дані, відсутність прав (400, 401, 403, 404)", "сигналізація про збій на сервері (500, 502, 503)"],
+    syntax: `HTTP/1.1 404 Not Found\nContent-Type: application/json\n\n{"error": "User not found"}`,
+    attributes: [
+      { name: "200 / 201 / 204", desc: "успіх / успішно створено / успіх без вмісту у відповіді" },
+      { name: "301 / 302 / 304", desc: "постійне перенаправлення / тимчасове / вміст не змінився (кеш)" },
+      { name: "400 / 401 / 403", desc: "невірний запит / не авторизований / доступ заборонено" },
+      { name: "404 / 409 / 422", desc: "не знайдено / конфлікт стану / дані не пройшли валідацію" },
+      { name: "429", desc: "клієнт перевищив ліміт запитів (rate limiting)" },
+      { name: "500 / 502 / 503", desc: "внутрішня помилка сервера / поганий шлюз / сервіс недоступний" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const res = await fetch('/api/users/999');
+console.log(res.status, res.ok);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (користувача 999 не існує):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">404 false</pre>`,
+    pitfalls: [
+      "Повернення 200 OK разом з {\"error\": \"...\"} у тілі — клієнтський код, що перевіряє лише статус, не помітить помилку.",
+      "Плутанина 401 і 403 — 401 означає «ти не залогінений», 403 означає «ти залогінений, але доступу нема».",
+      "Ігнорування коду статусу у фронтенд-коді (перевірка лише response.json() без res.ok) — помилки сервера непомітно проходять як успіх.",
+    ],
+    related: ["backend-http-methods", "backend-http-headers"],
+  },
+  "backend-http-headers": {
+    badge: "Backend",
+    title: "Content-Type, Authorization, Cache-Control, CORS",
+    whatIsIt: "HTTP-заголовки — метадані, що супроводжують запит чи відповідь: формат даних, автентифікація, правила кешування, дозволи на крос-доменні запити.",
+    useCases: ["вказання формату тіла запиту/відповіді (Content-Type)", "передача токена автентифікації (Authorization)", "керування кешуванням у браузері й проксі (Cache-Control)", "дозвіл крос-доменних запитів з фронтенду на інший домен (CORS)"],
+    syntax: `POST /api/orders HTTP/1.1\nContent-Type: application/json\nAuthorization: Bearer eyJhbGc...\nCache-Control: no-cache`,
+    attributes: [
+      { name: "Content-Type", desc: "вказує формат тіла запиту/відповіді, напр. application/json чи multipart/form-data" },
+      { name: "Authorization", desc: "передає токен/облікові дані для автентифікації запиту (Bearer <token>)" },
+      { name: "Cache-Control", desc: "керує кешуванням відповіді браузером і проміжними серверами (no-cache, max-age=3600)" },
+      { name: "Access-Control-Allow-Origin", desc: "дозволяє браузеру робити крос-доменні запити до цього сервера (CORS)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">curl -H "Authorization: Bearer abc123" \\
+     -H "Content-Type: application/json" \\
+     https://api.example.com/orders</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (заголовки відповіді сервера):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">HTTP/1.1 200 OK
+Content-Type: application/json
+Access-Control-Allow-Origin: https://myapp.com
+Cache-Control: private, max-age=60</pre>`,
+    pitfalls: [
+      "Забутий Content-Type — сервер може неправильно розпарсити тіло запиту або відхилити його повністю.",
+      "Access-Control-Allow-Origin: * на API з приватними даними та Authorization — потенційна вразливість, дозволяє будь-якому сайту читати відповідь.",
+      "Кешування відповідей з приватними/чутливими даними без Cache-Control: private — дані можуть залишитись у спільному/проксі-кеші.",
+    ],
+    related: ["backend-http-status-codes", "backend-security"],
+  },
 
 };
 
