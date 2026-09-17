@@ -1921,7 +1921,14 @@ const REF_NAV = {
     "Функції в запитах": ["sql-case-coalesce", "sql-string-functions", "sql-number-functions"],
     "Дата, типи, доступ": ["sql-date-functions", "sql-type-casting", "sql-data-types", "sql-permissions"],
   },
-  Backend: {},
+  Backend: {
+    "HTTP основи": ["backend-http-methods", "backend-http-status-codes", "backend-http-headers"],
+    "Стилі API": ["backend-rest", "backend-graphql", "backend-websocket-webhook"],
+    "Node.js та Express": ["backend-nodejs-modules", "backend-express-routing", "backend-express-middleware"],
+    "Автентифікація та безпека": ["backend-auth", "backend-password-hashing", "backend-security"],
+    "Обмеження, бази даних, ORM": ["backend-rate-limiting", "backend-sql-vs-nosql", "backend-orm"],
+    "Кеш, черги, сервери": ["backend-caching", "backend-message-queues", "backend-web-servers"],
+  },
   "Full Stack": {},
 };
 
@@ -8519,6 +8526,98 @@ console.log(usersWithOrders[0].orders.length);</pre>
       "Застосунок в продакшені зі схемою, не синхронізованою через міграції — розбіжність між кодом і реальною структурою бази.",
     ],
     related: ["backend-sql-vs-nosql", "sql-create-alter-table"],
+  },
+  "backend-caching": {
+    badge: "Backend",
+    title: "Redis, Cache-Control, TTL",
+    whatIsIt: "Кешування зберігає результат «дорогої» операції (запит до БД, важкі обчислення), щоб наступного разу віддати готову відповідь миттєво, без повторного обчислення. Redis — найпоширеніша база даних ключ-значення в оперативній пам'яті для кешування.",
+    useCases: ["кешування результатів частих, але рідко змінюваних запитів до БД", "зберігання сесій користувачів для швидкого доступу", "лічильники, черги, rate-limiting — усе, що потребує швидкого доступу"],
+    syntax: `SET user:42 '{"name":"Оля"}' EX 60\nGET user:42`,
+    attributes: [
+      { name: "SET key value", desc: "зберігає значення за ключем" },
+      { name: "GET key", desc: "отримує значення за ключем" },
+      { name: "EX seconds / TTL", desc: "час життя ключа в секундах — після цього запис автоматично видаляється" },
+      { name: "DEL key", desc: "явно видаляє ключ з кешу (інвалідація)" },
+      { name: "Cache-Control: max-age", desc: "HTTP-заголовок, що вказує браузеру/проксі, скільки секунд можна використовувати кешовану відповідь" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">async function getUser(id) {
+  const cached = await redis.get(\`user:\${id}\`);
+  if (cached) return JSON.parse(cached);
+
+  const user = await db.users.findById(id);
+  await redis.set(\`user:\${id}\`, JSON.stringify(user), 'EX', 60);
+  return user;
+}</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (другий виклик за ту саму хвилину):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Перший виклик: ~45ms (запит до БД)
+Другий виклик: ~1ms (з кешу Redis)</pre>`,
+    pitfalls: [
+      "Кешування даних без TTL чи стратегії інвалідації — користувачі бачать застарілі дані невизначено довго.",
+      "Кешування ПЕРЕД оновленням у БД замість ПІСЛЯ — кеш і база розходяться, якщо запис у БД зазнає невдачі.",
+      "Занадто короткий TTL для «дорогих» запитів — кеш майже не дає користі, а накладні витрати лишаються.",
+    ],
+    related: ["backend-http-headers"],
+  },
+  "backend-message-queues": {
+    badge: "Backend",
+    title: "RabbitMQ, Kafka",
+    whatIsIt: "Черги повідомлень дозволяють сервісам обмінюватись даними асинхронно: один сервіс кладе повідомлення в чергу й одразу продовжує роботу, а інший забирає й обробляє його коли завгодно, не блокуючи відправника.",
+    useCases: ["відправка листа/сповіщення без затримки основного запиту користувача", "розподіл важких завдань (обробка відео, генерація звіту) між кількома воркерами", "розв'язка сервісів між собою — один сервіс не падає, якщо інший тимчасово недоступний"],
+    syntax: `// Producer\nchannel.sendToQueue('emails', Buffer.from(JSON.stringify({ to, subject })));\n\n// Consumer\nchannel.consume('emails', (msg) => {\n  sendEmail(JSON.parse(msg.content));\n  channel.ack(msg);\n});`,
+    attributes: [
+      { name: "producer (видавець)", desc: "сервіс, що кладе повідомлення в чергу" },
+      { name: "consumer (споживач)", desc: "сервіс, що забирає й обробляє повідомлення з черги" },
+      { name: "queue (черга)", desc: "буфер повідомлень, що чекають на обробку" },
+      { name: "ack (acknowledge)", desc: "підтвердження, що повідомлення успішно оброблено — інакше воно повернеться в чергу" },
+      { name: "Kafka: topic / partition", desc: "Kafka організовує повідомлення в іменовані потоки (topics), розділені на partition для паралельної обробки" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">app.post('/orders', async (req, res) => {
+  const order = await db.orders.create(req.body);
+  await channel.sendToQueue('send-receipt', Buffer.from(order.id));
+  res.status(201).json(order); // не чекає відправки листа
+});</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">201 Created (відповідь клієнту миттєво)
+Лист із чеком надсилається окремим consumer'ом у фоні</pre>`,
+    pitfalls: [
+      "Забутий ack() у consumer — повідомлення вважається необробленим і повертається в чергу, обробляючись повторно й нескінченно.",
+      "Обробник consumer'а, що не витримує повторної обробки одного повідомлення (не ідемпотентний) — дублікати листів/дій при збоях мережі.",
+      "Черга без обмеження розміру чи dead-letter queue для повідомлень, що постійно падають — вони можуть накопичуватись назавжди.",
+    ],
+    related: ["backend-caching"],
+  },
+  "backend-web-servers": {
+    badge: "Backend",
+    title: "Nginx, Apache",
+    whatIsIt: "Веб-сервери приймають вхідні HTTP-запити й вирішують, що з ними робити: віддати статичний файл, перенаправити на інший сервер (reverse proxy) чи розподілити навантаження між кількома застосунками (load balancing).",
+    useCases: ["роздача статичних файлів (HTML, CSS, JS, зображення) напряму, без застосунку", "reverse proxy — прийом запитів і передача їх Node.js/Python-застосунку за лаштунками", "балансування навантаження між кількома копіями застосунку", "термінація HTTPS (SSL/TLS) перед застосунком"],
+    syntax: `server {\n  listen 80;\n  location / {\n    proxy_pass http://localhost:3000;\n  }\n}`,
+    attributes: [
+      { name: "listen", desc: "порт, який сервер слухає для вхідних з'єднань" },
+      { name: "location", desc: "блок правил для конкретного шляху URL" },
+      { name: "proxy_pass", desc: "перенаправляє запит на інший сервер/порт (reverse proxy до застосунку)" },
+      { name: "root / static files", desc: "директорія, звідки сервер напряму роздає статичні файли" },
+      { name: "upstream", desc: "група серверів застосунку для балансування навантаження між ними" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">server {
+  listen 80;
+  server_name myapp.com;
+
+  location /static/ {
+    root /var/www/myapp;
+  }
+
+  location /api/ {
+    proxy_pass http://localhost:3000;
+  }
+}</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: запити на /static/ Nginx віддає файлом напряму (швидко), запити на /api/ передає Node.js-застосунку</p>`,
+    pitfalls: [
+      "Роздача статичних файлів через сам застосунок (Node.js/Python) замість Nginx — застосунок значно повільніший у цій ролі, ніж спеціалізований веб-сервер.",
+      "Забутий proxy_pass заголовок Host чи X-Forwarded-For — застосунок за проксі не бачить реальну IP-адресу чи домен клієнта.",
+      "Відсутність термінації HTTPS на рівні веб-сервера — кожен застосунок мусить сам займатись сертифікатами.",
+    ],
+    related: ["backend-http-headers"],
   },
 
 };
