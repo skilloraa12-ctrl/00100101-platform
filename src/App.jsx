@@ -8443,6 +8443,83 @@ textContent: показано як звичайний текст, безпечн
     ],
     related: ["backend-auth", "backend-http-headers"],
   },
+  "backend-rate-limiting": {
+    badge: "Backend",
+    title: "Rate Limiting",
+    whatIsIt: "Rate limiting обмежує кількість запитів, які клієнт (за IP, токеном чи користувачем) може зробити за проміжок часу. Захищає сервер від перевантаження, зловживань і частини атак типу brute-force чи DDoS.",
+    useCases: ["захист ендпоінту логіну від перебору паролів (brute-force)", "обмеження безкоштовного тарифу API до N запитів на хвилину", "запобігання перевантаженню сервера через масові автоматизовані запити"],
+    syntax: `const rateLimit = require('express-rate-limit');\n\napp.use('/api/', rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 100,\n}));`,
+    attributes: [
+      { name: "windowMs", desc: "тривалість вікна підрахунку запитів у мілісекундах" },
+      { name: "max", desc: "максимальна кількість запитів від одного клієнта за вікно" },
+      { name: "ключ ідентифікації", desc: "зазвичай IP-адреса чи ID користувача/API-токена — за чим саме рахуються запити" },
+      { name: "429 Too Many Requests", desc: "статус-код, яким сервер відповідає, коли ліміт перевищено" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const limiter = rateLimit({ windowMs: 60000, max: 5 });
+app.post('/login', limiter, loginHandler);
+
+// 6-та спроба входу за хвилину з одного IP:</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">429 Too Many Requests
+{ "error": "Забагато спроб. Спробуй пізніше." }</pre>`,
+    pitfalls: [
+      "Обмеження лише за IP-адресою — не працює коректно для користувачів за спільним NAT (офіс, мобільний оператор) чи за проксі.",
+      "Занадто жорсткий ліміт на легітимні дії (напр. автозбереження форми) — псує досвід реальних користувачів.",
+      "Rate limiting лише на клієнті (фронтенді) без дублювання на сервері — легко обійти прямим запитом до API.",
+    ],
+    related: ["backend-security", "backend-http-status-codes"],
+  },
+  "backend-sql-vs-nosql": {
+    badge: "Backend",
+    title: "SQL vs NoSQL",
+    whatIsIt: "Дві принципово різні парадигми баз даних. SQL (реляційні) зберігають дані в таблицях з жорсткою, заздалегідь визначеною схемою й зв'язками між таблицями. NoSQL — узагальнена назва для баз з гнучкою структурою: документні, ключ-значення, графові тощо.",
+    useCases: ["SQL — фінансові дані, замовлення, будь-що зі складними зв'язками й вимогами до цілісності", "NoSQL (документні) — гнучкі, змінні за структурою дані: профілі, каталоги товарів з різними атрибутами", "NoSQL (ключ-значення) — кеш, сесії, лічильники, дані, що потребують надшвидкого доступу"],
+    syntax: `-- SQL (PostgreSQL)\nSELECT * FROM users WHERE age > 18;\n\n// NoSQL (MongoDB)\ndb.users.find({ age: { $gt: 18 } });`,
+    attributes: [
+      { name: "SQL: жорстка схема", desc: "структура таблиць визначена заздалегідь, зміна вимагає міграції" },
+      { name: "SQL: ACID-транзакції", desc: "надійні гарантії цілісності при кількох пов'язаних змінах" },
+      { name: "NoSQL: гнучка схема", desc: "документи в одній колекції можуть мати різну структуру полів" },
+      { name: "NoSQL: горизонтальне масштабування", desc: "багато NoSQL-баз спроєктовані для легшого розподілу на кілька серверів" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">// PostgreSQL: чітка схема
+CREATE TABLE users (id SERIAL, name TEXT, age INT);
+
+// MongoDB: гнучкий документ
+db.users.insertOne({ name: "Оля", age: 25, hobbies: ["читання"] });</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: обидва підходи валідні — вибір залежить від структури й вимог даних проєкту</p>`,
+    pitfalls: [
+      "Вибір NoSQL «бо модно», коли дані насправді реляційні (замовлення, платежі, звіти) — доводиться руками реалізовувати те, що SQL дає з коробки.",
+      "Вибір SQL для даних із дуже мінливою, непередбачуваною структурою — постійні міграції схеми ускладнюють розробку.",
+      "Відсутність валідації структури в NoSQL «бо гнучка схема» — документи поступово стають несумісними одне з одним.",
+    ],
+    related: ["sql-data-types", "backend-orm"],
+  },
+  "backend-orm": {
+    badge: "Backend",
+    title: "ORM (Prisma, Sequelize, SQLAlchemy)",
+    whatIsIt: "ORM (Object-Relational Mapping) дозволяє працювати з базою даних через об'єкти й методи мови програмування, замість написання сирого SQL вручну. Бібліотека сама генерує SQL-запити на основі викликів коду.",
+    useCases: ["швидша розробка типових CRUD-операцій без написання SQL вручну", "автоматична валідація типів даних на рівні коду до звернення до БД", "легша підтримка кількох СУБД без переписування запитів"],
+    syntax: `// Prisma (Node.js)\nconst user = await prisma.user.create({\n  data: { name: 'Оля', age: 25 }\n});`,
+    attributes: [
+      { name: "model / schema", desc: "опис структури таблиці як об'єкта/класу в коді застосунку" },
+      { name: "create() / findMany() / update() / delete()", desc: "типові методи ORM, що генерують відповідний SQL" },
+      { name: "міграції (migrations)", desc: "версійовані файли змін схеми БД, що застосовуються послідовно" },
+      { name: "relations / include", desc: "опис зв'язків між таблицями й автоматичне підтягування пов'язаних даних (замість ручного JOIN)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const usersWithOrders = await prisma.user.findMany({
+  where: { age: { gt: 18 } },
+  include: { orders: true },
+});
+console.log(usersWithOrders[0].orders.length);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">3</pre>`,
+    pitfalls: [
+      "Виклик ORM-запиту в циклі замість одного запиту з include/join — класична проблема N+1 запитів, різко сповільнює застосунок.",
+      "Повна відмова від сирого SQL «бо є ORM» — складні аналітичні запити (агрегація, вікна) часто зручніше й ефективніше писати напряму.",
+      "Застосунок в продакшені зі схемою, не синхронізованою через міграції — розбіжність між кодом і реальною структурою бази.",
+    ],
+    related: ["backend-sql-vs-nosql", "sql-create-alter-table"],
+  },
 
 };
 
