@@ -1525,6 +1525,30 @@ const SYMBOLS = [
   { cat: "Python: Веб-фреймворки", sym: "FastAPI", en: "FastAPI framework", ua: "Фреймворк FastAPI", langs: "Python", example: "@app.get('/users')\nasync def get_users(): ...", explain: "Сучасний асинхронний фреймворк з автоматичною валідацією й документацією API." },
   { cat: "Python: Дані/ML", sym: "Pandas / NumPy", en: "Data science libraries", ua: "Бібліотеки для аналізу даних", langs: "Python", example: "pd.DataFrame(data)", explain: "Pandas — робота з табличними даними, NumPy — швидкі обчислення над масивами чисел." },
 
+  { cat: "SQL: SELECT", sym: "SELECT / FROM", en: "Select/from clauses", ua: "Вибірка даних", langs: "SQL", example: "SELECT name, age FROM users;", explain: "SELECT задає колонки для вибірки, FROM — з якої таблиці." },
+  { cat: "SQL: SELECT", sym: "SELECT * / SELECT DISTINCT", en: "Select variants", ua: "Варіанти вибірки", langs: "SQL", example: "SELECT DISTINCT city FROM users;", explain: "* вибирає всі колонки, DISTINCT прибирає повторювані рядки з результату." },
+  { cat: "SQL: SELECT", sym: "WHERE", en: "Where clause", ua: "Умова фільтрації", langs: "SQL", example: "SELECT * FROM users WHERE age > 18;", explain: "Фільтрує рядки за умовою до групування." },
+  { cat: "SQL: SELECT", sym: "ORDER BY / ASC / DESC", en: "Order by clause", ua: "Сортування результату", langs: "SQL", example: "ORDER BY age DESC;", explain: "Сортує результат за колонкою, за зростанням (типово) чи спаданням." },
+  { cat: "SQL: SELECT", sym: "LIMIT / OFFSET", en: "Limit/offset clauses", ua: "Обмеження/зсув вибірки", langs: "SQL", example: "LIMIT 10 OFFSET 20;", explain: "Обмежують кількість рядків і пропускають перші N — для пагінації." },
+  { cat: "SQL: SELECT", sym: "AS", en: "Alias keyword", ua: "Псевдонім", langs: "SQL", example: "SELECT name AS full_name FROM users;", explain: "Задає тимчасове ім'я для колонки чи таблиці в запиті." },
+  { cat: "SQL: Фільтрація", sym: "AND / OR / NOT", en: "Logical operators", ua: "Логічні оператори", langs: "SQL", example: "WHERE age > 18 AND city = 'Київ';", explain: "Комбінують кілька умов у WHERE." },
+  { cat: "SQL: Фільтрація", sym: "IN / NOT IN", en: "In operator", ua: "Оператор IN", langs: "SQL", example: "WHERE city IN ('Київ', 'Львів');", explain: "Перевіряє, чи значення входить у заданий список." },
+  { cat: "SQL: Фільтрація", sym: "BETWEEN", en: "Between operator", ua: "Оператор BETWEEN", langs: "SQL", example: "WHERE age BETWEEN 18 AND 65;", explain: "Перевіряє, чи значення в заданому діапазоні (включно)." },
+  { cat: "SQL: Фільтрація", sym: "LIKE / ILIKE", en: "Pattern matching", ua: "Пошук за шаблоном", langs: "SQL", example: "WHERE name LIKE 'О%';", explain: "Шукає текст за шаблоном: % — будь-які символи, _ — один символ. ILIKE — без урахування регістру (PostgreSQL)." },
+  { cat: "SQL: Фільтрація", sym: "IS NULL / IS NOT NULL", en: "Null checks", ua: "Перевірка на NULL", langs: "SQL", example: "WHERE email IS NULL;", explain: "Перевіряють відсутність значення — = NULL не працює, потрібно саме IS NULL." },
+  { cat: "SQL: Фільтрація", sym: "EXISTS / NOT EXISTS", en: "Exists operator", ua: "Оператор EXISTS", langs: "SQL", example: "WHERE EXISTS (SELECT 1 FROM orders WHERE user_id = users.id);", explain: "Перевіряє, чи підзапит повертає хоч один рядок." },
+  { cat: "SQL: Агрегація", sym: "COUNT() / SUM() / AVG()", en: "Aggregate functions", ua: "Агрегатні функції", langs: "SQL", example: "SELECT COUNT(*) FROM users;", explain: "Рахують кількість рядків, суму чи середнє значення колонки." },
+  { cat: "SQL: Агрегація", sym: "MIN() / MAX()", en: "Min/max functions", ua: "Функції мінімуму/максимуму", langs: "SQL", example: "SELECT MAX(price) FROM products;", explain: "Повертають найменше чи найбільше значення колонки." },
+  { cat: "SQL: Групування", sym: "GROUP BY", en: "Group by clause", ua: "Групування", langs: "SQL", example: "SELECT city, COUNT(*) FROM users GROUP BY city;", explain: "Групує рядки за значенням колонки для застосування агрегатних функцій до кожної групи." },
+  { cat: "SQL: Групування", sym: "HAVING", en: "Having clause", ua: "Фільтрація груп", langs: "SQL", example: "GROUP BY city HAVING COUNT(*) > 10;", explain: "Фільтрує результат ПІСЛЯ групування — WHERE не може працювати з агрегатними функціями." },
+  { cat: "SQL: JOIN", sym: "INNER JOIN", en: "Inner join", ua: "Внутрішнє з'єднання", langs: "SQL", example: "SELECT * FROM orders JOIN users ON orders.user_id = users.id;", explain: "Повертає лише рядки, що мають відповідність в обох таблицях." },
+  { cat: "SQL: JOIN", sym: "LEFT JOIN", en: "Left join", ua: "Ліве з'єднання", langs: "SQL", example: "SELECT * FROM users LEFT JOIN orders ON users.id = orders.user_id;", explain: "Повертає всі рядки лівої таблиці, навіть без відповідності в правій (NULL замість неї)." },
+  { cat: "SQL: JOIN", sym: "RIGHT JOIN / FULL JOIN", en: "Right/full join", ua: "Праве/повне з'єднання", langs: "SQL", example: "SELECT * FROM a FULL JOIN b ON a.id = b.id;", explain: "RIGHT — усі рядки правої таблиці, FULL — усі рядки з обох, з NULL там, де немає відповідності." },
+  { cat: "SQL: JOIN", sym: "CROSS JOIN", en: "Cross join", ua: "Декартів добуток", langs: "SQL", example: "SELECT * FROM colors CROSS JOIN sizes;", explain: "Комбінує кожен рядок однієї таблиці з кожним рядком іншої (декартів добуток)." },
+  { cat: "SQL: JOIN", sym: "ON / USING", en: "Join condition", ua: "Умова з'єднання", langs: "SQL", example: "JOIN orders USING (user_id);", explain: "Задають умову, за якою пов'язуються рядки таблиць у JOIN." },
+  { cat: "SQL: Набори", sym: "UNION / UNION ALL", en: "Union operator", ua: "Оператор об'єднання", langs: "SQL", example: "SELECT city FROM a UNION SELECT city FROM b;", explain: "Об'єднує результати двох запитів; UNION прибирає дублікати, UNION ALL — ні (швидше)." },
+  { cat: "SQL: Набори", sym: "INTERSECT / EXCEPT", en: "Intersect/except operators", ua: "Перетин/різниця результатів", langs: "SQL", example: "SELECT id FROM a INTERSECT SELECT id FROM b;", explain: "Повертають рядки, спільні для обох запитів (INTERSECT) чи лише в першому, але не в другому (EXCEPT)." },
+
 ];
 
 const LIBRARY_HTML = [
