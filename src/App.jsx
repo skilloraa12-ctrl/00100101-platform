@@ -8703,6 +8703,93 @@ Fast-forward: main -> origin/main</pre>`,
     ],
     related: ["fullstack-git-basics", "fullstack-github"],
   },
+  "fullstack-git-history-undo": {
+    badge: "Full Stack",
+    title: "git log/diff, git reset, git stash, .gitignore",
+    whatIsIt: "Інструменти для перегляду історії проєкту й виправлення помилок: подивитись, що змінювалось, відкотити небажані зміни, тимчасово відкласти незавершену роботу, чи взагалі виключити файли з відстеження.",
+    useCases: ["перегляд історії комітів і конкретних змін у коді", "скасування останнього коміту чи повернення до попереднього стану", "тимчасове відкладення незакомічених змін, щоб перемкнутись на іншу задачу", "виключення node_modules, .env та інших файлів з git"],
+    syntax: `git log --oneline\ngit diff\ngit reset --hard HEAD~1\ngit stash`,
+    attributes: [
+      { name: "git log --oneline", desc: "показує стислу історію комітів" },
+      { name: "git diff", desc: "показує конкретні незакомічені зміни в рядках коду" },
+      { name: "git reset --hard <commit>", desc: "переміщує гілку назад до вказаного коміту, скидаючи зміни у файлах (незворотно для незбереженого)" },
+      { name: "git stash", desc: "тимчасово відкладає незакомічені зміни, щоб повернутись до чистої робочої директорії" },
+      { name: ".gitignore", desc: "список файлів і папок, які git не повинен відстежувати (node_modules/, .env)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">git stash
+git switch other-branch
+# ...робота над іншою задачею...
+git switch feature-x
+git stash pop</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Saved working directory and index state WIP on feature-x
+...
+Dropped stash@{0}
+(незакомічені зміни повернулись назад у робочу директорію)</pre>`,
+    pitfalls: [
+      "git reset --hard стирає незакомічені зміни БЕЗ можливості відновлення — завжди перевіряй git status перед цим.",
+      "Забутий .gitignore ДО першого коміту — node_modules чи .env потрапляють в історію, і видалити їх звідти складно навіть після додавання .gitignore.",
+      "git reset --hard на гілці, яку вже бачили інші (запушена й витягнута кимось) — створює розбіжність з їхньою копією історії.",
+    ],
+    related: ["fullstack-git-branching", "fullstack-git-basics"],
+  },
+  "fullstack-github": {
+    badge: "Full Stack",
+    title: "Pull Request, Issue, Fork, GitHub Actions",
+    whatIsIt: "GitHub — хмарна платформа для зберігання git-репозиторіїв з інструментами для командної роботи: рев'ю коду перед злиттям, відстеження задач і багів, копіювання чужих проєктів, автоматизація.",
+    useCases: ["пропозиція злити свої зміни з рев'ю коду перед прийняттям (Pull Request)", "відстеження задач, багів чи пропозицій (Issue)", "внесення змін у чужий проєкт без прямого доступу до нього (Fork)", "автоматичний запуск тестів і деплою при кожному push (GitHub Actions)"],
+    syntax: `# Типовий флоу\n1. Fork/branch\n2. Коміти й push\n3. Відкрити Pull Request\n4. Рев'ю й обговорення\n5. Merge`,
+    attributes: [
+      { name: "Pull Request (PR)", desc: "пропозиція злити зміни з однієї гілки в іншу, з можливістю рев'ю коду перед прийняттям" },
+      { name: "Issue", desc: "запис для відстеження задач, багів чи пропозицій у репозиторії" },
+      { name: "Fork", desc: "особиста копія чужого репозиторію для внесення змін без прямого доступу до оригіналу" },
+      { name: "GitHub Actions", desc: "автоматизує тести, збірку й деплой при подіях у репозиторії (push, pull request)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;"># .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - run: npm test</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: тести запускаються автоматично при кожному push чи PR</p>`,
+    pitfalls: [
+      "Величезний Pull Request з десятками незв'язаних змін — ускладнює рев'ю; краще дробити на менші логічні PR.",
+      "Merge PR без пройдених CI-перевірок — може занести зламаний код у основну гілку.",
+      "Issue без чіткого опису кроків відтворення бага — ускладнює роботу того, хто його виправлятиме.",
+    ],
+    related: ["fullstack-git-remote", "fullstack-cicd"],
+  },
+  "fullstack-docker-basics": {
+    badge: "Full Stack",
+    title: "Dockerfile, docker build/run",
+    whatIsIt: "Docker упаковує застосунок разом з усім необхідним оточенням (мова, бібліотеки, налаштування) у контейнер — ізольований, відтворюваний пакет, що працює однаково на будь-якій машині.",
+    useCases: ["гарантія, що застосунок працює однаково на комп'ютері розробника, в CI й на продакшн-сервері", "ізоляція залежностей одного проєкту від інших без конфліктів версій", "легке розгортання застосунку на будь-якому сервері з підтримкою Docker"],
+    syntax: `FROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nCMD ["npm", "start"]`,
+    attributes: [
+      { name: "FROM", desc: "базовий образ, на якому будується контейнер (напр. node:20, python:3.12)" },
+      { name: "COPY", desc: "копіює файли з локальної машини в образ" },
+      { name: "RUN", desc: "виконує команду під час побудови образу (напр. встановлення залежностей)" },
+      { name: "CMD", desc: "команда, що виконується при запуску контейнера" },
+      { name: "docker build -t name .", desc: "збирає образ з Dockerfile у поточній директорії" },
+      { name: "docker run -p 3000:3000 name", desc: "запускає контейнер з образу, прокидаючи порт назовні" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">docker build -t myapp .
+docker run -p 3000:3000 myapp</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Successfully built a1b2c3d4e5f6
+Successfully tagged myapp:latest
+Server listening on port 3000</pre>`,
+    pitfalls: [
+      "COPY . . перед RUN npm install без .dockerignore — копіює node_modules з хоста, часто несумісні з ОС контейнера.",
+      "Величезний образ через непотрібні файли в контексті збірки чи відсутність багатоетапної (multi-stage) збірки — довше збирається й важче в реєстрі.",
+      "Секрети (паролі, ключі) прямо в Dockerfile через ENV чи ARG — потрапляють у шари образу й видно кожному, хто його отримає.",
+    ],
+    related: ["fullstack-docker-compose"],
+  },
 
 };
 
