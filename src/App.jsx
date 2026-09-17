@@ -8790,6 +8790,88 @@ Server listening on port 3000</pre>`,
     ],
     related: ["fullstack-docker-compose"],
   },
+  "fullstack-docker-compose": {
+    badge: "Full Stack",
+    title: "docker-compose",
+    whatIsIt: "Docker Compose запускає й керує кількома пов'язаними контейнерами (застосунок + база даних + кеш) одним файлом конфігурації, замість того щоб запускати й з'єднувати кожен контейнер вручну.",
+    useCases: ["локальна розробка з застосунком, базою даних і Redis одночасно, одним запуском", "визначення мережі й залежностей між сервісами в одному файлі", "легке відтворення повного середовища на іншій машині"],
+    syntax: `# docker-compose.yml\nservices:\n  app:\n    build: .\n    ports: ["3000:3000"]\n  db:\n    image: postgres:16\n    environment:\n      POSTGRES_PASSWORD: secret`,
+    attributes: [
+      { name: "services", desc: "список контейнерів, що складають застосунок (напр. app, db, redis)" },
+      { name: "build / image", desc: "build — зібрати образ з локального Dockerfile, image — використати готовий з реєстру" },
+      { name: "ports", desc: "прокидає порт контейнера назовні, у форматі 'хост:контейнер'" },
+      { name: "environment", desc: "змінні середовища для конкретного сервісу" },
+      { name: "depends_on", desc: "визначає порядок запуску — напр. app чекає, поки db стане готовою" },
+      { name: "docker-compose up / down", desc: "запускає всі сервіси разом / зупиняє й видаляє контейнери" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">docker-compose up -d</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Creating network "myapp_default"
+Creating myapp_db_1 ... done
+Creating myapp_app_1 ... done</pre>`,
+    pitfalls: [
+      "depends_on гарантує лише порядок ЗАПУСКУ контейнера, а не готовність сервісу всередині (напр. БД може ще не приймати з'єднання) — потрібен додатковий healthcheck.",
+      "Захардкоджені паролі/секрети прямо в docker-compose.yml, що комітиться в git — використовуй .env файл разом з .gitignore.",
+      "Забутий docker-compose down -v при видаленні проєкту — том (volume) з даними бази лишається на диску назавжди.",
+    ],
+    related: ["fullstack-docker-basics"],
+  },
+  "fullstack-cicd": {
+    badge: "Full Stack",
+    title: "CI/CD (Continuous Integration/Deployment)",
+    whatIsIt: "CI (Continuous Integration) — автоматичне тестування коду при кожній зміні в репозиторії. CD (Continuous Deployment/Delivery) — автоматичне розгортання коду, що пройшов тести, на сервер. Разом вони прибирають ручні, схильні до помилок кроки перевірки й деплою.",
+    useCases: ["автоматичний запуск тестів при кожному push чи Pull Request", "гарантія, що зламаний код не потрапить у основну гілку", "автоматичний деплой на продакшн після успішного проходження всіх перевірок"],
+    syntax: `# .github/workflows/deploy.yml\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - run: npm test\n      - run: npm run deploy`,
+    attributes: [
+      { name: "pipeline (конвеєр)", desc: "послідовність автоматизованих кроків: збірка → тести → деплой" },
+      { name: "CI (Continuous Integration)", desc: "автоматичне тестування й перевірка коду при кожній зміні" },
+      { name: "CD (Continuous Deployment)", desc: "автоматичне розгортання успішно протестованого коду на сервер" },
+      { name: "job / step", desc: "job — незалежна частина конвеєра (напр. 'test'), step — окрема команда всередині job" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - run: npm test</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (push з непроходженим тестом):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">✗ npm test failed
+Process completed with exit code 1
+(деплой НЕ відбудеться, поки тест не пройде)</pre>`,
+    pitfalls: [
+      "CD без надійного набору тестів у CI — автоматичний деплой зламаного коду прямо на продакшн.",
+      "Довгий, повільний конвеєр CI (10+ хвилин) — розробники починають ігнорувати чи обходити перевірки.",
+      "Секрети деплою (API-ключі, паролі) у відкритому вигляді в конфігурації CI замість захищених secrets — витік при перегляді логів чи форку репозиторію.",
+    ],
+    related: ["fullstack-github", "fullstack-deploy-platforms"],
+  },
+  "fullstack-deploy-platforms": {
+    badge: "Full Stack",
+    title: "Vercel/Netlify, AWS/Azure/Google Cloud",
+    whatIsIt: "Платформи для розміщення застосунку так, щоб він був доступний в інтернеті. Vercel/Netlify спеціалізуються на швидкому деплої фронтенду прямо з git-репозиторію. AWS/Azure/Google Cloud — універсальні хмарні провайдери для будь-якої backend-інфраструктури.",
+    useCases: ["деплой фронтенд-застосунку (React, Vue) одним push у git (Vercel/Netlify)", "автоматичний preview-деплой для кожного Pull Request", "повноцінна backend-інфраструктура: сервери, бази даних, черги, файлове сховище (AWS/Azure/GCP)"],
+    syntax: `vercel deploy\n# або автоматично при push у підключений git-репозиторій`,
+    attributes: [
+      { name: "Vercel / Netlify", desc: "хмарні платформи для швидкого деплою фронтенд-застосунків прямо з git-репозиторію" },
+      { name: "preview deployment", desc: "тимчасова версія застосунку для кожного Pull Request, доступна за окремим URL" },
+      { name: "AWS / Azure / Google Cloud", desc: "найбільші хмарні платформи для розміщення будь-якої backend-інфраструктури" },
+      { name: "serverless functions", desc: "код, що виконується на вимогу без постійно запущеного сервера (напр. Vercel Functions, AWS Lambda)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;"># git push автоматично тригерить деплой
+git push origin main</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Building...
+Deploying...
+✓ Deployed to https://myapp.vercel.app</pre>`,
+    pitfalls: [
+      "Вибір повноцінного хмарного провайдера (AWS) для простого статичного фронтенду — набагато складніше налаштування, ніж дає Vercel/Netlify за хвилини.",
+      "Змінні середовища, налаштовані локально, але забуті в налаштуваннях платформи деплою — застосунок падає в продакшені через відсутні секрети/конфігурацію.",
+      "Відсутність окремого середовища для preview/staging — усі зміни тестуються одразу на реальних користувачах.",
+    ],
+    related: ["fullstack-cicd"],
+  },
 
 };
 
