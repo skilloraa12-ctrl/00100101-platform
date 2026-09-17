@@ -840,6 +840,28 @@ const SYMBOLS = [
   { cat: "Regex", sym: "\\d  \\w  \\s", en: "Character classes", ua: "Класи символів", langs: "Regex (JS, Python)", example: "/\\d{3}-\\d{4}/", explain: "\\d відповідає будь-якій цифрі 0-9, \\w — будь-якій букві/цифрі/підкресленню, \\s — будь-якому пробільному символу (пробіл, таб, новий рядок). Приклад ловить номер формату «123-4567»." },
   { cat: "Regex", sym: "[abc]", en: "Character set", ua: "Набір символів", langs: "Regex (JS, Python)", example: "/[aeiou]/", explain: "Відповідає рівно одному символу з переліченого набору в квадратних дужках. [aeiou] знайде першу голосну літеру в рядку; [^aeiou] — навпаки, будь-який символ, крім голосних." },
   { cat: "Git", sym: "HEAD", en: "HEAD reference", ua: "Вказівник на поточний коміт", langs: "Git", example: "git reset HEAD~1", explain: "HEAD завжди вказує на коміт, на якому зараз стоїть твоя робоча гілка. HEAD~1 означає «на один коміт раніше за поточний» — корисно для скасування останнього коміту." },
+  { cat: "HTML: Документ", sym: "<html>", en: "Root element", ua: "Кореневий елемент", langs: "HTML", example: '<html lang="uk">...</html>', explain: "Обгортає весь документ — усі інші елементи вкладені в нього." },
+  { cat: "HTML: Документ", sym: "<head>", en: "Document head", ua: "Заголовок документа", langs: "HTML", example: "<head>...</head>", explain: "Контейнер для метаданих сторінки: title, meta, link, style, script — нічого з цього не видно на сторінці напряму." },
+  { cat: "HTML: Документ", sym: "<body>", en: "Document body", ua: "Тіло документа", langs: "HTML", example: "<body>...</body>", explain: "Містить увесь видимий вміст сторінки — текст, зображення, форми тощо." },
+  { cat: "HTML: Документ", sym: "<title>", en: "Document title", ua: "Заголовок вкладки", langs: "HTML", example: "<title>Моя сторінка</title>", explain: "Задає текст, що показується в заголовку вкладки браузера й у результатах пошуку." },
+  { cat: "HTML: Документ", sym: "<meta>", en: "Metadata", ua: "Метадані", langs: "HTML", example: '<meta charset="UTF-8">', explain: "Задає метадані документа: кодування, опис для SEO, налаштування viewport для мобільних." },
+  { cat: "HTML: Документ", sym: "<link>", en: "External resource link", ua: "Підключення ресурсу", langs: "HTML", example: '<link rel="stylesheet" href="style.css">', explain: "Підключає зовнішній файл — найчастіше CSS-стилі чи favicon." },
+  { cat: "HTML: Документ", sym: "<style>", en: "Embedded styles", ua: "Вбудовані стилі", langs: "HTML", example: "<style>p { color: red; }</style>", explain: "Вбудовує CSS-правила прямо в документ без окремого файлу." },
+  { cat: "HTML: Документ", sym: "<script>", en: "Script", ua: "Скрипт", langs: "HTML", example: '<script src="app.js"></script>', explain: "Вбудовує або підключає JavaScript-код для сторінки." },
+  { cat: "HTML: Документ", sym: "<base>", en: "Base URL", ua: "Базова адреса", langs: "HTML", example: '<base href="https://example.com/">', explain: "Задає базову URL-адресу для всіх відносних посилань на сторінці." },
+  { cat: "HTML: Документ", sym: "<noscript>", en: "No-script fallback", ua: "Запасний вміст без JS", langs: "HTML", example: "<noscript>Увімкніть JavaScript</noscript>", explain: "Показує вміст лише якщо JavaScript у браузері вимкнено чи не підтримується." },
+  { cat: "HTML: Семантика", sym: "<header>", en: "Header", ua: "Шапка", langs: "HTML", example: "<header>...</header>", explain: "Вступна частина сторінки чи секції — зазвичай лого, назва, навігація." },
+  { cat: "HTML: Семантика", sym: "<nav>", en: "Navigation", ua: "Навігація", langs: "HTML", example: "<nav><a href=\"/\">Головна</a></nav>", explain: "Блок навігаційних посилань — головне меню, хлібні крихти, пагінація." },
+  { cat: "HTML: Семантика", sym: "<main>", en: "Main content", ua: "Основний вміст", langs: "HTML", example: "<main>...</main>", explain: "Унікальний основний вміст сторінки — лише один <main> на документ." },
+  { cat: "HTML: Семантика", sym: "<section>", en: "Section", ua: "Розділ", langs: "HTML", example: "<section><h2>Про нас</h2>...</section>", explain: "Тематичний розділ сторінки, зазвичай зі своїм заголовком." },
+  { cat: "HTML: Семантика", sym: "<article>", en: "Article", ua: "Стаття", langs: "HTML", example: "<article>...</article>", explain: "Самодостатній блок вмісту, що має сенс окремо від сторінки — стаття блогу, коментар, картка товару." },
+  { cat: "HTML: Семантика", sym: "<aside>", en: "Aside", ua: "Бічна панель", langs: "HTML", example: "<aside>...</aside>", explain: "Вміст, побічно пов'язаний з основним — сайдбар, реклама, пов'язані посилання." },
+  { cat: "HTML: Семантика", sym: "<footer>", en: "Footer", ua: "Підвал", langs: "HTML", example: "<footer>© 2024</footer>", explain: "Завершальна частина сторінки чи секції — авторські права, контакти, посилання." },
+  { cat: "HTML: Семантика", sym: "<address>", en: "Address", ua: "Контактна інформація", langs: "HTML", example: "<address>Київ, Україна</address>", explain: "Контактна інформація автора чи власника документа/статті." },
+  { cat: "HTML: Семантика", sym: "<h1>...<h6>", en: "Headings", ua: "Заголовки", langs: "HTML", example: "<h1>Головний заголовок</h1>", explain: "Заголовки шести рівнів важливості, h1 — найважливіший. Формують структуру документа." },
+  { cat: "HTML: Семантика", sym: "<p>", en: "Paragraph", ua: "Абзац", langs: "HTML", example: "<p>Текст абзацу.</p>", explain: "Блок звичайного текстового абзацу." },
+  { cat: "HTML: Семантика", sym: "<hr>", en: "Thematic break", ua: "Тематичний розрив", langs: "HTML", example: "<hr>", explain: "Позначає тематичний розрив між блоками контенту, типово показується горизонтальною лінією." },
+
 ];
 
 const LIBRARY_HTML = [
