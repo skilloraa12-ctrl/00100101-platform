@@ -8187,6 +8187,87 @@ Cache-Control: private, max-age=60</pre>`,
     ],
     related: ["backend-http-status-codes", "backend-security"],
   },
+  "backend-rest": {
+    badge: "Backend",
+    title: "REST (Representational State Transfer)",
+    whatIsIt: "REST — архітектурний стиль побудови API, де кожен ресурс має свій URL, а дії над ним виконуються через стандартні HTTP-методи (GET/POST/PUT/DELETE). Це не протокол і не бібліотека, а набір принципів.",
+    useCases: ["побудова публічного API для мобільного застосунку чи фронтенду", "стандартизований, передбачуваний спосіб доступу до ресурсів", "кешування відповідей на рівні HTTP (браузер, CDN, проксі)"],
+    syntax: `GET    /api/users        - список користувачів\nGET    /api/users/42     - один користувач\nPOST   /api/users        - створити користувача\nPATCH  /api/users/42     - оновити користувача\nDELETE /api/users/42     - видалити користувача`,
+    attributes: [
+      { name: "Ресурс (resource)", desc: "сутність, ідентифікована URL, напр. /users, /orders/17" },
+      { name: "Без стану (stateless)", desc: "кожен запит містить усю інформацію, потрібну для обробки — сервер не зберігає стан клієнта між запитами" },
+      { name: "Вкладені ресурси", desc: "напр. /users/42/orders — замовлення конкретного користувача" },
+      { name: "Query-параметри", desc: "?page=2&limit=20 — для фільтрації, пагінації, сортування" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">GET /api/users/42/orders?status=paid&limit=5</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">200 OK
+[
+  { "id": 101, "total": 450, "status": "paid" },
+  { "id": 98,  "total": 1200, "status": "paid" }
+]</pre>`,
+    pitfalls: [
+      "Дієслова в URL замість іменників (/getUser замість GET /users/42) — суперечить самій ідеї REST, де дію вже задає HTTP-метод.",
+      "Зберігання стану сесії користувача на сервері між запитами (замість токена в кожному запиті) — порушує принцип stateless, ускладнює масштабування.",
+      "Ігнорування HTTP-кешування там, де воно доречне (GET-запити зі стабільними даними) — зайве навантаження на сервер.",
+    ],
+    related: ["backend-http-methods", "backend-graphql"],
+  },
+  "backend-graphql": {
+    badge: "Backend",
+    title: "GraphQL",
+    whatIsIt: "GraphQL — мова запитів для API, де клієнт сам описує, які саме поля даних йому потрібні, в одному запиті, замість того щоб сервер диктував фіксовану структуру відповіді для кожного ендпоінту.",
+    useCases: ["уникнення over-fetching — отримання лише потрібних полів, а не всього об'єкта", "об'єднання даних з кількох пов'язаних сутностей в один запит замість кількох REST-викликів", "мобільні застосунки з обмеженим трафіком, де важлива економія даних"],
+    syntax: `query {\n  user(id: 1) {\n    name\n    orders {\n      total\n    }\n  }\n}`,
+    attributes: [
+      { name: "query", desc: "запит на читання даних — аналог GET у REST" },
+      { name: "mutation", desc: "запит на зміну даних — аналог POST/PUT/DELETE у REST" },
+      { name: "schema", desc: "опис усіх доступних типів даних і запитів у API, перевіряється при кожному запиті" },
+      { name: "resolver", desc: "функція на сервері, що знає, як отримати дані для конкретного поля схеми" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">query {
+  user(id: 1) {
+    name
+    email
+  }
+}</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">{
+  "data": {
+    "user": { "name": "Оля", "email": "olya@mail.com" }
+  }
+}</pre>`,
+    pitfalls: [
+      "Один величезний запит з глибокою вкладеністю (N+1 у резолверах) може створити непередбачуване навантаження на базу даних.",
+      "GraphQL завжди повертає 200 OK, навіть при помилці — деталі помилки треба шукати в полі errors відповіді, а не в HTTP-статусі.",
+      "HTTP-кешування (як у REST GET) не працює з коробки — усі запити зазвичай йдуть через POST на один ендпоінт.",
+    ],
+    related: ["backend-rest"],
+  },
+  "backend-websocket-webhook": {
+    badge: "Backend",
+    title: "WebSocket, Webhook",
+    whatIsIt: "WebSocket — постійне двостороннє з'єднання між клієнтом і сервером для обміну даними в реальному часі. Webhook — протилежний до звичайного API підхід: сервер сам відправляє HTTP-запит іншому сервісу, коли трапляється подія, замість того щоб чекати запиту від клієнта.",
+    useCases: ["чати й сповіщення в реальному часі (WebSocket)", "живе оновлення даних без постійного опитування (WebSocket)", "сповіщення зовнішнього сервісу про подію: оплату, новий коміт (Webhook)"],
+    syntax: `// WebSocket (клієнт)\nconst ws = new WebSocket('wss://api.example.com');\nws.onmessage = (event) => console.log(event.data);\n\n// Webhook (сервер отримує подію)\napp.post('/webhook/payment', (req, res) => { ... });`,
+    attributes: [
+      { name: "new WebSocket(url)", desc: "відкриває постійне з'єднання з сервером" },
+      { name: "ws.send() / ws.onmessage", desc: "надсилає повідомлення / обробляє вхідні повідомлення від сервера" },
+      { name: "ws.onopen / ws.onclose", desc: "обробники подій відкриття та закриття з'єднання" },
+      { name: "Webhook URL", desc: "адреса на твоєму сервері, яку зовнішній сервіс викликає при події (напр. Stripe, GitHub)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">const ws = new WebSocket('wss://chat.example.com');
+ws.onopen = () => ws.send('Привіт!');
+ws.onmessage = (e) => console.log('Отримано:', e.data);</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (у консолі, коли сервер відповідає):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Отримано: Сервер отримав твоє повідомлення!</pre>`,
+    pitfalls: [
+      "WebSocket-з'єднання, що не перепідключається при розриві мережі — застосунок «тихо» перестає отримувати оновлення.",
+      "Webhook-ендпоінт без перевірки підпису/секрету запиту — будь-хто може підробити подію (напр. фейкову оплату).",
+      "Webhook-обробник, що виконує довгу роботу синхронно — зовнішній сервіс може вважати доставку невдалою через тайм-аут і повторно надіслати подію.",
+    ],
+    related: ["backend-rest", "backend-security"],
+  },
 
 };
 
