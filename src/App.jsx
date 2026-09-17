@@ -19,8 +19,18 @@ const HTML_LESSONS = [
     id: "html-1",
     title: "Що таке HTML",
     theory:
-      "HTML (HyperText Markup Language) — це мова розмітки, якою описують структуру вебсторінки. Це не мова програмування: тут немає обчислень чи логіки, тільки теги, які кажуть браузеру, що є що на сторінці — заголовок, абзац, посилання, зображення. Кожен тег зазвичай має відкриваючу <тег> і закриваючу </тег> частину, а текст або інші теги лежать між ними.",
-    example: { code: `<h1>Привіт, світ!</h1>`, explain: "Тег <h1> — головний заголовок сторінки. Браузер покаже його великим жирним текстом." },
+      "HTML (HyperText Markup Language, «мова гіпертекстової розмітки») — це мова розмітки, якою описують структуру вебсторінки: що є заголовком, що абзацом, що посиланням. Це НЕ мова програмування: у HTML немає обчислень, умов чи циклів — лише теги, які кажуть браузеру, ЩО є ЩО на сторінці.\n\nКожен елемент зазвичай складається з відкриваючого тега <тег>, вмісту і закриваючого тега </тег>. Закриваючий тег виглядає так само, як відкриваючий, тільки з похилою рискою: </h1>. Браузер читає ці теги й малює сторінку відповідно до їхнього значення — h1 стає великим жирним заголовком, p — звичайним абзацом тексту.\n\nHTML з'явився ще у 1991 році, і відтоді браузери в усьому світі домовились однаково розуміти ці теги. Тому той самий код <h1>Привіт</h1> покаже однаковий результат і в Chrome, і в Safari, і в будь-якому іншому браузері — це і є сенс стандарту.",
+    examples: [
+      { title: "Заголовок", code: `<h1>Ласкаво просимо</h1>`, explain: "h1 — головний заголовок, браузер сам робить його великим і жирним, без жодного CSS." },
+      { title: "Абзац", code: `<p>Це звичайний текст сторінки.</p>`, explain: "p (paragraph) — тег для абзацу тексту; кожен новий p починається з нового рядка." },
+      { title: "Кілька елементів", code: `<h1>Мій блог</h1>\n<p>Ласкаво просимо на мою сторінку.</p>`, explain: "Теги можна ставити один за одним — браузер розташує їх зверху вниз, у тому порядку, в якому вони йдуть у коді." },
+    ],
+    presentation: [
+      { title: "Що таке HTML?", points: ["Мова РОЗМІТКИ структури сторінки, не програмування.", "Складається з тегів — «команд» для браузера.", "З'явилась у 1991 році, підтримується всіма браузерами однаково."] },
+      { title: "Як влаштований тег", points: ["Відкриваючий тег: <h1>", "Вміст усередині: текст або інші теги", "Закриваючий тег: </h1> — з похилою рискою перед назвою"] },
+      { title: "Навіщо це потрібно", points: ["Браузер розуміє, ЩО є ЩО на сторінці", "Пошукові системи читають структуру, щоб індексувати сайт", "Скрінрідери озвучують сторінку саме за структурою тегів"] },
+      { title: "Що далі", points: ["Наступний урок — повний скелет документа: html/head/body", "Потім — заголовки, абзаци, посилання, списки", "Кожен урок додає нові теги до твого арсеналу"] },
+    ],
     task: 'Створи заголовок першого рівня (тег h1) з текстом "Привіт, світ!".',
     starter: "",
     hints: [
@@ -11825,10 +11835,8 @@ function JargonTerm({ token, entry }) {
   );
 }
 
-// Splits theory text into plain text and clickable jargon markers, without
-// needing to hand-annotate every lesson's theory string.
-function JargonText({ text }) {
-  if (!text) return null;
+// Marks known jargon words within a single paragraph of text.
+function JargonParagraph({ text }) {
   const tokens = text.split(/(\s+)/);
   return (
     <>
@@ -11851,6 +11859,105 @@ function JargonText({ text }) {
         );
       })}
     </>
+  );
+}
+
+// Splits theory text into paragraphs (on blank lines) and marks jargon words
+// in each, without needing to hand-annotate every lesson's theory string.
+function JargonText({ text }) {
+  if (!text) return null;
+  const paragraphs = text.split(/\n\n+/);
+  return (
+    <>
+      {paragraphs.map((para, i) => (
+        <p key={i} className="text-stone-300 leading-relaxed mb-3">
+          <JargonParagraph text={para} />
+        </p>
+      ))}
+    </>
+  );
+}
+
+/* =========================================================================
+   EXAMPLES + PRESENTATION — deeper per-lesson study material
+   ========================================================================= */
+
+// Renders lesson.examples (array of {title, code, explain}) as tabs, or
+// falls back to the single legacy lesson.example for older lessons.
+function ExamplesBlock({ lesson }) {
+  const examples = lesson.examples || (lesson.example ? [{ title: "Приклад", ...lesson.example }] : []);
+  const [active, setActive] = useState(0);
+  if (!examples.length) return null;
+  const ex = examples[Math.min(active, examples.length - 1)];
+  return (
+    <div className="mb-5">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-xs uppercase tracking-wide text-stone-500">{examples.length > 1 ? "Приклади" : "Приклад"}</div>
+        {examples.length > 1 && (
+          <div className="flex gap-1.5">
+            {examples.map((e, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                className={`text-xs px-2 py-1 rounded ${i === active ? "bg-stone-800 text-amber-400" : "text-stone-500 hover:bg-stone-900"}`}
+              >
+                {e.title || `#${i + 1}`}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <pre className="bg-stone-900 border border-stone-800 rounded-md p-3 text-sm font-mono text-stone-200 overflow-x-auto">{ex.code}</pre>
+      <p className="text-sm text-stone-500 mt-2">{ex.explain}</p>
+    </div>
+  );
+}
+
+// A short slide-style recap of the lesson's key points (lesson.presentation).
+function PresentationBlock({ slides }) {
+  const [open, setOpen] = useState(false);
+  const [i, setI] = useState(0);
+  if (!slides || !slides.length) return null;
+  const slide = slides[i];
+  return (
+    <div className="mb-5 border border-stone-800 rounded-md overflow-hidden">
+      <button
+        onClick={() => { setOpen((v) => !v); setI(0); }}
+        className="w-full flex items-center justify-between px-3 py-2.5 bg-stone-900 text-sm text-stone-200 hover:bg-stone-850"
+      >
+        <span className="flex items-center gap-2"><Layout size={14} className="text-amber-400" /> Презентація уроку: коротко про головне</span>
+        <ChevronRight size={16} className={`text-stone-500 transition-transform ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && (
+        <div className="p-4 bg-stone-950">
+          <div className="text-sm font-medium text-amber-400 mb-2">{slide.title}</div>
+          <ul className="list-disc list-inside space-y-1.5 text-sm text-stone-300 mb-3">
+            {slide.points.map((p, idx) => <li key={idx}>{p}</li>)}
+          </ul>
+          <div className="flex items-center justify-between">
+            <button
+              disabled={i === 0}
+              onClick={() => setI((v) => Math.max(0, v - 1))}
+              className="text-xs px-2 py-1 rounded border border-stone-800 text-stone-400 disabled:opacity-30 hover:border-stone-700"
+            >
+              ← Назад
+            </button>
+            <div className="flex gap-1.5">
+              {slides.map((_, idx) => (
+                <span key={idx} className={`w-1.5 h-1.5 rounded-full ${idx === i ? "bg-amber-400" : "bg-stone-700"}`} />
+              ))}
+            </div>
+            <button
+              disabled={i === slides.length - 1}
+              onClick={() => setI((v) => Math.min(slides.length - 1, v + 1))}
+              className="text-xs px-2 py-1 rounded border border-stone-800 text-stone-400 disabled:opacity-30 hover:border-stone-700"
+            >
+              Далі →
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -11970,14 +12077,12 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       </div>
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
 
-      <p className="text-stone-300 leading-relaxed mb-1"><JargonText key={lesson.id} text={lesson.theory} /></p>
+      <JargonText key={lesson.id} text={lesson.theory} />
       <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
 
-      <div className="mb-5">
-        <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Приклад</div>
-        <pre className="bg-stone-900 border border-stone-800 rounded-md p-3 text-sm font-mono text-stone-200 overflow-x-auto">{lesson.example.code}</pre>
-        <p className="text-sm text-stone-500 mt-2">{lesson.example.explain}</p>
-      </div>
+      <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
+
+      <ExamplesBlock key={`e-${lesson.id}`} lesson={lesson} />
 
       <div className={`border ${accent.border} rounded-md p-3 mb-4 ${accent.bgSoft} bg-opacity-30`}>
         <div className={`text-xs uppercase tracking-wide ${accent.text} mb-1`}>Завдання</div>
