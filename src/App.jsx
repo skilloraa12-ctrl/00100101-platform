@@ -4306,6 +4306,80 @@ const TERM_PAGES_V2 = {
     related: ["css-box-model", "css-calc-clamp"],
   },
 
+  "css-background": {
+    badge: "CSS",
+    title: "background-image / background-*",
+    whatIsIt: "Набір властивостей background-* керує фоновим зображенням елемента окремо від суцільного кольору: яке зображення, як масштабоване, де розташоване, чи повторюється і чи прокручується разом зі сторінкою.",
+    useCases: ["фонове зображення секції героя на головній сторінці", "іконки як фон замість <img> (спрайти)", "паралакс-ефект через background-attachment: fixed"],
+    syntax: `.hero {\n  background-image: url('bg.jpg');\n  background-size: cover;\n  background-position: center;\n  background-repeat: no-repeat;\n}`,
+    attributes: [
+      { name: "background-image", desc: "адреса зображення (чи градієнт) як фон" },
+      { name: "background-size", desc: "cover заповнює весь контейнер обрізаючи, contain — вписує повністю" },
+      { name: "background-position", desc: "позиція зображення в контейнері, напр. center, top right" },
+      { name: "background-repeat", desc: "no-repeat вимикає повторення, repeat-x/y — лише по одній осі" },
+      { name: "background-attachment", desc: "fixed — фон не рухається при скролі сторінки (паралакс)" },
+      { name: "background-clip / background-origin", desc: "від якого шару блоку (border/padding/content) рахується область фону" },
+    ],
+    example: `<div style="height:120px;background-image:url('https://picsum.photos/400/200');background-size:cover;background-position:center;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+  <span style="background:rgba(0,0,0,0.5);color:white;padding:8px 16px;border-radius:6px;">Текст поверх фону</span>
+</div>`,
+    pitfalls: [
+      "Забутий background-size — зображення показується в реальному розмірі й може обрізатись некрасиво.",
+      "background-repeat типово repeat — забутий no-repeat дублює зображення плиткою.",
+      "Погана читабельність тексту поверх фото без напівпрозорої підкладки чи затемнення.",
+    ],
+    related: ["css-colors-gradients", "css-object-fit"],
+  },
+  "css-borders": {
+    badge: "CSS",
+    title: "border і border-radius",
+    whatIsIt: "border малює лінію навколо елемента — товщину, стиль і колір можна задати одразу скороченням чи окремо для кожної сторони. border-radius заокруглює кути, значення 50% перетворює квадрат на коло.",
+    useCases: ["рамка навколо картки чи поля вводу", "заокруглені кути кнопок і карток", "коло з квадратного div (border-radius: 50%)", "рамка лише знизу як розділювач"],
+    syntax: `.card {\n  border: 1px solid #ccc;\n  border-radius: 8px;\n}`,
+    attributes: [
+      { name: "border-width / border-style / border-color", desc: "товщина, стиль лінії (solid, dashed, dotted...) і колір окремо" },
+      { name: "border-top / -right / -bottom / -left", desc: "рамка лише з однієї сторони" },
+      { name: "border-radius", desc: "заокруглення кутів; можна задати кожен кут окремо через border-*-radius" },
+      { name: "border-image", desc: "використовує зображення замість суцільної лінії для рамки" },
+    ],
+    example: `<div style="display:flex;gap:12px;">
+  <div style="width:60px;height:60px;border:2px solid #7c3aed;border-radius:8px;"></div>
+  <div style="width:60px;height:60px;border:2px solid #0ea5e9;border-radius:50%;"></div>
+  <div style="width:60px;height:60px;border-bottom:3px solid #ef4444;"></div>
+</div>`,
+    pitfalls: [
+      "border додає до реального розміру елемента, якщо не box-sizing: border-box.",
+      "border-radius: 50% дає коло лише на квадратному елементі — на прямокутному вийде еліпс.",
+      "Забутий border-color — за замовчуванням використовується поточний колір тексту (currentColor), не завжди очікувано.",
+    ],
+    related: ["css-box-model", "css-shadows"],
+  },
+  "css-shadows": {
+    badge: "CSS",
+    title: "box-shadow і text-shadow",
+    whatIsIt: "box-shadow додає тінь навколо всього елемента-блоку, text-shadow — під текстом. Обидва задаються зсувом по X/Y, розмиттям, опціональним розширенням і кольором.",
+    useCases: ["тінь під картками для ефекту підняття над сторінкою", "тінь при наведенні для інтерактивного відгуку", "контрастний текст поверх фото через text-shadow", "внутрішня тінь (inset) для вдавленого вигляду поля"],
+    syntax: `.card {\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);\n}`,
+    attributes: [
+      { name: "offset-x / offset-y", desc: "зсув тіні по горизонталі й вертикалі" },
+      { name: "blur-radius", desc: "розмиття країв тіні — більше значення, м'якіша тінь" },
+      { name: "spread-radius", desc: "розширює чи звужує тінь відносно форми елемента" },
+      { name: "color", desc: "колір тіні, зазвичай напівпрозорий чорний" },
+      { name: "inset", desc: "робить тінь внутрішньою замість зовнішньої" },
+    ],
+    example: `<div style="display:flex;gap:16px;padding:10px;">
+  <div style="width:80px;height:60px;background:white;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.2);"></div>
+  <div style="width:80px;height:60px;background:#eee;border-radius:8px;box-shadow:inset 0 2px 4px rgba(0,0,0,0.3);"></div>
+</div>
+<p style="color:white;background:#333;padding:10px;text-shadow:1px 1px 2px black;border-radius:6px;">Текст з тінню</p>`,
+    pitfalls: [
+      "Занадто темна чи непрозора тінь виглядає різко — краще низька непрозорість (0.1-0.25).",
+      "Кілька важких box-shadow на багатьох елементах можуть сповільнити рендеринг при скролі/анімації.",
+      "Забутий color — тінь використовує колір тексту елемента, що рідко буває бажаним.",
+    ],
+    related: ["css-borders", "css-colors-gradients"],
+  },
+
 };
 
 const TERM_GUIDES = {
