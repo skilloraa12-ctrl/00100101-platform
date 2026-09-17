@@ -6833,6 +6833,95 @@ print(f"Сума з ПДВ: {price * 1.2:.2f}")</pre>
     related: ["py-strings"],
   },
 
+  "py-comprehensions": {
+    badge: "Python",
+    title: "List/dict/set comprehension",
+    whatIsIt: "Компактний спосіб створити новий список, словник чи множину на основі ітерованого об'єкта в одному рядку — заміна циклу for з append(), часто вважається більш «pythonic» стилем.",
+    useCases: ["перетворення кожного елемента списку (аналог map)", "фільтрація елементів за умовою (аналог filter)", "швидке створення словника з двох списків чи пар"],
+    syntax: `squares = [x**2 for x in range(5)]\nevens = [x for x in range(10) if x % 2 == 0]`,
+    attributes: [
+      { name: "[expr for x in iterable]", desc: "list comprehension — створює новий список" },
+      { name: "[expr for x in iterable if cond]", desc: "з фільтрацією — лише елементи, що проходять умову" },
+      { name: "{k: v for ...}", desc: "dict comprehension — створює словник" },
+      { name: "{expr for x in iterable}", desc: "set comprehension — створює множину унікальних значень" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">nums = [5, 12, 8, 3, 20]
+squares = [x**2 for x in nums if x > 5]
+print(squares)
+
+word_lengths = {w: len(w) for w in ["кіт", "собака", "миша"]}
+print(word_lengths)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">[144, 64, 400]
+{'кіт': 3, 'собака': 6, 'миша': 4}</pre>`,
+    pitfalls: [
+      "Занадто складна логіка (кілька вкладених циклів чи умов) у comprehension — читабельність падає, краще звичайний цикл for.",
+      "List comprehension створює ВЕСЬ список одразу в пам'яті — для великих даних краще генератор (expr for x in iterable) без квадратних дужок.",
+    ],
+    related: ["py-lists", "py-dicts"],
+  },
+  "py-lists": {
+    badge: "Python",
+    title: "Методи списків (list)",
+    whatIsIt: "list — впорядкована змінювана колекція елементів будь-якого типу. Має багатий набір вбудованих методів для додавання, видалення, сортування й пошуку елементів.",
+    useCases: ["зберігання впорядкованого набору однотипних чи різнотипних даних", "накопичення результатів у циклі", "сортування даних за певним критерієм"],
+    syntax: `fruits = ["яблуко", "банан"]\nfruits.append("вишня")\nfruits.sort()`,
+    attributes: [
+      { name: "append(x) / insert(i, x)", desc: "додають елемент у кінець чи за вказаним індексом" },
+      { name: "remove(x) / pop(i)", desc: "remove видаляє перше входження значення, pop — за індексом (типово останній)" },
+      { name: "sort() / sorted()", desc: "sort() сортує НА МІСЦІ, sorted() повертає НОВИЙ відсортований список" },
+      { name: "reverse()", desc: "розвертає список на місці" },
+      { name: "index(x) / count(x)", desc: "повертають позицію першого входження чи кількість входжень значення" },
+      { name: "list[i:j]", desc: "зрізи (slicing) — частина списку з індексу i до j (не включно)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">nums = [5, 2, 8, 1, 9]
+nums.sort()
+print(nums)
+print(nums[1:3])
+nums.append(100)
+print(nums)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">[1, 2, 5, 8, 9]
+[2, 5]
+[1, 2, 5, 8, 9, 100]</pre>`,
+    pitfalls: [
+      "sort() змінює список НА МІСЦІ й повертає None — nums = nums.sort() затре список значенням None.",
+      "Копіювання списку через new_list = old_list створює лише ДРУГЕ ІМ'Я для того самого списку — для копії потрібен old_list.copy() чи old_list[:].",
+    ],
+    related: ["py-comprehensions", "py-sets-tuples"],
+  },
+  "py-dicts": {
+    badge: "Python",
+    title: "Методи словників (dict)",
+    whatIsIt: "dict — колекція пар ключ-значення, де ключі унікальні. З Python 3.7+ словники зберігають порядок вставки елементів. Один з найважливіших типів даних Python — використовується для представлення JSON-подібних структур.",
+    useCases: ["зберігання пов'язаних даних за іменованими ключами (напр. дані користувача)", "підрахунок входжень (частотний словник)", "швидкий пошук значення за ключем"],
+    syntax: `user = {"name": "Оля", "age": 25}\nuser["city"] = "Київ"`,
+    attributes: [
+      { name: "d[key] / d.get(key, default)", desc: "d[key] кидає помилку, якщо ключа немає; get() безпечно повертає default" },
+      { name: "keys() / values() / items()", desc: "повертають ключі, значення чи пари (ключ, значення)" },
+      { name: "update(other_dict)", desc: "об'єднує інший словник у поточний, перезаписуючи спільні ключі" },
+      { name: "pop(key)", desc: "видаляє ключ і повертає його значення" },
+      { name: "setdefault(key, default)", desc: "повертає значення ключа, а якщо його немає — встановлює default і повертає його" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">user = {"name": "Оля", "age": 25}
+user["city"] = "Київ"
+
+for key, value in user.items():
+    print(f"{key}: {value}")
+
+print(user.get("email", "немає email"))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">name: Оля
+age: 25
+city: Київ
+немає email</pre>`,
+    pitfalls: [
+      "Звернення до неіснуючого ключа через d[key] кидає KeyError — для безпечного доступу завжди d.get(key, default).",
+      "Ключами словника можуть бути лише НЕЗМІНЮВАНІ типи (рядки, числа, кортежі) — список як ключ викличе TypeError.",
+    ],
+    related: ["py-lists", "py-comprehensions"],
+  },
+
 };
 
 const TERM_GUIDES = {
