@@ -1628,6 +1628,24 @@ const SYMBOLS = [
   { cat: "Backend: Безпека", sym: "CSRF / XSS", en: "Common web vulnerabilities", ua: "Поширені веб-вразливості", langs: "Backend", example: "—", explain: "CSRF — підроблений запит від імені авторизованого користувача, XSS — впровадження шкідливого скрипта на сторінку." },
   { cat: "Backend: Безпека", sym: "Rate Limiting", en: "Rate limiting", ua: "Обмеження частоти запитів", langs: "Backend", example: "express-rate-limit", explain: "Обмежує кількість запитів від одного клієнта за проміжок часу — захист від зловживань і DDoS." },
 
+  { cat: "Backend: Бази даних", sym: "SQL / NoSQL", en: "Database paradigms", ua: "Парадигми баз даних", langs: "Backend", example: "—", explain: "SQL — реляційні бази з таблицями й строгою схемою, NoSQL — документні/ключ-значення бази з гнучкою структурою." },
+  { cat: "Backend: Бази даних", sym: "PostgreSQL / MySQL", en: "Relational databases", ua: "Реляційні бази даних", langs: "Backend", example: "psql -U user -d mydb", explain: "Найпопулярніші відкриті реляційні СУБД." },
+  { cat: "Backend: Бази даних", sym: "MongoDB", en: "MongoDB", ua: "MongoDB", langs: "Backend", example: "db.users.find({ age: { $gt: 18 } });", explain: "Документна NoSQL-база, зберігає дані як JSON-подібні документи." },
+  { cat: "Backend: Бази даних", sym: "Redis", en: "Redis", ua: "Redis", langs: "Backend", example: "SET key value EX 60", explain: "База даних ключ-значення в оперативній пам'яті — для кешування, сесій, черг." },
+  { cat: "Backend: ORM", sym: "ORM (Object-Relational Mapping)", en: "ORM concept", ua: "Концепція ORM", langs: "Backend", example: "User.findAll();", explain: "Дозволяє працювати з БД через об'єкти й методи коду замість написання сирого SQL." },
+  { cat: "Backend: ORM", sym: "Prisma / Sequelize / TypeORM", en: "Node.js ORMs", ua: "ORM для Node.js", langs: "Node.js", example: "await prisma.user.create({ data: { name: 'Оля' } });", explain: "Найпоширеніші ORM-бібліотеки для роботи з БД у Node.js-проєктах." },
+  { cat: "Backend: ORM", sym: "SQLAlchemy", en: "SQLAlchemy ORM", ua: "SQLAlchemy для Python", langs: "Python", example: "session.query(User).filter_by(id=1).first()", explain: "Найпоширеніший ORM для Python, використовується в Flask/FastAPI-проєктах." },
+  { cat: "Backend: Черги", sym: "RabbitMQ / Kafka", en: "Message queues", ua: "Черги повідомлень", langs: "Backend", example: "—", explain: "Дозволяють сервісам обмінюватись повідомленнями асинхронно, не чекаючи одразу на відповідь." },
+  { cat: "Backend: Кешування", sym: "Cache-Control / TTL", en: "Caching concepts", ua: "Концепції кешування", langs: "Backend", example: "Cache-Control: max-age=3600", explain: "TTL (time to live) визначає, скільки часу кешоване значення лишається дійсним." },
+  { cat: "Backend: Сервери", sym: "Nginx / Apache", en: "Web servers", ua: "Веб-сервери", langs: "Backend", example: "nginx.conf", explain: "Обробляють HTTP-запити, часто як reverse proxy перед застосунком і для роздачі статичних файлів." },
+  { cat: "DevOps: Docker", sym: "Dockerfile", en: "Dockerfile", ua: "Dockerfile", langs: "DevOps", example: "FROM node:20\nCOPY . .\nRUN npm install\nCMD [\"npm\", \"start\"]", explain: "Опис того, як зібрати образ контейнера для застосунку крок за кроком." },
+  { cat: "DevOps: Docker", sym: "docker build / docker run", en: "Docker commands", ua: "Команди Docker", langs: "DevOps", example: "docker run -p 3000:3000 myapp", explain: "build збирає образ з Dockerfile, run запускає контейнер із нього." },
+  { cat: "DevOps: Docker", sym: "docker-compose", en: "Docker Compose", ua: "Docker Compose", langs: "DevOps", example: "docker-compose up", explain: "Запускає й керує кількома пов'язаними контейнерами (застосунок + БД + кеш) одним файлом конфігурації." },
+  { cat: "DevOps: CI/CD", sym: "CI/CD", en: "Continuous integration/deployment", ua: "Безперервна інтеграція/доставка", langs: "DevOps", example: "—", explain: "Автоматичне тестування (CI) і розгортання (CD) коду при кожній зміні в репозиторії." },
+  { cat: "DevOps: CI/CD", sym: "GitHub Actions", en: "GitHub Actions", ua: "GitHub Actions", langs: "DevOps", example: ".github/workflows/ci.yml", explain: "Вбудований у GitHub інструмент автоматизації — запускає тести, збірку, деплой при push/PR." },
+  { cat: "DevOps: Деплой", sym: "Vercel / Netlify", en: "Frontend hosting platforms", ua: "Платформи хостингу фронтенду", langs: "DevOps", example: "vercel deploy", explain: "Хмарні платформи для швидкого деплою фронтенд-застосунків прямо з git-репозиторію." },
+  { cat: "DevOps: Деплой", sym: "AWS / Azure / Google Cloud", en: "Cloud providers", ua: "Хмарні провайдери", langs: "DevOps", example: "—", explain: "Найбільші хмарні платформи для розміщення будь-якої backend-інфраструктури." },
+
 ];
 
 const LIBRARY_HTML = [
