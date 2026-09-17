@@ -1361,91 +1361,60 @@ const CSS_LESSONS = [
     id: "css-1",
     title: "Селектори та кольори",
     theory:
-      "CSS стилізує HTML через правила виду селектор { властивість: значення; }. Селектор p застосується до всіх <p>, .card — до всіх елементів з class=\"card\", #title — до елемента з id=\"title\", а тег без крапки й решітки (body, header, p) — до всіх елементів цього тега на сторінці. Колір тексту задає color, колір фону — background-color.\n\nСелектор body заслуговує на окрему увагу: він застосовується до ВСІЄЇ видимої частини сторінки одразу, бо body — це єдиний контейнер усього вмісту. Тому стилі, задані для body (шрифт, базовий колір тексту, колір фону), стають «стилями за замовчуванням» для всієї сторінки — решта елементів успадковує їх, якщо не перевизначить власними правилами.\n\nfont-family задає сімейство шрифту. Значення зазвичай пишуть через кому, як список запасних варіантів: перший шрифт, якого браузер спробує знайти, потім другий, якщо перший не встановлено, і насамкінець — узагальнена категорія на кшталт sans-serif чи serif, яку розуміє будь-який браузер.\n\nСаме з body зазвичай починають стилізацію будь-якого реального сайту — це основа, поверх якої вже працюють усі решта, точковіші правила.",
-    previewHTML: `<p>Це приклад тексту сторінки для попереднього перегляду.</p>`,
-    examples: [
-      { title: "Базові стилі body", code: `body {\n  color: #1e293b;\n  background-color: #f8fafc;\n  font-family: sans-serif;\n}`, explain: "Ці стилі стають базовими для всієї сторінки — успадковуються всіма елементами всередині body." },
-      { title: "Селектор класу", code: `.lead {\n  color: #1d4ed8;\n  background-color: #eff6ff;\n}`, explain: "Клас застосує стиль лише до елементів з class=\"lead\", а не до всієї сторінки." },
-      { title: "Список шрифтів-запасних варіантів", code: `body {\n  font-family: "Segoe UI", Arial, sans-serif;\n}`, explain: "Браузер спробує Segoe UI, потім Arial, і нарешті — будь-який sans-serif шрифт системи." },
-    ],
-    presentation: [
-      { title: "Типи селекторів", points: ["тег (p, body) — усі елементи цього тега", ".клас — елементи з відповідним class", "#id — один елемент з відповідним id"] },
-      { title: "body — основа сторінки", points: ["Застосовується до ВСІЄЇ видимої частини сайту", "Стилі body успадковують усі елементи всередині", "З нього зазвичай починають стилізацію сайту"] },
-    ],
-    task: 'Стилізуй body свого сайту: задай color (колір тексту), background-color (колір фону) і font-family (будь-який шрифт чи список через кому).',
+      "CSS стилізує HTML через правила виду селектор { властивість: значення; }. Селектор p застосується до всіх <p>, .card — до всіх елементів з class=\"card\", #title — до елемента з id=\"title\". Колір тексту задає color, колір фону — background-color.",
+    previewHTML: `<p class="lead">Привіт, я абзац з класом lead.</p>`,
+    example: { code: `.lead {\n  color: #1d4ed8;\n  background-color: #eff6ff;\n}`, explain: "Селектор за класом застосує стиль до будь-якого елемента з class=\"lead\"." },
+    task: 'Напиши правило для .lead, яке задає color та background-color (будь-які значення).',
     starter: "",
-    hints: ["Селектор — просто слово body, без крапки й решітки.", "Потрібні всі три властивості: color, background-color, font-family.", "body {\n  color: #1e293b;\n  background-color: #ffffff;\n  font-family: sans-serif;\n}"],
-    solution: `body {\n  color: #1e293b;\n  background-color: #f8fafc;\n  font-family: sans-serif;\n}`,
+    hints: ["Селектор класу починається з крапки: .lead", "Потрібні обидві властивості: color і background-color.", ".lead {\n  color: blue;\n  background-color: #eee;\n}"],
+    solution: `.lead {\n  color: #1d4ed8;\n  background-color: #eff6ff;\n}`,
     type: "css",
     tests: [
-      { re: /body\s*{[^}]*color\s*:\s*[^;]+;/i, msg: "Правило body має задавати color." },
-      { re: /body\s*{[^}]*background-color\s*:\s*[^;]+;/i, msg: "Правило body має задавати background-color." },
-      { re: /body\s*{[^}]*font-family\s*:\s*[^;]+;/i, msg: "Правило body має задавати font-family." },
+      { re: /\.lead\s*{[^}]*color\s*:\s*[^;]+;/i, msg: "Правило .lead має задавати color." },
+      { re: /\.lead\s*{[^}]*background-color\s*:\s*[^;]+;/i, msg: "Правило .lead має задавати background-color." },
     ],
   },
   {
     id: "css-2",
     title: "Box model: margin, padding, width",
     theory:
-      "Кожен HTML-елемент — прямокутник із чотирьох шарів: content (вміст), padding (внутрішній відступ, між вмістом і рамкою), border (рамка), margin (зовнішній відступ, від інших елементів). width/height задають розмір content-області.\n\nЦе одна з найважливіших моделей у всьому CSS — буквально КОЖЕН елемент на сторінці підпорядковується їй, навіть якщо ти ніколи явно не задавала жодної з цих властивостей. За замовчуванням у більшості елементів усі чотири шари нульові чи мінімальні, і саме тому «голий» HTML без стилів виглядає таким затиснутим.\n\nmargin: 0 auto — особливий, дуже поширений прийом: коли елементу задано конкретну ширину (наприклад max-width: 800px), значення auto для лівого й правого margin розподіляє весь зайвий простір порівну з обох боків — так елемент центрується горизонтально на сторінці. Це основний спосіб центрувати блок контенту (main, .container) на широкому екрані.\n\nmax-width (на відміну від жорсткого width) обмежує ширину елемента ЗВЕРХУ, дозволяючи йому звужуватися на маленьких екранах, але не розтягуватись нескінченно на великих. Саме тому основний контент сайту (main) майже завжди отримує max-width, а не width — це перший крок до адаптивної верстки, ще до медіазапитів.",
-    previewHTML: `<main><p>Вміст сторінки, який стане акуратним блоком по центру.</p></main>`,
-    examples: [
-      { title: "Центрування через margin: 0 auto", code: `main {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 20px;\n}`, explain: "max-width обмежує ширину, margin: 0 auto центрує блок по горизонталі." },
-      { title: "width і margin окремо", code: `.box {\n  width: 200px;\n  padding: 10px;\n  margin: 20px;\n}`, explain: "margin штовхає сусідні елементи, padding — розширює простір усередині самого блока." },
-    ],
-    presentation: [
-      { title: "Чотири шари box model", points: ["content — сам вміст елемента", "padding — простір МІЖ вмістом і рамкою", "border — рамка; margin — простір ЗА межами елемента"] },
-      { title: "Центрування контенту", points: ["max-width обмежує ширину, не розтягуючи на весь екран", "margin: 0 auto центрує блок по горизонталі", "Стандартний прийом для main чи .container"] },
-    ],
-    task: "Стилізуй main свого сайту: задай max-width (наприклад 800px), margin: 0 auto для центрування, і padding для внутрішнього відступу.",
+      "Кожен HTML-елемент — прямокутник із чотирьох шарів: content (вміст), padding (внутрішній відступ, між вмістом і рамкою), border (рамка), margin (зовнішній відступ, від інших елементів). width/height задають розмір content-області.",
+    previewHTML: `<div class="box">Блок</div>`,
+    example: { code: `.box {\n  width: 200px;\n  padding: 10px;\n  margin: 20px;\n  background: #fde68a;\n}`, explain: "margin штовхає сусідні елементи, padding — розширює простір усередині." },
+    task: "Створи блок шириною 200px та додай йому зовнішній відступ (margin) 20px.",
     starter: "",
-    hints: ["Селектор — main, без крапки й решітки.", "Потрібні max-width, margin і padding.", "main {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 20px;\n}"],
-    solution: `main {\n  max-width: 800px;\n  margin: 0 auto;\n  padding: 20px;\n}`,
+    hints: ["Селектор — .box", "Потрібні властивості width: 200px і margin: 20px.", ".box {\n  width: 200px;\n  margin: 20px;\n}"],
+    solution: `.box {\n  width: 200px;\n  margin: 20px;\n  background: #fde68a;\n}`,
     type: "css",
     tests: [
-      { re: /main\s*{[^}]*max-width\s*:\s*[^;]+;/i, msg: "Потрібен max-width у правилі main." },
-      { re: /main\s*{[^}]*margin\s*:\s*0\s+auto\s*;/i, msg: "Потрібен margin: 0 auto у правилі main." },
-      { re: /main\s*{[^}]*padding\s*:\s*[^;]+;/i, msg: "Потрібен padding у правилі main." },
+      { re: /\.box\s*{[^}]*width\s*:\s*200px\s*;/i, msg: "Потрібно width: 200px у .box." },
+      { re: /\.box\s*{[^}]*margin\s*:\s*20px\s*;/i, msg: "Потрібно margin: 20px у .box." },
     ],
   },
   {
     id: "css-3",
     title: "Flexbox",
     theory:
-      "display: flex перетворює елемент на flex-контейнер — його прямі діти вишиковуються в ряд (за замовчуванням горизонтально). justify-content керує вирівнюванням по головній осі, gap додає відступ між елементами без margin.\n\nFlexbox розв'язав проблему, яка десятиліттями мучила верстальників: розташувати кілька елементів в один рядок з рівномірними відступами між ними, без «магічних» margin-обчислень і зламу макета при зміні кількості елементів. Саме тому display: flex — один з найчастіше вживаних інструментів у сучасному CSS.\n\nalign-items керує вирівнюванням по ПОПЕРЕЧНІЙ осі (типово вертикально, якщо ряд горизонтальний) — наприклад, align-items: center вирівнює елементи різної висоти по центру одне відносно одного. justify-content, навпаки, працює вздовж ГОЛОВНОЇ осі (типово горизонтально) — center, space-between, space-around по-різному розподіляють вільний простір між елементами.\n\nНайпоширеніше застосування flexbox — саме навігаційне меню: nav з кількома посиланнями a всередині, вишикуваними горизонтально з рівним відступом. Це саме та задача, яку зараз вирішить твій сайт.",
-    previewHTML: `<header><nav><a href="#">Головна</a><a href="#">Про нас</a><a href="#">Контакти</a></nav></header>`,
-    examples: [
-      { title: "Горизонтальне меню", code: `header nav {\n  display: flex;\n  gap: 16px;\n}`, explain: "Посилання в nav вишиковуються в ряд з відступом 16px між ними, замість того щоб стояти одне під одним." },
-      { title: "З вирівнюванням по центру", code: `.row {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n  align-items: center;\n}`, explain: "justify-content центрує по горизонталі, align-items — по вертикалі відносно один одного." },
-    ],
-    presentation: [
-      { title: "display: flex", points: ["Прямі діти вишиковуються в ряд (типово горизонтально)", "gap додає відступ між елементами без margin", "justify-content — вирівнювання по головній осі"] },
-      { title: "Найчастіше застосування", points: ["Навігаційне меню — посилання в один горизонтальний ряд", "align-items — вирівнювання по поперечній осі", "Замінює «магічні» обчислення margin для рядів елементів"] },
-    ],
-    task: "Зроби nav усередині header свого сайту flex-контейнером (селектор header nav): display: flex і gap.",
+      "display: flex перетворює елемент на flex-контейнер — його прямі діти вишиковуються в ряд (за замовчуванням горизонтально). justify-content керує вирівнюванням по головній осі, gap додає відступ між елементами без margin.",
+    previewHTML: `<div class="row"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>`,
+    example: { code: `.row {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}`, explain: "Три .item стануть у ряд по центру з відступом 12px." },
+    task: "Зроби .row flex-контейнером (display: flex) з gap: 12px.",
     starter: "",
-    hints: ["Селектор — header nav (два слова через пробіл, без крапки).", "Потрібні властивості display: flex і gap.", "header nav {\n  display: flex;\n  gap: 16px;\n}"],
-    solution: `header nav {\n  display: flex;\n  gap: 16px;\n}`,
+    hints: ["Потрібна властивість display: flex.", "Додай ще gap: 12px.", ".row {\n  display: flex;\n  gap: 12px;\n}"],
+    solution: `.row {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}`,
     type: "css",
     tests: [
-      { re: /header\s+nav\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у правилі header nav." },
-      { re: /header\s+nav\s*{[^}]*gap\s*:\s*[^;]+;/i, msg: "Потрібен gap у правилі header nav." },
+      { re: /\.row\s*{[^}]*display\s*:\s*flex\s*;/i, msg: "Потрібно display: flex у .row." },
+      { re: /\.row\s*{[^}]*gap\s*:\s*12px\s*;/i, msg: "Потрібно gap: 12px у .row." },
     ],
   },
   {
     id: "css-4",
     title: "Позиціонування",
     theory:
-      "position: relative зсуває елемент відносно його звичайного місця, не виймаючи інших елементів з потоку. position: absolute виймає елемент з потоку і позиціонує його відносно найближчого предка з position, відмінним від static (найчастіше — relative-батька).\n\nЗа замовчуванням КОЖЕН елемент має position: static — «звичайний потік», де елементи йдуть один за одним, а властивості top/right/bottom/left взагалі ігноруються. Лише щойно задати position: relative чи absolute, ці властивості вмикаються.\n\nНайважливіший, часто незрозумілий новачкам момент: position: absolute позиціонується відносно НАЙБЛИЖЧОГО предка, у якого position НЕ static (найчастіше — relative). Якщо жоден предок не має position, absolute-елемент прив'яжеться до всієї сторінки (html), а не до сусіднього видимого блоку — і «зʼїде» в неочікуване місце. Тому pair .frame { position: relative } + .badge { position: absolute } завжди йдуть РАЗОМ.\n\nІснує ще position: fixed (прив'язка до вікна браузера, не рухається при прокручуванні — для «прилиплих» шапок чи кнопок) і position: sticky (гібрид: поводиться як звичайний елемент, поки не досягне заданої межі при прокручуванні, а потім «приклеюється» — саме цим часто фіксують шапку таблиці, про яку йшлося в курсі HTML).",
+      "position: relative зсуває елемент відносно його звичайного місця, не виймаючи інших елементів з потоку. position: absolute виймає елемент з потоку і позиціонує його відносно найближчого предка з position, відмінним від static (найчастіше — relative-батька).",
     previewHTML: `<div class="frame"><div class="badge">NEW</div></div>`,
-    examples: [
-      { title: "relative + absolute разом", code: `.frame { position: relative; }\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`, explain: "badge приліпає до кутка frame, бо frame — його найближчий relative-предок." },
-      { title: "Без relative-батька (проблема)", code: `.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`, explain: "Без position: relative у батька badge прив'яжеться до всієї сторінки, а не до frame — типова помилка новачків." },
-    ],
-    presentation: [
-      { title: "static, relative, absolute", points: ["static — типова поведінка, top/right/bottom/left ігноруються", "relative — зсув відносно звичайного місця елемента", "absolute — виймає з потоку, прив'язка до relative-предка"] },
-      { title: "fixed і sticky", points: ["fixed — прив'язка до вікна браузера, не рухається при скролі", "sticky — «приклеюється» при прокручуванні до межі", "absolute завжди шукає найближчого предка з НЕ static position"] },
-    ],
+    example: { code: `.frame { position: relative; }\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}`, explain: "badge приліпає до кутка frame." },
     task: "Зроби .frame position: relative, а .badge — position: absolute з top: 8px і right: 8px.",
     starter: "",
     hints: [".frame має position: relative.", ".badge має position: absolute з top і right.", ".frame { position: relative; }\n.badge { position: absolute; top: 8px; right: 8px; }"],
@@ -1458,90 +1427,60 @@ const CSS_LESSONS = [
   },
   {
     id: "css-5",
-    title: "Фінальний проєкт: стилізуй footer",
-    theory:
-      "Об'єднай усе, що вивчила в цьому курсі: кольори, box model і border-radius для заокруглень — застосуй їх до footer свого сайту.\n\nfooter зазвичай отримує візуально інший, часто темніший фон, ніж основний вміст сторінки — це підказує користувачу «ти дійшла до кінця сторінки», ще до того, як вона прочитає сам текст підвалу.\n\ntext-align: center у footer — поширений прийом, коли підвал містить лише коротку інформацію (копірайт, кілька посилань): центрування виглядає охайніше за вирівнювання по лівому краю для такого короткого, самодостатнього блоку.\n\nЦе фінальний урок базового CSS-курсу: за 9 уроків ти стилізувала body, main, nav (flexbox), посилання і hover-ефекти, positioning, і тепер — footer. Разом усе це вже перетворює структуру, зібрану в курсі HTML, на візуально цілісний сайт.",
-    previewHTML: `<footer><p>© 2025 Приклад сайту</p></footer>`,
-    examples: [
-      { title: "Стилізований footer", code: `footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}`, explain: "Темний фон і центрований текст — типовий вигляд підвалу сайту." },
-      { title: "footer з border-radius (для картки)", code: `.card {\n  padding: 16px;\n  border-radius: 12px;\n  background: white;\n}`, explain: "Той самий border-radius працює для будь-якого блока — не лише footer, а й карток товарів." },
-    ],
-    presentation: [
-      { title: "footer — фінальний штрих", points: ["Часто темніший фон, ніж основний вміст", "text-align: center — типово для короткого підвалу", "Завершує візуальну стилізацію всього сайту"] },
-      { title: "Курс CSS підсумок", points: ["body → main → nav → посилання → footer", "Кожен урок стилізував реальну частину твого сайту", "Далі — Grid, transition, і глибші теми CSS"] },
-    ],
-    task: "Стилізуй footer свого сайту: padding, background (будь-який темніший колір), і text-align: center.",
+    title: "Фінальний проєкт: стилізуй картку",
+    theory: "Об'єднай усе, що вивчила: box model, кольори, flexbox і border-radius для заокруглень.",
+    previewHTML: `<div class="card"><h3>Заголовок картки</h3><p>Опис картки українською.</p></div>`,
+    example: { code: `.card {\n  padding: 16px;\n  border-radius: 12px;\n  background: white;\n}`, explain: "border-radius заокруглює кути." },
+    task: "Додай .card: padding, background (будь-який колір), і border-radius не менше 8px.",
     starter: "",
-    hints: ["Селектор — footer, без крапки й решітки.", "Потрібні три властивості: padding, background, text-align.", "footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}"],
-    solution: `footer {\n  padding: 24px;\n  background: #1e293b;\n  color: #f8fafc;\n  text-align: center;\n}`,
+    hints: ["Потрібні три властивості: padding, background, border-radius.", "border-radius задається в px, наприклад 12px.", ".card {\n  padding: 16px;\n  background: #f8fafc;\n  border-radius: 12px;\n}"],
+    solution: `.card {\n  padding: 16px;\n  background: #f8fafc;\n  border-radius: 12px;\n}`,
     type: "css",
     tests: [
-      { re: /footer\s*{[^}]*padding\s*:\s*[^;]+;/i, msg: "Потрібен padding у правилі footer." },
-      { re: /footer\s*{[^}]*background\s*:\s*[^;]+;/i, msg: "Потрібен background у правилі footer." },
-      { re: /footer\s*{[^}]*text-align\s*:\s*center\s*;/i, msg: "Потрібен text-align: center у правилі footer." },
+      { re: /\.card\s*{[^}]*padding\s*:\s*[^;]+;/i, msg: "Потрібен padding у .card." },
+      { re: /\.card\s*{[^}]*background\s*:\s*[^;]+;/i, msg: "Потрібен background у .card." },
+      { re: /\.card\s*{[^}]*border-radius\s*:\s*[^;]+;/i, msg: "Потрібен border-radius у .card." },
     ],
   },
   {
     id: "css-6",
-    title: "Типографіка: стилізуй посилання меню",
+    title: "Типографіка",
     theory:
-      "font-size задає розмір шрифту, font-weight — товщину (normal, bold, або число 100–900), line-height — висоту рядка (впливає на читабельність довгого тексту).\n\nПосилання <a> мають браузерні стилі за замовчуванням, які рідко пасують до дизайну реального сайту: типово синій колір і підкреслення. text-decoration: none прибирає підкреслення, а color перевизначає колір — саме цю пару найчастіше застосовують до посилань навігаційного меню, де підкреслений синій текст виглядав би як текст усередині статті, а не як пункт меню.\n\nfont-weight контролює «жирність» тексту: normal (400) — звичайний, bold чи 700 — жирний. Пункти меню часто отримують трохи підвищену жирність (500-600), щоб виділятись, не будучи повністю жирними.\n\nline-height впливає не на посилання меню (короткий текст в один рядок), а насамперед на довгі абзаци — правильний line-height (зазвичай 1.4–1.8) значно полегшує читання великих блоків тексту, тому цю властивість варто памʼятати і для основного контенту сторінки, не лише для меню.",
-    previewHTML: `<header><nav><a href="#">Головна</a><a href="#">Про нас</a></nav></header>`,
-    examples: [
-      { title: "Посилання меню без підкреслення", code: `header nav a {\n  color: white;\n  text-decoration: none;\n  font-weight: 600;\n}`, explain: "text-decoration: none прибирає стандартне підкреслення посилань; color задає власний колір замість типового синього." },
-      { title: "Типографіка абзацу", code: `.text {\n  font-size: 18px;\n  font-weight: 600;\n  line-height: 1.6;\n}`, explain: "line-height: 1.6 — рядок у 1.6 раза вищий за розмір шрифту, зручно для довгого тексту." },
-    ],
-    presentation: [
-      { title: "Стилізація посилань", points: ["a типово синій і підкреслений — рідко пасує до дизайну", "text-decoration: none прибирає підкреслення", "color перевизначає стандартний колір посилання"] },
-      { title: "font-weight і line-height", points: ["font-weight: 400 — звичайний, 700 — жирний", "line-height покращує читабельність довгого тексту", "Пункти меню часто 500-600 — трохи виразніше за звичайний"] },
-    ],
-    task: "Стилізуй посилання в nav свого сайту (селектор header nav a): color, text-decoration: none, і font-weight.",
+      "font-size задає розмір шрифту, font-weight — товщину (normal, bold, або число 100–900), line-height — висоту рядка (впливає на читабельність довгого тексту).",
+    previewHTML: `<p class="text">Текст, який стане зручніше читати після стилізації.</p>`,
+    example: { code: `.text {\n  font-size: 18px;\n  font-weight: 600;\n  line-height: 1.6;\n}`, explain: "line-height: 1.6 — рядок у 1.6 раза вищий за розмір шрифту." },
+    task: "Задай .text: font-size, font-weight і line-height (будь-які розумні значення).",
     starter: "",
-    hints: ["Селектор — header nav a (три слова через пробіл).", "text-decoration: none прибирає підкреслення.", "header nav a {\n  color: white;\n  text-decoration: none;\n  font-weight: 600;\n}"],
-    solution: `header nav a {\n  color: white;\n  text-decoration: none;\n  font-weight: 600;\n}`,
+    hints: ["Потрібні всі три властивості.", "font-size у px, line-height можна без одиниць.", ".text {\n  font-size: 18px;\n  font-weight: 600;\n  line-height: 1.6;\n}"],
+    solution: `.text {\n  font-size: 18px;\n  font-weight: 600;\n  line-height: 1.6;\n}`,
     type: "css",
     tests: [
-      { re: /header\s+nav\s+a\s*{[^}]*color\s*:\s*[^;]+;/i, msg: "Потрібен color у правилі header nav a." },
-      { re: /header\s+nav\s+a\s*{[^}]*text-decoration\s*:\s*none\s*;/i, msg: "Потрібен text-decoration: none у правилі header nav a." },
-      { re: /header\s+nav\s+a\s*{[^}]*font-weight\s*:\s*[^;]+;/i, msg: "Потрібен font-weight у правилі header nav a." },
+      { re: /\.text\s*{[^}]*font-size\s*:\s*[^;]+;/i, msg: "Потрібен font-size у .text." },
+      { re: /\.text\s*{[^}]*font-weight\s*:\s*[^;]+;/i, msg: "Потрібен font-weight у .text." },
+      { re: /\.text\s*{[^}]*line-height\s*:\s*[^;]+;/i, msg: "Потрібен line-height у .text." },
     ],
   },
   {
     id: "css-7",
-    title: "Псевдоклас :hover: оживи меню",
+    title: "Псевдоклас :hover",
     theory:
-      "селектор:hover застосовує стиль, поки курсор миші над елементом — без жодного JavaScript. Це основа для кнопок і посилань, які «відповідають» на наведення.\n\n:hover — приклад псевдокласу: він не описує окремий елемент HTML, а особливий СТАН уже існуючого елемента (тут — «курсор миші над ним просто зараз»). Стан автоматично вмикається й вимикається браузером — досить написати правило один раз, і воно саме спрацьовуватиме щоразу, коли умова виконується.\n\nНа сенсорних екранах (телефон, планшет) концепції «наведення» фізично не існує — там немає курсору, який може «зависнути» над елементом без кліку. Тому :hover-ефекти на мобільних пристроях або взагалі не спрацьовують, або спрацьовують дивно (наприклад, після дотику й лишаються активними). Через це важливі дії ніколи не варто робити доступними ТІЛЬКИ через :hover — завжди має бути спосіб доступитись до них звичайним кліком чи дотиком.\n\nЗастосувати :hover до посилань меню — один із найпростіших і найпомітніших способів зробити сайт «живим»: користувач одразу відчуває, що елемент інтерактивний, ще до кліку.",
-    previewHTML: `<header><nav><a href="#">Наведи на мене</a></nav></header>`,
-    examples: [
-      { title: "Hover для посилання меню", code: `header nav a:hover {\n  color: #fbbf24;\n}`, explain: "Колір посилання зміниться, лише поки курсор над ним." },
-      { title: "Hover для кнопки", code: `.btn:hover {\n  background-color: #1d4ed8;\n}`, explain: "Той самий принцип працює для будь-якого елемента, не лише посилань." },
-    ],
-    presentation: [
-      { title: ":hover — псевдоклас стану", points: ["Стиль діє, ЛИШЕ поки курсор над елементом", "Не потребує жодного JavaScript", "Браузер сам вмикає й вимикає стиль автоматично"] },
-      { title: "Обмеження на мобільних", points: ["На сенсорному екрані немає «наведення» без кліку", ":hover там спрацьовує дивно чи не спрацьовує взагалі", "Важливі дії не варто ховати ТІЛЬКИ за :hover"] },
-    ],
-    task: "Додай правило header nav a:hover, яке змінює color посилань меню при наведенні.",
+      "селектор:hover застосовує стиль, поки курсор миші над елементом — без жодного JavaScript. Це основа для кнопок, які «відповідають» на наведення.",
+    previewHTML: `<button class="btn">Наведи курсор</button>`,
+    example: { code: `.btn:hover {\n  background-color: #1d4ed8;\n}`, explain: "Фон зміниться лише під час наведення." },
+    task: "Додай правило .btn:hover, яке змінює background-color.",
     starter: "",
-    hints: ["Двокрапка перед hover, без пробілу: header nav a:hover", "Властивість — color (можна й інші).", "header nav a:hover {\n  color: #fbbf24;\n}"],
-    solution: `header nav a:hover {\n  color: #fbbf24;\n}`,
+    hints: ["Двокрапка перед hover: .btn:hover", "Властивість — background-color.", ".btn:hover {\n  background-color: #1d4ed8;\n}"],
+    solution: `.btn {\n  padding: 8px 16px;\n}\n.btn:hover {\n  background-color: #1d4ed8;\n}`,
     type: "css",
-    tests: [{ re: /header\s+nav\s+a:hover\s*{[^}]*color\s*:\s*[^;]+;/i, msg: "Потрібне правило header nav a:hover з color." }],
+    tests: [{ re: /\.btn:hover\s*{[^}]*background-color\s*:\s*[^;]+;/i, msg: "Потрібне правило .btn:hover з background-color." }],
   },
   {
     id: "css-8",
     title: "CSS Grid",
     theory:
-      "display: grid перетворює елемент на сітковий контейнер. grid-template-columns описує кількість і ширину колонок: наприклад 1fr 1fr 1fr — три однакові колонки, що діляться доступний простір.\n\nОдиниця fr (fraction, «частка») — унікальна для Grid: вона означає «одна частка з-поміж усіх доступних fr на цьому рядку», а не фіксований розмір. grid-template-columns: 1fr 2fr означає, що друга колонка вдвічі ширша за першу, хай яка загальна ширина контейнера — розрахунок відбувається автоматично.\n\nРізниця між Flexbox і Grid, яка часто плутає на початку: Flexbox — ОДНОВИМІРНИЙ (керує розташуванням в один рядок ЧИ одну колонку), тоді як Grid — ДВОВИМІРНИЙ (керує рядками Й колонками одночасно). Для навігаційного меню чи ряду карток зазвичай досить Flexbox; для складної сітки товарів у кілька рядків і колонок — Grid зручніший.\n\ngrid-template-columns: repeat(3, 1fr) — скорочений спосіб написати «1fr 1fr 1fr» для великої кількості однакових колонок, без ручного повторення. Ця функція repeat() стає особливо корисною, коли колонок 6, 12 чи більше.",
+      "display: grid перетворює елемент на сітковий контейнер. grid-template-columns описує кількість і ширину колонок: наприклад 1fr 1fr 1fr — три однакові колонки, що діляться доступний простір.",
     previewHTML: `<div class="grid"><div class="cell">1</div><div class="cell">2</div><div class="cell">3</div></div>`,
-    examples: [
-      { title: "Три рівні колонки", code: `.grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n}`, explain: "Три клітинки стануть у три рівні колонки, що діляться доступний простір." },
-      { title: "Нерівні колонки", code: `.layout {\n  display: grid;\n  grid-template-columns: 1fr 3fr;\n}`, explain: "Друга колонка втричі ширша за першу — типово для розкладки «бічна панель + основний вміст»." },
-      { title: "repeat() для багатьох колонок", code: `.gallery {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 12px;\n}`, explain: "repeat(4, 1fr) — те саме, що 1fr 1fr 1fr 1fr, лише коротше." },
-    ],
-    presentation: [
-      { title: "display: grid", points: ["Перетворює елемент на сітковий контейнер", "grid-template-columns задає кількість і ширину колонок", "fr — «частка» доступного простору, не фіксований розмір"] },
-      { title: "Grid проти Flexbox", points: ["Flexbox — одновимірний (один рядок чи одна колонка)", "Grid — двовимірний (рядки Й колонки одночасно)", "repeat(n, 1fr) — скорочення для багатьох однакових колонок"] },
-    ],
+    example: { code: `.grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n}`, explain: "Три клітинки стануть у три рівні колонки." },
     task: "Зроби .grid grid-контейнером (display: grid) із grid-template-columns на 3 колонки.",
     starter: "",
     hints: ["Потрібна властивість display: grid.", "grid-template-columns: 1fr 1fr 1fr задає три рівні колонки.", ".grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n}"],
@@ -1556,16 +1495,9 @@ const CSS_LESSONS = [
     id: "css-9",
     title: "Transition: плавні переходи",
     theory:
-      "transition каже браузеру плавно анімувати зміну властивості замість миттєвого стрибка. transition: background-color 0.3s означає: якщо background-color зміниться (наприклад, на :hover), анімуй це за 0.3 секунди.\n\ntransition пишеться на САМОМУ елементі (у звичайному стані), а не в :hover — це типова помилка новачків. Логіка проста: transition означає «якщо ця властивість КОЛИ-НЕБУДЬ зміниться — анімуй перехід», тому правило належить базовому стилю, а :hover лише задає НОВЕ значення, до якого відбудеться плавний перехід.\n\ntransition: all 0.3s анімує ЗМІНУ БУДЬ-ЯКОЇ властивості елемента одним рядком — зручно для швидких прототипів, але на реальних сайтах частіше перелічують конкретні властивості (background-color, transform), бо all іноді анімує зайве й непередбачувано, витрачаючи більше ресурсів браузера.\n\nОкрім тривалості, transition може приймати «криву прискорення» (timing function): ease (типова, плавний старт і фініш), linear (рівномірно), ease-in-out тощо. Це впливає на те, як САМЕ відчувається рух — різка чи м'яка анімація.",
+      "transition каже браузеру плавно анімувати зміну властивості замість миттєвого стрибка. transition: background-color 0.3s означає: якщо background-color зміниться (наприклад, на :hover), анімуй це за 0.3 секунди.",
     previewHTML: `<button class="btn2">Наведи</button>`,
-    examples: [
-      { title: "Плавна зміна кольору кнопки", code: `.btn2 {\n  background-color: #334155;\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}`, explain: "Зміна кольору стане плавною за 0.3 секунди, а не миттєвою." },
-      { title: "Кілька властивостей одразу", code: `.card {\n  transition: transform 0.2s, box-shadow 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 8px 16px rgba(0,0,0,0.15);\n}`, explain: "Картка плавно «піднімається» й отримує тінь при наведенні — обидві властивості анімуються одночасно." },
-    ],
-    presentation: [
-      { title: "Як працює transition", points: ["Плавно анімує ЗМІНУ властивості замість стрибка", "Пишеться на базовому стилі, не в :hover", ":hover лише задає нове значення для переходу"] },
-      { title: "Деталі", points: ["transition: all 0.3s анімує будь-яку зміну одним рядком", "Краще перелічувати конкретні властивості на реальних сайтах", "timing function (ease, linear) впливає на характер руху"] },
-    ],
+    example: { code: `.btn2 {\n  background-color: #334155;\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}`, explain: "Зміна кольору стане плавною, а не миттєвою." },
     task: "Додай .btn2 з transition (будь-яка властивість і тривалість) і .btn2:hover, що змінює якусь властивість.",
     starter: "",
     hints: ["transition пишеться в .btn2, а не в :hover.", "Формат: transition: властивість тривалість;", ".btn2 {\n  transition: background-color 0.3s;\n}\n.btn2:hover {\n  background-color: #1d4ed8;\n}"],
@@ -1858,15 +1790,6 @@ function defaultProject() {
 // Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
 const HEADER_MILESTONE = "html-17";
 const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-8"];
-
-// Milestone CSS lessons whose submitted rules style the same growing site —
-// order is the order they're concatenated into project.css.
-const CSS_MILESTONES = ["css-1", "css-2", "css-3", "css-6", "css-7", "css-5"];
-
-function renderProjectCss(project) {
-  const blocks = project.blocks || {};
-  return CSS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
-}
 
 // Produces the FULL document — DOCTYPE, <html lang>, <head> with the meta
 // tags taught in html-2/html-14, and <body> with the growing header/main/footer —
@@ -12428,7 +12351,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       const r = firstFail ? { pass: false, message: firstFail } : { pass: true, message: "Кожне правило застосовується саме до того селектора, який ти вказала — так CSS і працює." };
       setResult(r);
       runCss();
-      if (r.pass) onComplete(lesson.id, code);
+      if (r.pass) onComplete(lesson.id);
       return;
     }
     if (lesson.type === "vocab") {
@@ -13115,12 +13038,9 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
     .replace("</head>", `<style>${project.css || ""}</style></head>`)
     .replace("</body>", `<script>${project.js || ""}<\/script></body>`);
 
-  const htmlMilestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
-  const htmlDoneIds = progress?.completed?.html || [];
-  const htmlDoneCount = htmlMilestoneIds.filter((id) => htmlDoneIds.includes(id)).length;
-
-  const cssDoneIds = progress?.completed?.css || [];
-  const cssDoneCount = CSS_MILESTONES.filter((id) => cssDoneIds.includes(id)).length;
+  const milestoneIds = [HEADER_MILESTONE, ...MAIN_MILESTONES];
+  const doneIds = progress?.completed?.html || [];
+  const doneCount = milestoneIds.filter((id) => doneIds.includes(id)).length;
 
   return (
     <div className="max-w-5xl">
@@ -13136,40 +13056,18 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
         {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
       </p>
 
-      {htmlDoneCount < htmlMilestoneIds.length && (
-        <div className="mb-3 border border-stone-800 rounded-md p-3 bg-stone-950">
-          <div className="text-xs text-stone-500 mb-2">Блоки сайту з уроків HTML ({htmlDoneCount}/{htmlMilestoneIds.length}):</div>
-          <div className="flex flex-wrap gap-2">
-            {htmlMilestoneIds.map((id) => {
-              const lesson = HTML_LESSONS.find((l) => l.id === id);
-              const done = htmlDoneIds.includes(id);
-              return (
-                <button
-                  key={id}
-                  disabled={done}
-                  onClick={() => onGoLesson?.("html", id)}
-                  className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
-                >
-                  {done ? "✓ " : ""}{lesson?.title || id}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {cssDoneCount < CSS_MILESTONES.length && (
+      {doneCount < milestoneIds.length && (
         <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
-          <div className="text-xs text-stone-500 mb-2">Стилі сайту з уроків CSS ({cssDoneCount}/{CSS_MILESTONES.length}):</div>
+          <div className="text-xs text-stone-500 mb-2">Блоки сайту з уроків HTML ({doneCount}/{milestoneIds.length}):</div>
           <div className="flex flex-wrap gap-2">
-            {CSS_MILESTONES.map((id) => {
-              const lesson = CSS_LESSONS.find((l) => l.id === id);
-              const done = cssDoneIds.includes(id);
+            {milestoneIds.map((id) => {
+              const lesson = HTML_LESSONS.find((l) => l.id === id);
+              const done = doneIds.includes(id);
               return (
                 <button
                   key={id}
                   disabled={done}
-                  onClick={() => onGoLesson?.("css", id)}
+                  onClick={() => onGoLesson?.(id)}
                   className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
                 >
                   {done ? "✓ " : ""}{lesson?.title || id}
@@ -13565,17 +13463,13 @@ export default function App() {
       saveProgress(next);
       return next;
     });
-    const isHtmlMilestone = id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id);
-    const isCssMilestone = CSS_MILESTONES.includes(id);
-    if (code !== undefined && (isHtmlMilestone || isCssMilestone)) {
+    if (code !== undefined && (id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id))) {
       setProject((prev) => {
         if (!prev.themeId) return prev;
         const theme = PROJECT_THEMES.find((t) => t.id === prev.themeId);
         if (!theme) return prev;
         const blocks = { ...(prev.blocks || {}), [id]: code };
-        const next = { ...prev, blocks };
-        if (isHtmlMilestone) next.html = renderProjectHtml({ ...prev, blocks }, theme);
-        if (isCssMilestone) next.css = renderProjectCss({ ...prev, blocks });
+        const next = { ...prev, blocks, html: renderProjectHtml({ ...prev, blocks }, theme) };
         saveProject(next);
         return next;
       });
@@ -13644,7 +13538,7 @@ export default function App() {
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
           {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} />}
           {view === "myproject" && (project.themeId
-            ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(cId, lId) => goCourse(cId, lId)} />
+            ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(lId) => goCourse("html", lId)} />
             : <ProjectSetup onCreate={handleCreateProject} />)}
           {view === "library" && <LibraryPage />}
           {view === "reference" && <ReferencePage />}
