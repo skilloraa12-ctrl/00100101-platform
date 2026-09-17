@@ -1013,7 +1013,7 @@ const REF_NAV = {
   "Семантика": ["header", "nav", "main", "section", "article", "footer", "aside"],
   "Списки": ["ul", "ol", "li", "dl"],
   "Таблиці": ["table", "tr", "th", "td"],
-  "Медіа": ["img", "video", "audio", "picture"],
+  "Медіа": ["img", "video", "audio", "picture", "iframe", "embed", "object", "figure", "figcaption", "source", "track", "map", "area"],
   "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
   "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
   "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
@@ -2525,6 +2525,188 @@ const TERM_PAGES_V2 = {
       "Багато <hr> поспіль замість реальної структури секцій.",
     ],
     related: ["section", "br"],
+  },
+
+  iframe: {
+    badge: "HTML",
+    title: "<iframe>",
+    whatIsIt: "Вбудовує іншу HTML-сторінку всередину поточної — окремий документ у своєму «вікні» на сторінці. Використовується для вбудованих карт, відео з YouTube, віджетів, реклами.",
+    useCases: ["вбудоване відео з YouTube", "карта Google Maps на сторінці контактів", "віджети сторонніх сервісів"],
+    syntax: `<iframe src="https://example.com" width="300" height="150"></iframe>`,
+    attributes: [
+      { name: "src", desc: "URL вбудованої сторінки" },
+      { name: "width / height", desc: "розміри вбудованого вікна" },
+      { name: "sandbox", desc: "обмежує можливості вбудованого документа (без нього — повний доступ)" },
+      { name: "loading", desc: "'lazy' відкладає завантаження, поки не докрутиш до iframe" },
+      { name: "title", desc: "текстовий опис для доступності — обов'язковий" },
+    ],
+    example: `<iframe srcdoc="<h3>Вбудований документ</h3><p>Це окрема HTML-сторінка всередині iframe.</p>" title="приклад" style="width:100%;height:100px;border:1px solid #ccc;border-radius:6px;"></iframe>`,
+    pitfalls: [
+      "Без sandbox вбудована сторінка має повний доступ до можливостей браузера — ризик безпеки для стороннього вмісту.",
+      "Відсутній title — проблема з доступністю для скрінрідерів.",
+      "Забагато iframe на сторінці сповільнює завантаження.",
+    ],
+    related: ["embed", "object"],
+  },
+  embed: {
+    badge: "HTML",
+    title: "<embed>",
+    whatIsIt: "Вбудовує зовнішній ресурс (зображення, PDF, застарілий плагін-контент), який обробляється відповідним плагіном браузера. Самозакривний тег, без резервного вмісту на відміну від <object>.",
+    useCases: ["вбудовування PDF-файлу", "застарілий мультимедійний контент через плагіни"],
+    syntax: `<embed src="file.pdf" type="application/pdf" width="300" height="200">`,
+    attributes: [
+      { name: "src", desc: "адреса вбудованого ресурсу" },
+      { name: "type", desc: "MIME-тип ресурсу" },
+      { name: "width / height", desc: "розміри вбудованого вікна" },
+    ],
+    example: `<embed src="https://picsum.photos/300/150" type="image/jpeg" width="300" height="150">`,
+    pitfalls: [
+      "Немає запасного вмісту, якщо ресурс не завантажиться — на відміну від <object>.",
+      "У сучасних застосунках частіше варто <img>, <video> чи <iframe> замість <embed>.",
+    ],
+    related: ["object", "iframe"],
+  },
+  object: {
+    badge: "HTML",
+    title: "<object>",
+    whatIsIt: "Вбудовує зовнішній ресурс (PDF, зображення, інший HTML-документ) з можливістю показати резервний вміст усередині тега, якщо ресурс не завантажиться — на відміну від <embed>.",
+    useCases: ["вбудовування PDF з текстом-заміною", "зображення з резервним описом", "вбудовування інших HTML-документів"],
+    syntax: `<object data="file.pdf" type="application/pdf">Резервний текст</object>`,
+    attributes: [
+      { name: "data", desc: "адреса вбудованого ресурсу" },
+      { name: "type", desc: "MIME-тип ресурсу" },
+      { name: "width / height", desc: "розміри вбудованого вікна" },
+    ],
+    example: `<object data="does-not-exist.pdf" type="application/pdf" width="300" height="60" style="border:1px solid #ccc;">
+  <p style="padding:8px;">Не вдалося завантажити PDF — це резервний вміст.</p>
+</object>`,
+    pitfalls: [
+      "Забутий резервний вміст усередині — тоді при помилці користувач бачить порожнє місце.",
+      "Непослідовна підтримка типів файлів у різних браузерах.",
+    ],
+    related: ["embed", "iframe"],
+  },
+  figure: {
+    badge: "HTML",
+    title: "<figure>",
+    whatIsIt: "Групує самодостатній контент (зображення, діаграму, код, цитату) разом із підписом <figcaption>. Семантично позначає, що вміст можна перемістити в інше місце статті без втрати сенсу.",
+    useCases: ["зображення з підписом", "діаграма чи графік зі стислим поясненням", "блок коду з підписом-поясненням"],
+    syntax: `<figure>\n  <img src="chart.png" alt="...">\n  <figcaption>Підпис до зображення</figcaption>\n</figure>`,
+    attributes: [],
+    example: `<figure style="text-align:center;">
+  <img src="https://picsum.photos/300/150" alt="Випадкове зображення" style="border-radius:6px;">
+  <figcaption style="font-size:13px;color:#666;margin-top:6px;">Мал. 1 — приклад ілюстрації</figcaption>
+</figure>`,
+    pitfalls: [
+      "Використання <figure> для будь-якого зображення без сенсу «ілюстрації» — не завжди потрібне, іноді досить <img>.",
+      "Figcaption не обов'язковий, але без нього <figure> втрачає головну перевагу.",
+    ],
+    related: ["figcaption", "img"],
+  },
+  figcaption: {
+    badge: "HTML",
+    title: "<figcaption>",
+    whatIsIt: "Підпис до вмісту <figure> — може стояти першим або останнім дочірнім елементом. Пов'язує текстовий опис із зображенням, діаграмою чи іншим самодостатнім блоком.",
+    useCases: ["підпис під зображенням", "джерело чи автор ілюстрації", "пояснення до графіка"],
+    syntax: `<figure>\n  <img src="..." alt="...">\n  <figcaption>Опис</figcaption>\n</figure>`,
+    attributes: [],
+    example: `<figure style="text-align:center;">
+  <img src="https://picsum.photos/300/150" alt="Фото" style="border-radius:6px;">
+  <figcaption style="font-size:13px;color:#666;margin-top:6px;">Фото: Unsplash</figcaption>
+</figure>`,
+    pitfalls: [
+      "<figcaption> поза <figure> не має сенсу — завжди дочірній елемент <figure>.",
+      "Кілька <figcaption> в одному <figure> — дозволяється лише один.",
+    ],
+    related: ["figure"],
+  },
+  source: {
+    badge: "HTML",
+    title: "<source>",
+    whatIsIt: "Вказує альтернативне джерело медіафайлу всередині <video>, <audio> чи <picture> — браузер сам обирає перший підтримуваний варіант із кількох. Самозакривний тег.",
+    useCases: ["кілька форматів відео/аудіо (mp4, webm) для сумісності", "різні розміри зображення в <picture> під різні екрани"],
+    syntax: `<video controls>\n  <source src="movie.webm" type="video/webm">\n  <source src="movie.mp4" type="video/mp4">\n</video>`,
+    attributes: [
+      { name: "src", desc: "адреса медіафайлу (для video/audio)" },
+      { name: "srcset", desc: "адреса зображення (для picture)" },
+      { name: "type", desc: "MIME-тип файлу — браузер обирає перший, який підтримує" },
+      { name: "media", desc: "медіа-умова для picture, напр. мінімальна ширина екрана" },
+    ],
+    example: `<audio controls>
+  <source src="song.ogg" type="audio/ogg">
+  <source src="song.mp3" type="audio/mpeg">
+  Твій браузер не підтримує audio.
+</audio>`,
+    pitfalls: [
+      "<source> завжди йде до запасного контенту (img чи тексту), а не після нього.",
+      "Неправильний порядок <source> — браузер бере перший підтримуваний, тож найкращий формат вказуй першим.",
+    ],
+    related: ["video", "audio", "picture", "track"],
+  },
+  track: {
+    badge: "HTML",
+    title: "<track>",
+    whatIsIt: "Додає текстову доріжку до <video> чи <audio> — субтитри, підписи для людей з вадами слуху, або розділи-глави. Файл доріжки має формат WebVTT.",
+    useCases: ["субтитри іншою мовою", "підписи для людей з вадами слуху", "розділи-глави у відео"],
+    syntax: `<video controls>\n  <source src="movie.mp4">\n  <track kind="subtitles" src="subs-uk.vtt" srclang="uk" label="Українська" default>\n</video>`,
+    attributes: [
+      { name: "kind", desc: "тип доріжки: subtitles, captions, chapters, descriptions" },
+      { name: "src", desc: "адреса файлу доріжки у форматі WebVTT" },
+      { name: "srclang", desc: "мова доріжки, напр. \"uk\"" },
+      { name: "label", desc: "назва, яку бачить користувач у меню вибору" },
+      { name: "default", desc: "ця доріжка увімкнена за замовчуванням" },
+    ],
+    example: `<video controls width="300" poster="https://picsum.photos/300/150">
+  <source src="movie.mp4" type="video/mp4">
+  <track kind="captions" src="captions-uk.vtt" srclang="uk" label="Українська" default>
+  Твій браузер не підтримує video.
+</video>`,
+    pitfalls: [
+      "Файл .vtt з неправильним форматом (без заголовка WEBVTT) — браузер проігнорує доріжку.",
+      "Немає жодного <track> — відео недоступне для людей з вадами слуху.",
+    ],
+    related: ["video", "audio", "source"],
+  },
+  map: {
+    badge: "HTML",
+    title: "<map>",
+    whatIsIt: "Визначає інтерактивну карту зображення — набір клікабельних областей (<area>) поверх картинки. Пов'язується із зображенням через атрибут usemap.",
+    useCases: ["клікабельні регіони на географічній карті", "інтерактивна схема чи інфографіка"],
+    syntax: `<img src="map.jpg" usemap="#regions">\n<map name="regions">\n  <area shape="rect" coords="0,0,100,100" href="#" alt="Регіон 1">\n</map>`,
+    attributes: [{ name: "name", desc: "ім'я карти, на яке посилається usemap зображення" }],
+    example: `<img src="https://picsum.photos/300/150" usemap="#demo" alt="Демозображення" style="border-radius:6px;">
+<map name="demo">
+  <area shape="rect" coords="0,0,150,150" href="#" alt="Ліва половина" title="Ліва половина">
+  <area shape="rect" coords="150,0,300,150" href="#" alt="Права половина" title="Права половина">
+</map>
+<p style="font-size:13px;color:#666;">Наведи курсор на ліву й праву половину зображення.</p>`,
+    pitfalls: [
+      "Координати area не збігаються з реальним розміром зображення — клікабельна зона зміщена.",
+      "Забутий usemap на <img> — карта області визначена, але не прив'язана до зображення.",
+    ],
+    related: ["area", "img"],
+  },
+  area: {
+    badge: "HTML",
+    title: "<area>",
+    whatIsIt: "Визначає одну клікабельну область всередині <map> — форму (прямокутник, коло, багатокутник) з координатами й посиланням. Самозакривний тег.",
+    useCases: ["клікабельний регіон на інтерактивній карті", "область-посилання на частину зображення"],
+    syntax: `<area shape="circle" coords="50,50,40" href="#" alt="Опис області">`,
+    attributes: [
+      { name: "shape", desc: "форма області: rect, circle, poly, default" },
+      { name: "coords", desc: "координати форми, залежать від shape" },
+      { name: "href", desc: "адреса переходу при кліку" },
+      { name: "alt", desc: "текстовий опис — обов'язковий для доступності" },
+    ],
+    example: `<img src="https://picsum.photos/300/150" usemap="#demo2" alt="Демозображення" style="border-radius:6px;">
+<map name="demo2">
+  <area shape="circle" coords="150,75,60" href="#" alt="Центральна область" title="Центральна область">
+</map>`,
+    pitfalls: [
+      "Відсутній alt — область недоступна для скрінрідерів.",
+      "<area> без <map> не має сенсу — завжди дочірній елемент <map>.",
+    ],
+    related: ["map", "img"],
   },
 
 };
