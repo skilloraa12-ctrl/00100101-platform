@@ -1348,6 +1348,26 @@ const SYMBOLS = [
   { cat: "JS: Таймери", sym: "setTimeout() / clearTimeout()", en: "Timeout timer", ua: "Одноразовий таймер", langs: "JS", example: "setTimeout(() => alert('Привіт'), 1000);", explain: "Виконує функцію один раз через заданий час (мс); clearTimeout скасовує заплановане виконання." },
   { cat: "JS: Таймери", sym: "setInterval() / clearInterval()", en: "Interval timer", ua: "Повторюваний таймер", langs: "JS", example: "setInterval(() => tick(), 1000);", explain: "Повторно виконує функцію через рівні проміжки часу, поки не буде зупинена clearInterval." },
 
+  { cat: "JS: Оператори", sym: "typeof / instanceof", en: "Type check operators", ua: "Оператори перевірки типу", langs: "JS", example: "typeof x === 'string'", explain: "typeof повертає рядок з типом примітиву, instanceof перевіряє клас об'єкта." },
+  { cat: "JS: Оператори", sym: "&& / || / !", en: "Logical operators", ua: "Логічні оператори", langs: "JS", example: "a && b || c", explain: "&& — і (обидва істинні), || — або (хоч один істинний), ! — заперечення." },
+  { cat: "JS: Оператори", sym: "??", en: "Nullish coalescing", ua: "Оператор нульового злиття", langs: "JS", example: "value ?? 'за замовчуванням'", explain: "Повертає праве значення, лише якщо ліве null або undefined (на відміну від ||, що спрацює й на 0/'')." },
+  { cat: "JS: Оператори", sym: "?. (optional chaining)", en: "Optional chaining", ua: "Опціональне звертання", langs: "JS", example: "user?.address?.city", explain: "Безпечно звертається до вкладеної властивості, повертає undefined замість помилки, якщо щось по дорозі відсутнє." },
+  { cat: "JS: Оператори", sym: "== / ===", en: "Equality operators", ua: "Оператори рівності", langs: "JS", example: "5 === '5' // false", explain: "== порівнює зі зведенням типів, === — строго, без зведення (рекомендований варіант)." },
+  { cat: "JS: Оператори", sym: "... (spread/rest)", en: "Spread/rest operator", ua: "Оператор розгортання/збору", langs: "JS", example: "const copy = [...arr];", explain: "Розгортає масив/об'єкт на окремі елементи (spread) чи збирає аргументи в масив (rest)." },
+  { cat: "JS: Оператори", sym: "?: (ternary)", en: "Ternary operator", ua: "Тернарний оператор", langs: "JS", example: "age >= 18 ? 'дорослий' : 'дитина'", explain: "Скорочений if/else в одному виразі." },
+  { cat: "JS: Оператори", sym: "+= -= *= /= %=", en: "Compound assignment", ua: "Складене присвоєння", langs: "JS", example: "x += 5;", explain: "Виконує операцію й одразу присвоює результат тій самій змінній." },
+  { cat: "JS: Оператори", sym: "&&= / ||= / ??=", en: "Logical assignment", ua: "Логічне присвоєння", langs: "JS", example: "config.debug ??= false;", explain: "Присвоюють значення лише за певної логічної умови поточного значення змінної." },
+  { cat: "JS: Деструктуризація", sym: "const { a, b } = obj", en: "Object destructuring", ua: "Деструктуризація об'єкта", langs: "JS", example: "const { name, age } = user;", explain: "Витягує властивості об'єкта в окремі змінні одним рядком." },
+  { cat: "JS: Деструктуризація", sym: "const [a, b] = arr", en: "Array destructuring", ua: "Деструктуризація масиву", langs: "JS", example: "const [first, second] = arr;", explain: "Витягує елементи масиву в окремі змінні за позицією." },
+  { cat: "JS: Set", sym: "Set", en: "Set collection", ua: "Колекція Set", langs: "JS", example: "new Set([1, 2, 2, 3]);", explain: "Колекція унікальних значень — дублікати автоматично ігноруються." },
+  { cat: "JS: Set", sym: "add() / has() / delete()", en: "Set methods", ua: "Методи Set", langs: "JS", example: "set.add(5); set.has(5);", explain: "Додають значення, перевіряють наявність чи видаляють його з Set." },
+  { cat: "JS: Map", sym: "Map", en: "Map collection", ua: "Колекція Map", langs: "JS", example: "new Map([['a', 1]]);", explain: "Колекція пар ключ-значення, де ключем може бути будь-який тип (на відміну від звичайного об'єкта)." },
+  { cat: "JS: Map", sym: "get() / set() / has()", en: "Map methods", ua: "Методи Map", langs: "JS", example: "map.set('key', 'value');", explain: "Задають, читають чи перевіряють наявність пари ключ-значення в Map." },
+  { cat: "JS: Ітератори", sym: "Symbol.iterator", en: "Iterator protocol", ua: "Протокол ітератора", langs: "JS", example: "obj[Symbol.iterator] = function* () { };", explain: "Робить об'єкт ітерованим — сумісним з for...of, spread, деструктуризацією." },
+  { cat: "JS: Генератори", sym: "function* / yield", en: "Generator function", ua: "Функція-генератор", langs: "JS", example: "function* gen() { yield 1; yield 2; }", explain: "Функція, що може призупиняти виконання через yield і повертати кілька значень послідовно." },
+  { cat: "JS: Symbol", sym: "Symbol()", en: "Symbol primitive", ua: "Примітив Symbol", langs: "JS", example: "const id = Symbol('id');", explain: "Створює унікальне, незмінне значення — часто для прихованих ключів об'єкта." },
+  { cat: "JS: Reflect/Proxy", sym: "Proxy", en: "Proxy object", ua: "Об'єкт Proxy", langs: "JS", example: "new Proxy(target, handler);", explain: "Перехоплює й перевизначає базові операції над об'єктом (читання, запис, виклик)." },
+
 ];
 
 const LIBRARY_HTML = [
