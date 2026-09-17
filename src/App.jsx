@@ -7803,6 +7803,94 @@ INSERT INTO users (email, age) VALUES ('a@test.com', -5);
     ],
     related: ["sql-create-alter-table"],
   },
+  "sql-index-views": {
+    badge: "SQL",
+    title: "INDEX, VIEW",
+    whatIsIt: "INDEX — окрема структура даних, що прискорює пошук рядків за колонкою (як зміст у книзі). VIEW — збережений запит, що поводиться як віртуальна таблиця: спрощує повторне використання складної логіки вибірки.",
+    useCases: ["прискорення пошуку за колонкою, яку часто фільтрують (WHERE, JOIN)", "приховування складного запиту за простою назвою (VIEW)", "обмеження доступу користувача лише до певних колонок через VIEW"],
+    syntax: `CREATE INDEX idx_users_email ON users(email);\nCREATE VIEW active_users AS\n  SELECT * FROM users WHERE is_active = true;`,
+    attributes: [
+      { name: "CREATE INDEX name ON table(col)", desc: "створює індекс для прискорення пошуку за колонкою" },
+      { name: "CREATE UNIQUE INDEX", desc: "індекс, що також забороняє дублікати значень" },
+      { name: "CREATE VIEW name AS SELECT ...", desc: "зберігає запит під іменем, яке можна використовувати як таблицю" },
+      { name: "DROP INDEX / DROP VIEW", desc: "видаляють індекс чи представлення" },
+      { name: "EXPLAIN ANALYZE", desc: "показує, чи використовується індекс у конкретному запиті" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">CREATE VIEW big_spenders AS
+  SELECT name, SUM(total) as spent
+  FROM orders JOIN users ON orders.user_id = users.id
+  GROUP BY name
+  HAVING SUM(total) > 1000;
+
+SELECT * FROM big_spenders;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">spent</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">1200</td></tr>
+</table>`,
+    pitfalls: [
+      "Індекси на КОЖНІЙ колонці уповільнюють INSERT/UPDATE/DELETE — кожна зміна даних оновлює всі індекси; додавай лише за потреби.",
+      "VIEW не зберігає дані фізично (окрім MATERIALIZED VIEW) — кожен запит до неї виконує оригінальний запит заново.",
+    ],
+    related: ["sql-select-where", "sql-aggregation-grouping"],
+  },
+  "sql-transactions": {
+    badge: "SQL",
+    title: "BEGIN, COMMIT, ROLLBACK",
+    whatIsIt: "Транзакція групує кілька операцій в одну атомарну одиницю — вони АБО всі виконуються успішно (COMMIT), АБО жодна (ROLLBACK). Критично важливо для операцій, де проміжний збій не має лишити дані в суперечливому стані.",
+    useCases: ["переказ грошей між рахунками (списання + зарахування мають статись разом)", "скасування змін при помилці посеред серії операцій", "групування кількох INSERT/UPDATE в одну логічну одиницю"],
+    syntax: `BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;`,
+    attributes: [
+      { name: "BEGIN / START TRANSACTION", desc: "починає транзакцію" },
+      { name: "COMMIT", desc: "зберігає всі зміни транзакції назавжди" },
+      { name: "ROLLBACK", desc: "скасовує всі зміни від початку транзакції" },
+      { name: "SAVEPOINT", desc: "проміжна точка, до якої можна відкотитись частково, не скасовуючи всю транзакцію" },
+      { name: "ACID", desc: "властивості надійних транзакцій: атомарність, узгодженість, ізольованість, тривкість" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+-- перевірка: якщо баланс від'ємний — скасувати
+ROLLBACK; -- або COMMIT;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (ROLLBACK):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">ROLLBACK
+Жодна зі змін не застосована — баланси лишились попередніми</pre>`,
+    pitfalls: [
+      "Довгі відкриті транзакції блокують рядки для інших запитів — тримай транзакції короткими.",
+      "Забутий COMMIT — зміни видно лише в поточному з'єднанні, доки транзакцію не завершено явно.",
+      "Без транзакції збій посеред кількох пов'язаних операцій лишає дані в суперечливому стані (наприклад гроші списані, але не зараховані).",
+    ],
+    related: ["sql-insert-update-delete"],
+  },
+  "sql-window-functions": {
+    badge: "SQL",
+    title: "OVER, ROW_NUMBER, RANK, PARTITION BY",
+    whatIsIt: "Віконні функції обчислюють значення для кожного рядка, спираючись на групу пов'язаних рядків («вікно»), АЛЕ, на відміну від GROUP BY, не схлопують рядки в один — кожен рядок лишається окремим у результаті.",
+    useCases: ["нумерація рядків у межах групи (напр. рейтинг товарів у категорії)", "обчислення накопичувальної суми (running total)", "порівняння рядка з попереднім/наступним (LAG/LEAD)"],
+    syntax: `SELECT name, department, salary,\n  RANK() OVER (PARTITION BY department ORDER BY salary DESC) as rnk\nFROM employees;`,
+    attributes: [
+      { name: "OVER (PARTITION BY col ORDER BY col)", desc: "визначає вікно — групу рядків і порядок для обчислення" },
+      { name: "ROW_NUMBER()", desc: "порядковий номер рядка в межах вікна, завжди унікальний" },
+      { name: "RANK() / DENSE_RANK()", desc: "ранг рядка; RANK лишає прогалини після однакових значень, DENSE_RANK — ні" },
+      { name: "LAG() / LEAD()", desc: "значення попереднього/наступного рядка у вікні" },
+      { name: "SUM()/AVG() OVER (...)", desc: "агрегатна функція, обчислена як накопичувальна чи по вікну, без схлопування рядків" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">SELECT name, department, salary,
+  RANK() OVER (PARTITION BY department ORDER BY salary DESC) as rnk
+FROM employees;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">department</th><th style="border:1px solid #ccc;padding:4px 10px;">salary</th><th style="border:1px solid #ccc;padding:4px 10px;">rnk</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Іван</td><td style="border:1px solid #ccc;padding:4px 10px;">IT</td><td style="border:1px solid #ccc;padding:4px 10px;">50000</td><td style="border:1px solid #ccc;padding:4px 10px;">1</td></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">IT</td><td style="border:1px solid #ccc;padding:4px 10px;">42000</td><td style="border:1px solid #ccc;padding:4px 10px;">2</td></tr>
+</table>`,
+    pitfalls: [
+      "Плутанина з GROUP BY — віконні функції НЕ зменшують кількість рядків результату, на відміну від агрегації з групуванням.",
+      "Забутий PARTITION BY, коли потрібне обчислення ОКРЕМО для кожної групи — без нього вікно охоплює всю таблицю одразу.",
+      "WHERE не може фільтрувати за результатом віконної функції напряму — потрібен підзапит чи CTE.",
+    ],
+    related: ["sql-cte", "sql-aggregation-grouping"],
+  },
 
 };
 
