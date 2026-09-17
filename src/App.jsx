@@ -7718,6 +7718,91 @@ JOIN big_orders ON users.id = big_orders.user_id;</pre>
     ],
     related: ["sql-select-where", "sql-window-functions"],
   },
+  "sql-insert-update-delete": {
+    badge: "SQL",
+    title: "INSERT, UPDATE, DELETE",
+    whatIsIt: "Команди для зміни даних у таблиці. INSERT додає нові рядки, UPDATE змінює існуючі, DELETE видаляє. Усі, крім INSERT, зазвичай потребують WHERE — без нього зміна застосується до ВСІХ рядків таблиці.",
+    useCases: ["додавання нового користувача чи замовлення", "оновлення статусу замовлення після оплати", "видалення застарілих чи тестових записів"],
+    syntax: `INSERT INTO users (name, age) VALUES ('Оля', 25);\nUPDATE users SET age = 26 WHERE id = 1;\nDELETE FROM users WHERE id = 1;`,
+    attributes: [
+      { name: "INSERT INTO table (cols) VALUES (...)", desc: "додає новий рядок з указаними значеннями" },
+      { name: "UPDATE table SET col = value WHERE ...", desc: "оновлює колонки рядків, що відповідають умові" },
+      { name: "DELETE FROM table WHERE ...", desc: "видаляє рядки, що відповідають умові" },
+      { name: "RETURNING *", desc: "повертає змінені/вставлені/видалені рядки одразу (PostgreSQL)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">UPDATE users
+SET age = age + 1
+WHERE name = 'Оля'
+RETURNING name, age;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<table style="border-collapse:collapse;font-size:13px;">
+  <tr style="background:#eee;"><th style="border:1px solid #ccc;padding:4px 10px;">name</th><th style="border:1px solid #ccc;padding:4px 10px;">age</th></tr>
+  <tr><td style="border:1px solid #ccc;padding:4px 10px;">Оля</td><td style="border:1px solid #ccc;padding:4px 10px;">26</td></tr>
+</table>
+<p style="font-size:12px;color:#ef4444;margin-top:6px;">1 row updated</p>`,
+    pitfalls: [
+      "UPDATE чи DELETE БЕЗ WHERE застосовується до ВСІХ рядків таблиці — одна з найнебезпечніших помилок у SQL, завжди перевіряй WHERE перед виконанням.",
+      "INSERT без переліку колонок покладається на порядок стовпців таблиці — крихко, якщо структура таблиці зміниться.",
+      "Немає «скасувати» після COMMIT — важливі зміни варто робити всередині транзакції з можливістю ROLLBACK.",
+    ],
+    related: ["sql-select-where", "sql-transactions"],
+  },
+  "sql-create-alter-table": {
+    badge: "SQL",
+    title: "CREATE TABLE, ALTER TABLE, DROP",
+    whatIsIt: "CREATE TABLE створює нову таблицю з описом колонок і їх типів. ALTER TABLE змінює структуру існуючої таблиці — додає, видаляє чи змінює колонки. DROP видаляє таблицю повністю.",
+    useCases: ["створення нової таблиці для нової сутності проєкту", "додавання нової колонки до існуючої таблиці", "видалення застарілої таблиці чи колонки"],
+    syntax: `CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL\n);\nALTER TABLE users ADD COLUMN email TEXT;`,
+    attributes: [
+      { name: "CREATE TABLE name (...)", desc: "створює таблицю з описом колонок і обмежень" },
+      { name: "ALTER TABLE ... ADD COLUMN", desc: "додає нову колонку до існуючої таблиці" },
+      { name: "ALTER TABLE ... DROP COLUMN", desc: "видаляє колонку" },
+      { name: "ALTER TABLE ... RENAME TO", desc: "перейменовує таблицю" },
+      { name: "DROP TABLE", desc: "видаляє таблицю ПОВНІСТЮ разом з даними" },
+      { name: "TRUNCATE TABLE", desc: "очищає всі дані таблиці, лишаючи структуру" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  price NUMERIC(10, 2)
+);
+
+ALTER TABLE products ADD COLUMN in_stock BOOLEAN DEFAULT true;</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат: таблиця products створена з 4 колонками (id, name, price, in_stock)</p>`,
+    pitfalls: [
+      "DROP TABLE видаляє дані НЕЗВОРОТНО без підтвердження — завжди перевіряй назву таблиці двічі.",
+      "ALTER TABLE на великій таблиці в продакшені може заблокувати її на час виконання — плануй такі зміни на період низького навантаження.",
+    ],
+    related: ["sql-constraints", "sql-data-types"],
+  },
+  "sql-constraints": {
+    badge: "SQL",
+    title: "PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL, CHECK",
+    whatIsIt: "Обмеження (constraints) гарантують цілісність даних на рівні бази даних — заборонена вставка некоректних значень, навіть якщо застосунок «забув» перевірити щось самостійно.",
+    useCases: ["унікальний ідентифікатор рядка (PRIMARY KEY)", "зв'язок між таблицями зі збереженням цілісності (FOREIGN KEY)", "заборона дублікатів email (UNIQUE)", "обов'язкове поле (NOT NULL)"],
+    syntax: `CREATE TABLE orders (\n  id SERIAL PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id),\n  total NUMERIC CHECK (total >= 0)\n);`,
+    attributes: [
+      { name: "PRIMARY KEY", desc: "унікальний ідентифікатор рядка, автоматично індексується" },
+      { name: "FOREIGN KEY / REFERENCES", desc: "забезпечує, що значення посилається на існуючий рядок іншої таблиці" },
+      { name: "UNIQUE", desc: "забороняє дублікати значень у колонці" },
+      { name: "NOT NULL", desc: "забороняє порожні (NULL) значення" },
+      { name: "CHECK (умова)", desc: "обмежує допустимі значення власною умовою" },
+      { name: "DEFAULT значення", desc: "значення за замовчуванням, якщо не вказано при вставці" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  age INTEGER CHECK (age >= 0)
+);
+
+INSERT INTO users (email, age) VALUES ('a@test.com', -5);
+-- ПОМИЛКА: new row violates check constraint</pre>`,
+    pitfalls: [
+      "Забуті constraints і покладання лише на перевірку в коді застосунку — некоректні дані можуть потрапити напряму через інший сервіс чи ручний запит.",
+      "FOREIGN KEY без визначеної поведінки ON DELETE (CASCADE/SET NULL/RESTRICT) — видалення батьківського рядка може несподівано впасти з помилкою.",
+    ],
+    related: ["sql-create-alter-table"],
+  },
 
 };
 
