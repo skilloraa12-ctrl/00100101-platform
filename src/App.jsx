@@ -1917,6 +1917,9 @@ const REF_NAV = {
     "Код-рев'ю": ["eng-lgtm", "eng-nitpick", "eng-blocker", "eng-request-changes"],
     "Зустрічі та командна робота": ["eng-standup", "eng-sync", "eng-follow-up", "eng-eta"],
     "Email, Slack і терміни": ["eng-asap-fyi", "eng-per-my-last", "eng-false-friends", "eng-boilerplate", "eng-edge-case", "eng-tech-debt", "eng-rubber-duck", "eng-spaghetti-code"],
+    "Сленг: процес і код": ["eng-legacy-code", "eng-hotfix", "eng-wip", "eng-mvp", "eng-poc-spike", "eng-scope-creep", "eng-code-smell"],
+    "Сленг: метафори розробки": ["eng-yak-shaving", "eng-bikeshedding", "eng-footgun", "eng-cargo-cult", "eng-glue-code", "eng-gold-plating", "eng-happy-path"],
+    "Сленг: команда і культура": ["eng-works-on-my-machine", "eng-bus-factor", "eng-war-room", "eng-postmortem", "eng-10x-engineer", "eng-imposter-syndrome", "eng-crunch-time"],
   },
   Frontend: {
     "Архітектура": ["fe-spa-mpa", "fe-rendering-strategies", "fe-virtual-dom"],
