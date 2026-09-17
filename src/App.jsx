@@ -1132,6 +1132,27 @@ const SYMBOLS = [
   { cat: "CSS: Тіні", sym: "text-shadow", en: "Text shadow", ua: "Тінь тексту", langs: "CSS", example: "text-shadow: 1px 1px 2px black;", explain: "Додає тінь під текстом." },
   { cat: "CSS: Курсор", sym: "cursor", en: "Cursor", ua: "Курсор миші", langs: "CSS", example: "cursor: pointer;", explain: "Змінює вигляд курсора при наведенні на елемент: pointer, grab, not-allowed тощо." },
 
+  { cat: "CSS: Текст", sym: "font-family", en: "Font family", ua: "Гарнітура шрифту", langs: "CSS", example: "font-family: 'Segoe UI', sans-serif;", explain: "Список шрифтів у порядку пріоритету, останній — типово запасна категорія (sans-serif, serif, monospace)." },
+  { cat: "CSS: Текст", sym: "font-size / font-weight / font-style", en: "Basic font attrs", ua: "Базові атрибути шрифту", langs: "CSS", example: "font-size: 18px; font-weight: bold;", explain: "Розмір, жирність (100-900) і стиль (normal/italic) шрифту." },
+  { cat: "CSS: Текст", sym: "font-variant / font-stretch / font-size-adjust", en: "Advanced font attrs", ua: "Розширені атрибути шрифту", langs: "CSS", example: "font-variant: small-caps;", explain: "Керують капітелями, шириною накреслення й вирівнюванням розміру між різними шрифтами." },
+  { cat: "CSS: Текст", sym: "font", en: "Font shorthand", ua: "Скорочення шрифту", langs: "CSS", example: "font: italic bold 16px/1.5 sans-serif;", explain: "Скорочений запис усіх font-* властивостей одним рядком." },
+  { cat: "CSS: Текст", sym: "line-height", en: "Line height", ua: "Висота рядка", langs: "CSS", example: "line-height: 1.5;", explain: "Висота рядка тексту — впливає на міжрядковий інтервал і читабельність." },
+  { cat: "CSS: Текст", sym: "letter-spacing / word-spacing", en: "Character/word spacing", ua: "Міжсимвольний/міжслівний інтервал", langs: "CSS", example: "letter-spacing: 1px;", explain: "Керують відстанню між символами чи словами." },
+  { cat: "CSS: Текст", sym: "text-align / text-align-last", en: "Text alignment", ua: "Вирівнювання тексту", langs: "CSS", example: "text-align: center;", explain: "Вирівнює текст по горизонталі: left, center, right, justify." },
+  { cat: "CSS: Текст", sym: "text-indent", en: "Text indent", ua: "Відступ першого рядка", langs: "CSS", example: "text-indent: 2em;", explain: "Задає відступ першого рядка абзацу." },
+  { cat: "CSS: Текст", sym: "text-transform", en: "Text transform", ua: "Перетворення регістру", langs: "CSS", example: "text-transform: uppercase;", explain: "Перетворює регістр тексту: uppercase, lowercase, capitalize." },
+  { cat: "CSS: Текст", sym: "text-decoration", en: "Text decoration", ua: "Оздоблення тексту", langs: "CSS", example: "text-decoration: underline wavy red;", explain: "Скорочення лінії, стилю, кольору й товщини підкреслення/закреслення тексту." },
+  { cat: "CSS: Текст", sym: "text-decoration-line / -style / -color / -thickness", en: "Text decoration parts", ua: "Компоненти оздоблення тексту", langs: "CSS", example: "text-decoration-line: underline;", explain: "Окремі частини text-decoration: лінія, стиль, колір, товщина." },
+  { cat: "CSS: Текст", sym: "text-wrap / white-space", en: "Text wrapping", ua: "Перенос тексту", langs: "CSS", example: "white-space: nowrap;", explain: "Керують переносом рядків і збереженням пробілів/переносів у тексті." },
+  { cat: "CSS: Текст", sym: "word-break / overflow-wrap / hyphens", en: "Word breaking", ua: "Розбиття слів", langs: "CSS", example: "overflow-wrap: break-word;", explain: "Керують переносом довгих слів, що не влазять у рядок, і автоматичним переносом за складами." },
+  { cat: "CSS: Текст", sym: "vertical-align", en: "Vertical align", ua: "Вертикальне вирівнювання", langs: "CSS", example: "vertical-align: middle;", explain: "Вертикальне вирівнювання inline/table-cell елементів відносно рядка." },
+  { cat: "CSS: Текст", sym: "normal / bold / bolder / lighter / 100-900", en: "Font-weight values", ua: "Значення жирності шрифту", langs: "CSS", example: "font-weight: 600;", explain: "Числові (100-900) чи ключові значення жирності накреслення шрифту." },
+  { cat: "CSS: Списки", sym: "list-style", en: "List style shorthand", ua: "Скорочення стилю списку", langs: "CSS", example: "list-style: square inside;", explain: "Скорочений запис типу маркера, позиції й зображення маркера списку." },
+  { cat: "CSS: Списки", sym: "list-style-type", en: "List marker type", ua: "Тип маркера списку", langs: "CSS", example: "list-style-type: decimal;", explain: "Тип маркера: disc, circle, square, decimal, lower-alpha тощо." },
+  { cat: "CSS: Списки", sym: "list-style-position / list-style-image", en: "Marker position/image", ua: "Позиція/зображення маркера", langs: "CSS", example: "list-style-position: inside;", explain: "position — маркер всередині чи зовні тексту, image — власне зображення замість стандартного маркера." },
+  { cat: "CSS: Об'єкти й зображення", sym: "object-fit / object-position", en: "Object fit/position", ua: "Заповнення/позиція об'єкта", langs: "CSS", example: "object-fit: cover;", explain: "Керують, як зображення/відео вписується в задані розміри контейнера." },
+  { cat: "CSS: Об'єкти й зображення", sym: "image-rendering", en: "Image rendering", ua: "Рендеринг зображення", langs: "CSS", example: "image-rendering: pixelated;", explain: "Керує алгоритмом масштабування зображення — важливо для піксель-арту." },
+
 ];
 
 const LIBRARY_HTML = [
