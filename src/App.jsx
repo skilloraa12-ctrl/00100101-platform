@@ -1855,19 +1855,30 @@ const LIBRARY_SQL = [
    ========================================================================= */
 
 const REF_NAV = {
-  "Форми": ["form", "input", "label", "button", "select", "option", "textarea", "fieldset", "legend", "datalist", "output", "progress", "meter"],
-  "Типи input": ["text", "password", "email", "number", "date", "time", "checkbox", "radio", "file", "range", "color", "search", "tel", "url", "hidden"],
-  "Семантика": ["header", "nav", "main", "section", "article", "footer", "aside"],
-  "Списки": ["ul", "ol", "li", "dl"],
-  "Таблиці": ["table", "tr", "th", "td"],
-  "Медіа": ["img", "video", "audio", "picture", "iframe", "embed", "object", "figure", "figcaption", "source", "track", "map", "area"],
-  "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
-  "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
-  "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
-  "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
-  "Інше": ["a", "div", "span", "menu"],
-  "Застарілі (уникай)": ["font", "center", "big", "strike", "tt", "acronym", "applet", "basefont", "dir", "frame", "frameset", "noframes"],
-  "CSS": ["css-selectors", "css-box-model", "css-flexbox", "css-grid", "css-pseudo-classes", "css-pseudo-elements", "css-colors-gradients", "css-transform", "css-animation-transition", "css-at-rules"],
+  HTML: {
+    "Форми": ["form", "input", "label", "button", "select", "option", "textarea", "fieldset", "legend", "datalist", "output", "progress", "meter"],
+    "Типи input": ["text", "password", "email", "number", "date", "time", "checkbox", "radio", "file", "range", "color", "search", "tel", "url", "hidden"],
+    "Семантика": ["header", "nav", "main", "section", "article", "footer", "aside"],
+    "Списки": ["ul", "ol", "li", "dl"],
+    "Таблиці": ["table", "tr", "th", "td"],
+    "Медіа": ["img", "video", "audio", "picture", "iframe", "embed", "object", "figure", "figcaption", "source", "track", "map", "area"],
+    "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
+    "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
+    "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
+    "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
+    "Інше": ["a", "div", "span", "menu"],
+    "Застарілі (уникай)": ["font", "center", "big", "strike", "tt", "acronym", "applet", "basefont", "dir", "frame", "frameset", "noframes"],
+  },
+  CSS: {
+    "Основи": ["css-selectors", "css-box-model", "css-flexbox", "css-grid", "css-pseudo-classes", "css-pseudo-elements", "css-colors-gradients", "css-transform", "css-animation-transition", "css-at-rules"],
+  },
+  JavaScript: {},
+  "English for IT": {},
+  Frontend: {},
+  Python: {},
+  SQL: {},
+  Backend: {},
+  "Full Stack": {},
 };
 
 const TERM_PAGES_V2 = {
@@ -6211,45 +6222,85 @@ function TermPageV2({ termId }) {
 }
 
 function ReferencePage() {
-  const [selected, setSelected] = useState("range");
-  const [openGroups, setOpenGroups] = useState({ "Форми": true, "Типи input": true });
+  const sections = Object.keys(REF_NAV);
+  const [section, setSection] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [openGroups, setOpenGroups] = useState({});
+
+  const openSection = (name) => {
+    setSection(name);
+    const groups = REF_NAV[name];
+    const groupNames = Object.keys(groups);
+    setOpenGroups(groupNames.length ? { [groupNames[0]]: true } : {});
+    const firstId = groupNames.flatMap((g) => groups[g]).find((id) => TERM_PAGES_V2[id]);
+    setSelected(firstId || null);
+  };
+
+  const groups = section ? REF_NAV[section] : null;
 
   return (
     <div className="flex gap-6">
-      <div className="w-52 shrink-0 hidden md:block">
-        {Object.entries(REF_NAV).map(([group, items]) => (
-          <div key={group} className="mb-4">
+      <div className="w-56 shrink-0 hidden md:block">
+        <div className="space-y-0.5 mb-4">
+          {sections.map((name) => (
             <button
-              onClick={() => setOpenGroups((g) => ({ ...g, [group]: !g[group] }))}
-              className="flex items-center justify-between w-full text-xs uppercase tracking-wide text-stone-500 mb-1.5"
+              key={name}
+              onClick={() => openSection(name)}
+              className={`w-full text-left px-2 py-1.5 rounded-md text-sm font-medium flex items-center justify-between ${
+                section === name ? "bg-stone-800 text-amber-400" : "text-stone-300 hover:bg-stone-900"
+              }`}
             >
-              {group} <ChevronRight size={12} className={openGroups[group] ? "rotate-90" : ""} />
+              {name}
+              {Object.keys(REF_NAV[name]).length === 0 && <span className="text-[10px] text-stone-600 uppercase">скоро</span>}
             </button>
-            {openGroups[group] && (
-              <div className="space-y-0.5">
-                {items.map((id) => {
-                  const has = !!TERM_PAGES_V2[id];
-                  return (
-                    <button
-                      key={id}
-                      disabled={!has}
-                      onClick={() => has && setSelected(id)}
-                      className={`w-full text-left px-2 py-1.5 rounded-md text-sm font-mono ${
-                        selected === id && has ? "bg-stone-800 text-amber-400" : has ? "text-stone-300 hover:bg-stone-900" : "text-stone-700 cursor-default"
-                      }`}
-                    >
-                      {id}
-                    </button>
-                  );
-                })}
+          ))}
+        </div>
+
+        {groups && (
+          <div className="border-t border-stone-800 pt-3">
+            {Object.entries(groups).map(([group, items]) => (
+              <div key={group} className="mb-4">
+                <button
+                  onClick={() => setOpenGroups((g) => ({ ...g, [group]: !g[group] }))}
+                  className="flex items-center justify-between w-full text-xs uppercase tracking-wide text-stone-500 mb-1.5"
+                >
+                  {group} <ChevronRight size={12} className={openGroups[group] ? "rotate-90" : ""} />
+                </button>
+                {openGroups[group] && (
+                  <div className="space-y-0.5">
+                    {items.map((id) => {
+                      const has = !!TERM_PAGES_V2[id];
+                      return (
+                        <button
+                          key={id}
+                          disabled={!has}
+                          onClick={() => has && setSelected(id)}
+                          className={`w-full text-left px-2 py-1.5 rounded-md text-sm font-mono ${
+                            selected === id && has ? "bg-stone-800 text-amber-400" : has ? "text-stone-300 hover:bg-stone-900" : "text-stone-700 cursor-default"
+                          }`}
+                        >
+                          {id}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
+            <p className="text-xs text-stone-600 mt-4">Сірі пункти ще не мають повного опису — додаються поступово.</p>
           </div>
-        ))}
-        <p className="text-xs text-stone-600 mt-4">Сірі пункти ще не мають повного опису — додаються поступово.</p>
+        )}
       </div>
       <div className="flex-1 min-w-0">
-        <TermPageV2 termId={selected} />
+        {!section && (
+          <div className="text-stone-500 text-sm">
+            <p className="mb-2">Обери розділ зліва, щоб побачити терміни.</p>
+          </div>
+        )}
+        {section && !selected && (
+          <div className="text-stone-500 text-sm">Розділ «{section}» ще в розробці — терміни додаються поступово.</div>
+        )}
+        {section && selected && <TermPageV2 termId={selected} />}
       </div>
     </div>
   );
