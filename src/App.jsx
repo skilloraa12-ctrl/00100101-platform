@@ -1892,7 +1892,11 @@ const REF_NAV = {
     "Колекції та ітератори": ["js-sets-maps", "js-iterators-generators", "js-proxy-reflect"],
     "Web APIs та інше": ["js-storage", "js-regex", "js-console", "js-canvas", "js-web-apis"],
   },
-  "English for IT": {},
+  "English for IT": {
+    "Код-рев'ю": ["eng-lgtm", "eng-nitpick", "eng-blocker", "eng-request-changes"],
+    "Зустрічі та командна робота": ["eng-standup", "eng-sync", "eng-follow-up", "eng-eta"],
+    "Email, Slack і терміни": ["eng-asap-fyi", "eng-per-my-last", "eng-false-friends", "eng-boilerplate", "eng-edge-case", "eng-tech-debt", "eng-rubber-duck", "eng-spaghetti-code"],
+  },
   Frontend: {},
   Python: {},
   SQL: {},
@@ -6101,6 +6105,154 @@ console.log(square(4), PI); // 16 3.14</pre>`,
       "Забутий observer.disconnect() для IntersectionObserver/MutationObserver — витік пам'яті, якщо елемент видалено, а спостереження триває.",
     ],
     related: ["js-events"],
+  },
+
+  "eng-asap-fyi": {
+    badge: "English",
+    title: "ASAP, FYI та інші офісні абревіатури",
+    whatIsIt: "Абревіатури, які постійно зустрічаються в робочому листуванні: ASAP (As Soon As Possible — якнайшвидше), FYI (For Your Information — для інформації), EOD (End Of Day — до кінця дня), WFH (Work From Home — робота з дому).",
+    useCases: ["позначити терміновість запиту (ASAP)", "поділитись інформацією без потреби відповідати (FYI)", "домовитись про дедлайн (EOD)"],
+    syntax: `FYI, I've updated the API docs. Please review ASAP — we need this by EOD.`,
+    attributes: [
+      { name: "ASAP", desc: "As Soon As Possible — якнайшвидше" },
+      { name: "FYI", desc: "For Your Information — для довідки, не потребує дії" },
+      { name: "EOD / EOW", desc: "End Of Day / End Of Week — до кінця дня/тижня" },
+      { name: "WFH", desc: "Work From Home — робота з дому" },
+      { name: "OOO", desc: "Out Of Office — поза офісом/у відпустці" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Slack:</b> "FYI — the staging server will be down for maintenance tonight. I'll be OOO tomorrow, back on Thursday."
+</p>`,
+    pitfalls: [
+      "Надмірне використання ASAP у кожному повідомленні знецінює реальну терміновість — використовуй, лише коли справді критично.",
+      "FYI на початку речення сигналізує «дія не потрібна» — плутанина, якщо насправді очікується відповідь.",
+    ],
+    related: ["eng-per-my-last", "eng-follow-up"],
+  },
+  "eng-per-my-last": {
+    badge: "English",
+    title: "Per my last email / As mentioned",
+    whatIsIt: "Ввічливо-пасивно-агресивна фраза, якою нагадують, що інформація вже надавалась раніше (в попередньому листі), натякаючи, що співрозмовник міг би просто перечитати. Популярний мем в англомовному офісному спілкуванні.",
+    useCases: ["коли доводиться повторювати те, що вже було написано", "формальне нагадування без прямого звинувачення"],
+    syntax: `Per my last email, the deployment is scheduled for Friday.`,
+    attributes: [
+      { name: "Per my last email", desc: "«як я вже писав у попередньому листі»" },
+      { name: "As mentioned above/previously", desc: "нейтральніший варіант тієї самої ідеї" },
+      { name: "As discussed", desc: "«як ми вже обговорювали» (усно чи на зустрічі)" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Email:</b> "Per my last email, the API keys need to be rotated before the release. Let me know if you have questions."
+</p>`,
+    pitfalls: [
+      "«Per my last email» звучить пасивно-агресивно для носіїв мови — у нейтральному спілкуванні краще «As mentioned» чи просто повторити інформацію без натяку.",
+    ],
+    related: ["eng-asap-fyi", "eng-follow-up"],
+  },
+  "eng-false-friends": {
+    badge: "English",
+    title: "«Хибні друзі перекладача» (actually, eventually...)",
+    whatIsIt: "Англійські слова, схожі на українські за звучанням, але з іншим значенням — часте джерело помилок. Actually означає «насправді» (не «актуально»), eventually — «зрештою/врешті-решт» (не «евентуально/можливо»).",
+    useCases: ["уникнення поширених помилок у робочому листуванні", "точніше формулювання думки англійською"],
+    syntax: `Actually, the bug is in the backend, not the frontend.`,
+    attributes: [
+      { name: "actually", desc: "насправді (НЕ «актуально» — те буде \"currently relevant\" чи \"topical\")" },
+      { name: "eventually", desc: "зрештою, врешті-решт (НЕ «можливо» — те буде \"possibly\" чи \"maybe\")" },
+      { name: "sympathetic", desc: "співчутливий (НЕ «симпатичний» — те буде \"nice\" чи \"cute\")" },
+      { name: "accurate", desc: "точний (НЕ «акуратний» — те буде \"neat\" чи \"tidy\")" },
+      { name: "magazine", desc: "журнал (НЕ «магазин» — те буде \"shop\" чи \"store\")" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  ❌ "This feature is actually relevant for the release." (мається на увазі «наразі актуальна»)<br>
+  ✅ "This feature is currently relevant for the release."<br><br>
+  ✅ Правильне вживання actually: "I thought the bug was in the frontend, but actually it's in the backend."
+</p>`,
+    pitfalls: [
+      "Найчастіша помилка — вживати actually у значенні «актуально», хоча воно означає «насправді, у дійсності».",
+      "eventually НЕ означає «евентуально» (можливо) — навпаки, підкреслює, що щось точно станеться, просто пізніше.",
+    ],
+    related: ["eng-boilerplate"],
+  },
+  "eng-boilerplate": {
+    badge: "English",
+    title: "boilerplate",
+    whatIsIt: "Стандартний, шаблонний код чи текст, який повторюється в багатьох місцях майже без змін — наприклад, базова структура компонента чи типові налаштування проєкту.",
+    useCases: ["опис повторюваної структури коду, яку копіюють у кожен новий файл/компонент", "шаблонний текст документів (умови використання тощо)"],
+    syntax: `This is just boilerplate code — copy it into every new component.`,
+    attributes: [
+      { name: "boilerplate code", desc: "шаблонний код, що повторюється майже без змін" },
+      { name: "boilerplate text", desc: "стандартний текст (юридичний, документація)" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У PR коментарі:</b> "Most of this file is React boilerplate — the actual logic is in the last 10 lines."
+</p>`,
+    pitfalls: ["Не плутати з «шаблонізатором» (template engine) — boilerplate стосується самого повторюваного КОДУ/ТЕКСТУ, а не інструменту для його генерації."],
+    related: ["eng-edge-case", "eng-tech-debt"],
+  },
+  "eng-edge-case": {
+    badge: "English",
+    title: "edge case",
+    whatIsIt: "Рідкісна, гранична ситуація на межі допустимих умов програми — те, що легко забути протестувати. Наприклад: порожній масив, від'ємне число там, де очікують лише додатні, дуже довгий рядок.",
+    useCases: ["обговорення тестування — які граничні випадки треба перевірити", "пояснення причини бага, що трапляється рідко"],
+    syntax: `Did you handle the edge case where the array is empty?`,
+    attributes: [
+      { name: "edge case", desc: "рідкісна гранична ситуація" },
+      { name: "corner case", desc: "синонім, іноді для ще рідкіснішого перетину кількох умов" },
+      { name: "happy path", desc: "протилежність — типовий, очікуваний сценарій без ускладнень" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "What happens if the user submits the form with an empty string? That's an edge case we should handle."
+</p>`,
+    pitfalls: ["Плутанина edge case (рідкісна, але можлива ситуація) з bug (реальна помилка) — edge case стає багом, лише якщо його не обробили правильно."],
+    related: ["eng-boilerplate"],
+  },
+  "eng-tech-debt": {
+    badge: "English",
+    title: "tech(nical) debt",
+    whatIsIt: "Метафора для позначення «швидких» рішень у коді, які працюють зараз, але створюють додаткову роботу в майбутньому — як фінансовий борг з відсотками. Свідомий чи вимушений компроміс між швидкістю зараз і якістю пізніше.",
+    useCases: ["пояснення, чому код варто переписати пізніше", "обговорення пріоритетів: нова фіча vs виправлення старих компромісів"],
+    syntax: `We took on some tech debt to ship this feature faster — we'll need to refactor it later.`,
+    attributes: [
+      { name: "tech debt / technical debt", desc: "накопичені компроміси якості коду заради швидкості" },
+      { name: "pay down tech debt", desc: "«виплатити борг» — витратити час на рефакторинг" },
+      { name: "accrue debt", desc: "«накопичувати борг» — продовжувати додавати компроміси" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На плануванні:</b> "This quarter we should allocate time to pay down some of the tech debt in the payments module."
+</p>`,
+    pitfalls: ["Tech debt — це не завжди «поганий код»; іноді це свідомий, обґрунтований компроміс, задокументований для майбутнього виправлення."],
+    related: ["eng-boilerplate", "eng-edge-case"],
+  },
+  "eng-rubber-duck": {
+    badge: "English",
+    title: "rubber duck debugging",
+    whatIsIt: "Техніка дебагу: пояснюєш проблему вголос (навіть іграшковій гумовій качечці на столі), і часто саме процес формулювання допомагає самостійно знайти рішення, ще до того, як хтось відповість.",
+    useCases: ["пояснення методу, коли просиш колегу «просто послухати» проблему", "самостійний дебаг через проговорювання коду вголос"],
+    syntax: `I solved it just by explaining the bug to you — classic rubber duck debugging!`,
+    attributes: [
+      { name: "rubber duck debugging", desc: "техніка пояснення проблеми вголос для самостійного пошуку рішення" },
+      { name: "rubber ducking", desc: "розмовний скорочений варіант того самого" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У чаті з колегою:</b> "Can I rubber duck this issue with you for 5 minutes? I don't need you to fix it, just listen."
+</p>`,
+    pitfalls: ["Не сприймай буквально — не обов'язкова справжня качечка, ідея в самому процесі промовляння проблеми вголос комусь (чи навіть предмету)."],
+    related: ["eng-blocker"],
+  },
+  "eng-spaghetti-code": {
+    badge: "English",
+    title: "spaghetti code",
+    whatIsIt: "Неформальний термін для заплутаного, погано структурованого коду з великою кількістю переплетених залежностей — важко відстежити логіку, як розплутати спагеті на тарілці.",
+    useCases: ["опис коду, що потребує рефакторингу через заплутану структуру", "аргумент за необхідність переписати старий модуль"],
+    syntax: `This function has become spaghetti code — it's doing five different things at once.`,
+    attributes: [
+      { name: "spaghetti code", desc: "заплутаний, погано структурований код" },
+      { name: "clean code", desc: "протилежність — акуратний, добре організований код" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У код-рев'ю:</b> "This controller has turned into spaghetti code — let's split it into smaller functions."
+</p>`,
+    pitfalls: ["Термін неформальний — не варто використовувати в офіційній документації чи звітах, лише в розмовному контексті з командою."],
+    related: ["eng-tech-debt"],
   },
 
 };
