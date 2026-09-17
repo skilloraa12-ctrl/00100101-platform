@@ -6783,6 +6783,119 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     pitfalls: ["Тестування лише happy path — поширена пастка: код виглядає готовим, але падає при першому ж несподіваному вводі в реальному використанні."],
     related: ["eng-edge-case"],
   },
+  "eng-works-on-my-machine": {
+    badge: "English",
+    title: "\"works on my machine\"",
+    whatIsIt: "Іронічна фраза, коли код працює на комп'ютері розробника, але падає в іншому середовищі (CI, продакшн, у колеги) — натяк на приховану залежність від конкретного локального налаштування.",
+    useCases: ["жартівливе, часто самокритичне визнання проблеми середовища", "опис класичної причини багів, що не відтворюються в CI"],
+    syntax: `"Works on my machine" — turns out I had an old version of the config cached locally.`,
+    attributes: [
+      { name: "works on my machine", desc: "код працює локально, але не в іншому середовищі" },
+      { name: "WOMM", desc: "жартівлива абревіатура того самого виразу" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У Slack:</b> "CI is failing but... works on my machine 🙃 — let me check the Node version difference."
+</p>`,
+    pitfalls: ["Фраза вживається саме як самоіронія над відомою пасткою — не варто буквально казати це як виправдання, щоб закрити задачу без дослідження причини."],
+    related: ["eng-legacy-code"],
+  },
+  "eng-bus-factor": {
+    badge: "English",
+    title: "bus factor",
+    whatIsIt: "Кількість людей у команді, чиє раптове зникнення (жартома — «потрапляння під автобус») зупинить проєкт, бо більше ніхто не розуміє якусь критичну частину системи. Bus factor = 1 — дуже ризикова ситуація.",
+    useCases: ["обговорення ризику залежності проєкту від однієї людини", "аргумент за документування чи парне програмування для передачі знань"],
+    syntax: `Our deployment process has a bus factor of one — only Max knows how it actually works.`,
+    attributes: [
+      { name: "bus factor", desc: "кількість людей, чия відсутність зупинить проєкт" },
+      { name: "knowledge silo", desc: "суміжний термін — знання, зосереджені лише в однієї людини/команди" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На ретро:</b> "We should pair on the auth service — right now it's a bus factor of one, and that's risky."
+</p>`,
+    pitfalls: ["Низький bus factor — це ризик проєкту, а не привід звинувачувати конкретну людину; вирішується документацією й обміном знаннями, не тиском на «того єдиного»."],
+    related: ["eng-legacy-code"],
+  },
+  "eng-war-room": {
+    badge: "English",
+    title: "war room",
+    whatIsIt: "Термінова спільна нарада (фізична чи онлайн-дзвінок), зібрана для вирішення критичного інциденту в реальному часі — усі потрібні люди разом, доки проблему не усунуто.",
+    useCases: ["скликання термінової наради під час серйозного збою в продакшені", "опис інтенсивної координації команди під час інциденту"],
+    syntax: `Production is down — jumping into a war room call now, join if you can help with the database.`,
+    attributes: [
+      { name: "war room", desc: "термінова спільна нарада для вирішення критичного інциденту" },
+      { name: "incident channel", desc: "сучасніший еквівалент — окремий канал у Slack, створений спеціально для інциденту" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У Slack:</b> "Setting up a war room in #incident-503 — need someone from infra and someone from backend ASAP."
+</p>`,
+    pitfalls: ["War room скликають для СПРАВДІ критичних інцидентів (даунтайм продакшену, втрата даних) — не для звичайних багів, що можуть почекати."],
+    related: ["eng-hotfix"],
+  },
+  "eng-postmortem": {
+    badge: "English",
+    title: "postmortem",
+    whatIsIt: "Документ чи зустріч після усунення серйозного інциденту: що сталось, чому, як виявили, як виправили, і що зробити, щоб це не повторилось. Мета — навчання, а не пошук винного.",
+    useCases: ["опис процесу аналізу причин після збою в продакшені", "запит написати звіт після усунення критичного інциденту"],
+    syntax: `Let's schedule a postmortem for tomorrow — we need a clear root cause and an action plan.`,
+    attributes: [
+      { name: "postmortem", desc: "аналіз причин і наслідків інциденту після його усунення" },
+      { name: "blameless postmortem", desc: "принцип — аналіз зосереджений на системі й процесах, а не на пошуку винної людини" },
+      { name: "root cause analysis (RCA)", desc: "формальніший синонім — систематичний пошук першопричини" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У документі:</b> "Postmortem: API outage on March 3rd — root cause was an unbounded query introduced in PR #482."
+</p>`,
+    pitfalls: ["Головний принцип хорошого postmortem — «blameless»: мета зрозуміти систему й процес, а не покарати конкретного розробника."],
+    related: ["eng-war-room", "eng-hotfix"],
+  },
+  "eng-10x-engineer": {
+    badge: "English",
+    title: "10x engineer",
+    whatIsIt: "Напівжартівливий, часто скептично вживаний термін для розробника, що нібито в 10 разів продуктивніший за середнього — походить зі старих досліджень продуктивності, сьогодні часто використовується іронічно.",
+    useCases: ["іронічне зауваження про перебільшену самооцінку когось", "обговорення міфу про «геніїв-одинаків» у командній розробці"],
+    syntax: `He calls himself a 10x engineer, but half his PRs break the build.`,
+    attributes: [
+      { name: "10x engineer", desc: "розробник з нібито в 10 разів вищою продуктивністю (часто іронічно)" },
+      { name: "rockstar / ninja developer", desc: "суміжні маркетингові терміни з вакансій, які досвідчені розробники сприймають з тим самим скептицизмом" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>У чаті команди:</b> "No 10x engineers needed here — just people who write tests and communicate well 😄"
+</p>`,
+    pitfalls: ["Сьогодні термін частіше використовують іронічно/скептично — реальна цінність розробника рідко зводиться до одного числа «продуктивності»."],
+    related: ["eng-imposter-syndrome"],
+  },
+  "eng-imposter-syndrome": {
+    badge: "English",
+    title: "imposter syndrome",
+    whatIsIt: "Постійне відчуття, що ти недостатньо компетентний і от-от «викриють», що ти обманюєш усіх навколо — попри реальні докази компетентності (досвід, виконані проєкти, відгуки колег). Дуже поширене явище в IT.",
+    useCases: ["визнання власної невпевненості попри об'єктивні успіхи", "підтримка колеги, що сумнівається у своїх здібностях"],
+    syntax: `I still get imposter syndrome in code reviews, even after five years in the industry.`,
+    attributes: [
+      { name: "imposter syndrome", desc: "постійне відчуття некомпетентності попри реальні докази протилежного" },
+      { name: "fake it till you make it", desc: "поширена (суперечлива) порада, як діяти, попри це відчуття" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>На менторській зустрічі:</b> "Everyone on this team has felt imposter syndrome at some point — even the seniors."
+</p>`,
+    pitfalls: ["Це реальне й дуже поширене відчуття, а не «слабкість» — визнання його вголос у команді часто допомагає й іншим відчути себе менш самотніми."],
+    related: ["eng-10x-engineer"],
+  },
+  "eng-crunch-time": {
+    badge: "English",
+    title: "crunch time",
+    whatIsIt: "Період перед важливим дедлайном (реліз, демо, презентація), коли команда працює з підвищеною інтенсивністю, часто понаднормово — термін із критичним відтінком, бо асоціюється з вигоранням.",
+    useCases: ["опис періоду інтенсивної роботи перед релізом", "обговорення балансу роботи й відпочинку в команді"],
+    syntax: `We're in crunch time before the launch — let's make sure nobody burns out over this.`,
+    attributes: [
+      { name: "crunch time", desc: "період інтенсивної роботи перед важливим дедлайном" },
+      { name: "burnout", desc: "виснаження, часто результат тривалого crunch time без відновлення" },
+    ],
+    example: `<p style="font-family:sans-serif;">
+  <b>Від менеджера:</b> "I know it's crunch time, but please still take your evenings — we'll adjust the scope if needed."
+</p>`,
+    pitfalls: ["Crunch time як постійний, а не винятковий режим роботи — тривожний сигнал про проблеми з плануванням команди, а не «норма» індустрії."],
+    related: ["eng-scope-creep"],
+  },
 
   "fe-react-basics": {
     badge: "Frontend",
