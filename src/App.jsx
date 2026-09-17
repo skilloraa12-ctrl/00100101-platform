@@ -4376,9 +4376,13 @@ const TERM_PAGES_V2 = {
       { name: "grid-template-rows", desc: "кількість і висота рядків" },
       { name: "gap", desc: "відступ між комірками (по рядках і колонках)" },
       { name: "grid-column / grid-row", desc: "на дочірньому елементі — скільки комірок він займає" },
+      { name: "grid-template-areas", desc: "макет через текстову схему з іменованими областями (напр. \"header header\" \"sidebar content\")" },
+      { name: "repeat() / minmax()", desc: "repeat(3, 1fr) — повторити шаблон колонок, minmax(100px, 1fr) — діапазон розміру доріжки" },
+      { name: "auto-fit / auto-fill", desc: "автоматична кількість колонок залежно від доступного простору: repeat(auto-fit, minmax(150px, 1fr))" },
+      { name: "fit-content()", desc: "обмежує розмір доріжки під реальний вміст, але не більше заданого максимуму" },
     ],
     example: `<style>
-  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
   .cell { background: #7c3aed; color: white; padding: 16px; text-align: center; border-radius: 6px; }
   .cell.wide { grid-column: span 2; background: #0ea5e9; }
 </style>
@@ -4520,6 +4524,9 @@ const TERM_PAGES_V2 = {
       { name: "transition-timing-function", desc: "крива швидкості: ease, linear, ease-in-out..." },
       { name: "@keyframes", desc: "описує кроки анімації у відсотках (0%, 50%, 100%)" },
       { name: "animation-duration / animation-iteration-count", desc: "тривалість одного циклу й кількість повторів (infinite — нескінченно)" },
+      { name: "animation-fill-mode", desc: "forwards — лишити стан останнього кадру, backwards — застосувати стан першого кадру до старту, both — обидва" },
+      { name: "animation-direction", desc: "normal, reverse, alternate (туди-сюди), alternate-reverse" },
+      { name: "animation-play-state", desc: "running / paused — керує відтворенням, напр. пауза при наведенні" },
     ],
     example: `<style>
   .btn { padding: 10px 20px; background: #7c3aed; color: white; border: none; border-radius: 6px; transition: background 0.3s ease, transform 0.3s ease; }
@@ -4547,6 +4554,9 @@ const TERM_PAGES_V2 = {
       { name: "@font-face", desc: "підключає власний файл шрифту" },
       { name: "@import", desc: "імпортує стилі з іншого CSS-файлу (на початку файлу)" },
       { name: "@supports", desc: "застосовує стилі лише якщо браузер підтримує вказану властивість" },
+      { name: "@container", desc: "застосовує стилі залежно від розміру БАТЬКІВСЬКОГО контейнера, а не всього вікна" },
+      { name: "@layer", desc: "групує стилі в іменовані шари з явним порядком пріоритету в каскаді" },
+      { name: "@scope", desc: "обмежує дію селекторів усередині CSS лише певною гілкою DOM-дерева" },
     ],
     example: `<style>
   .responsive { display: flex; gap: 8px; background: #f4f4f4; padding: 10px; border-radius: 6px; }
@@ -4676,11 +4686,15 @@ const TERM_PAGES_V2 = {
       { name: "border-top / -right / -bottom / -left", desc: "рамка лише з однієї сторони" },
       { name: "border-radius", desc: "заокруглення кутів; можна задати кожен кут окремо через border-*-radius" },
       { name: "border-image", desc: "використовує зображення замість суцільної лінії для рамки" },
+      { name: "solid / dashed / dotted / double", desc: "найпоширеніші стилі лінії рамки" },
+      { name: "groove / ridge / inset / outset", desc: "рамки з ефектом об'єму (рідше використовуються)" },
     ],
-    example: `<div style="display:flex;gap:12px;">
+    example: `<div style="display:flex;gap:12px;flex-wrap:wrap;">
   <div style="width:60px;height:60px;border:2px solid #7c3aed;border-radius:8px;"></div>
   <div style="width:60px;height:60px;border:2px solid #0ea5e9;border-radius:50%;"></div>
   <div style="width:60px;height:60px;border-bottom:3px solid #ef4444;"></div>
+  <div style="width:60px;height:60px;border:4px groove #999;"></div>
+  <div style="width:60px;height:60px;border:4px ridge #999;"></div>
 </div>`,
     pitfalls: [
       "border додає до реального розміру елемента, якщо не box-sizing: border-box.",
@@ -4722,7 +4736,8 @@ const TERM_PAGES_V2 = {
     useCases: ["базове форматування абзаців і заголовків", "аккуратний перенос довгого тексту без виходу за межі контейнера", "капіталізація заголовків через text-transform"],
     syntax: `.text {\n  font-family: sans-serif;\n  font-size: 16px;\n  line-height: 1.5;\n  text-align: center;\n}`,
     attributes: [
-      { name: "font-family / font-size / font-weight", desc: "гарнітура, розмір і жирність шрифту" },
+      { name: "font-family / font-size / font-weight", desc: "гарнітура, розмір (100-900) і жирність шрифту" },
+      { name: "font-style / font-variant", desc: "italic/oblique — курсив, small-caps — капітель (маленькі великі літери)" },
       { name: "line-height", desc: "висота рядка — впливає на міжрядковий інтервал і читабельність" },
       { name: "text-align", desc: "вирівнювання: left, center, right, justify" },
       { name: "letter-spacing / word-spacing", desc: "відстань між символами чи словами" },
