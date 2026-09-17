@@ -8619,6 +8619,90 @@ console.log(usersWithOrders[0].orders.length);</pre>
     ],
     related: ["backend-http-headers"],
   },
+  "fullstack-git-basics": {
+    badge: "Full Stack",
+    title: "git init/clone, git status/add/commit",
+    whatIsIt: "Git — система контролю версій, що фіксує знімки історії твого коду. Ці команди — базовий цикл роботи: створити/скопіювати репозиторій, побачити, що змінилось, підготувати зміни й зберегти їх як коміт.",
+    useCases: ["початок нового проєкту (init) чи копіювання існуючого (clone)", "перевірка, які файли змінені перед комітом", "збереження логічно завершеного шматка роботи як окремого коміту"],
+    syntax: `git init\ngit clone https://github.com/user/repo.git\ngit status\ngit add file.js\ngit commit -m "Опис змін"`,
+    attributes: [
+      { name: "git init", desc: "створює новий, порожній репозиторій у поточній директорії" },
+      { name: "git clone <url>", desc: "копіює існуючий репозиторій з віддаленого сервера разом з усією історією" },
+      { name: "git status", desc: "показує стан робочої директорії — які файли змінені, додані, не відстежуються" },
+      { name: "git add <file>", desc: "додає зміни у файлі до індексу (staging area) перед комітом" },
+      { name: "git commit -m '...'", desc: "зберігає проіндексовані зміни як новий знімок історії з повідомленням" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">echo "console.log('hi')" > app.js
+git add app.js
+git commit -m "Add hello world script"
+git status</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">[main a1b2c3d] Add hello world script
+ 1 file changed, 1 insertion(+)
+On branch main
+nothing to commit, working tree clean</pre>`,
+    pitfalls: [
+      "git add . без перегляду git status — можна випадково закомітити секрети, node_modules чи тимчасові файли.",
+      "Коміт без git add — зміни лишаються незбереженими, git commit без -a чи попереднього add нічого не закомітить.",
+      "Розпливчасті повідомлення комітів (напр. 'fix', 'update') — ускладнюють читання історії пізніше.",
+    ],
+    related: ["fullstack-git-branching", "fullstack-git-remote"],
+  },
+  "fullstack-git-branching": {
+    badge: "Full Stack",
+    title: "git branch, checkout/switch, merge, rebase",
+    whatIsIt: "Гілки (branches) дозволяють розробляти нову функціональність окремо від основного коду, не заважаючи іншим. Merge і rebase — два способи об'єднати зміни з однієї гілки в іншу.",
+    useCases: ["ізольована розробка нової фічі без ризику зламати робочий код у main", "паралельна робота кількох розробників над різними задачами", "об'єднання завершеної роботи назад в основну гілку"],
+    syntax: `git branch feature-x\ngit switch feature-x\n# ...робота...\ngit switch main\ngit merge feature-x`,
+    attributes: [
+      { name: "git branch <name>", desc: "створює нову гілку (чи без аргументів — показує список існуючих)" },
+      { name: "git switch <name> / git checkout <name>", desc: "перемикає робочу директорію на іншу гілку" },
+      { name: "git merge <branch>", desc: "зливає зміни з іншої гілки в поточну, зберігаючи повну історію обох" },
+      { name: "git rebase <branch>", desc: "переносить коміти поточної гілки на нову базу, створюючи лінійну історію" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">git switch -c feature-login
+echo "// login form" >> app.js
+git commit -am "Add login form"
+git switch main
+git merge feature-login</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Updating a1b2c3d..e4f5g6h
+Fast-forward
+ app.js | 1 +
+ 1 file changed, 1 insertion(+)</pre>`,
+    pitfalls: [
+      "Rebase гілки, яку вже бачили інші розробники (спільна гілка) — переписує історію, викликаючи конфлікти в усіх, хто вже з неї тягнув.",
+      "Робота напряму в main без окремої гілки для фічі — ускладнює відкат, якщо щось піде не так.",
+      "Забутий switch назад у main перед merge — злиття виконається не в ту гілку, яку планувалось.",
+    ],
+    related: ["fullstack-git-basics", "fullstack-git-history-undo"],
+  },
+  "fullstack-git-remote": {
+    badge: "Full Stack",
+    title: "git push/pull, git fetch, git remote",
+    whatIsIt: "Ці команди синхронізують локальний репозиторій з віддаленим (напр. на GitHub) — відправляють локальні коміти на сервер чи забирають звідти чужі зміни.",
+    useCases: ["відправка локальних комітів на GitHub для збереження й спільної роботи", "отримання свіжих змін від колег перед продовженням роботи", "перевірка, які зміни з'явились віддалено, без автоматичного злиття"],
+    syntax: `git remote add origin https://github.com/user/repo.git\ngit push origin main\ngit pull origin main\ngit fetch origin`,
+    attributes: [
+      { name: "git remote add <name> <url>", desc: "додає посилання на віддалений репозиторій під заданим іменем (типово origin)" },
+      { name: "git push <remote> <branch>", desc: "відправляє локальні коміти на віддалений сервер" },
+      { name: "git pull <remote> <branch>", desc: "забирає зміни з віддаленого репозиторію й одразу зливає їх у поточну гілку" },
+      { name: "git fetch <remote>", desc: "забирає зміни з віддаленого репозиторію, НЕ зливаючи їх автоматично" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">git fetch origin
+git log HEAD..origin/main --oneline
+git pull origin main</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (є 2 нових коміти на сервері):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">e4f5g6h Fix header bug
+d3e4f5g Update README
+Fast-forward: main -> origin/main</pre>`,
+    pitfalls: [
+      "git pull без попереднього fetch/перегляду змін — може несподівано злити конфліктні чи небажані зміни прямо в робочу директорію.",
+      "git push у спільну гілку без git pull перед цим — сервер відхилить push, якщо там уже є нові коміти, яких немає локально.",
+      "Забутий git push після кількох локальних комітів — робота існує лише на одній машині, легко втратити при збої диска.",
+    ],
+    related: ["fullstack-git-basics", "fullstack-github"],
+  },
 
 };
 
