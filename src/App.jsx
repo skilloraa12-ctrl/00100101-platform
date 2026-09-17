@@ -5527,6 +5527,41 @@ console.log(square(4), PI); // 16 3.14</pre>`,
     related: ["js-dom-select", "js-events"],
   },
 
+  "js-events": {
+    badge: "JS",
+    title: "addEventListener і об'єкт події",
+    whatIsIt: "Події — спосіб реагувати на дії користувача (клік, введення, наведення) чи браузера (завантаження сторінки). addEventListener підписує функцію-обробник, яка отримує об'єкт події з деталями того, що сталось.",
+    useCases: ["реакція на клік по кнопці", "валідація поля форми при кожному введенні", "закриття модального вікна по кліку поза ним"],
+    syntax: `button.addEventListener('click', (e) => {\n  console.log('Клікнули по', e.target);\n});`,
+    attributes: [
+      { name: "addEventListener(type, fn)", desc: "підписує функцію на подію вказаного типу" },
+      { name: "removeEventListener(type, fn)", desc: "відписує обробник (потрібне те саме посилання на функцію)" },
+      { name: "click / input / change / submit", desc: "найпоширеніші події: клік, зміна поля, втрата фокусу з новим значенням, відправка форми" },
+      { name: "keydown / keyup", desc: "натискання й відпускання клавіші клавіатури" },
+      { name: "e.target", desc: "елемент, на якому подія фактично трапилась" },
+      { name: "e.preventDefault()", desc: "скасовує типову дію браузера (напр. перезавантаження при submit форми)" },
+      { name: "e.stopPropagation()", desc: "зупиняє спливання події до батьківських елементів" },
+    ],
+    example: `<form id="form" style="display:flex;gap:8px;">
+  <input id="name" placeholder="Ім'я" style="padding:6px;border:1px solid #ccc;border-radius:6px;">
+  <button type="submit">Надіслати</button>
+</form>
+<p id="out"></p>
+<script>
+  document.getElementById('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    document.getElementById('out').textContent = 'Привіт, ' + (name || 'незнайомцю') + '!';
+  });
+<\/script>`,
+    pitfalls: [
+      "Забутий e.preventDefault() у обробнику submit — сторінка перезавантажується, JS-логіка не встигає спрацювати.",
+      "Анонімна стрілкова функція в addEventListener не можна потім прибрати через removeEventListener — потрібне іменоване посилання.",
+      "Навішування обробника на кожен елемент списку замість одного на батька (делегування подій) — гірше для продуктивності на великих списках.",
+    ],
+    related: ["js-dom-select", "js-dom-manipulate"],
+  },
+
 };
 
 const TERM_GUIDES = {
