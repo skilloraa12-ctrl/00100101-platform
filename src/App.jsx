@@ -1860,6 +1860,30 @@ const LIBRARY_SERVERS = [
   { name: "Clerk", desc: "Готова автентифікація й керування користувачами (логін, реєстрація, профілі) як вбудовані UI-компоненти.", syntax: "<SignedIn><UserButton /></SignedIn>\n<SignedOut><SignInButton /></SignedOut>", attrs: "Безкоштовно: так · 10 000 місячних активних користувачів (MAU)", pitfalls: "Публічний (publishable) ключ можна лишати у фронтенді, а secret key — лише на сервері.", guide: "server-clerk" },
 ];
 
+const LIBRARY_SLANG = [
+  { name: "legacy code", desc: "Старий код у продакшені, часто без тестів і документації, який бояться чіпати.", syntax: "This is legacy code from 2018 — nobody fully understands it anymore.", attrs: "legacy system — те саме про цілу систему", pitfalls: "«Legacy» не означає автоматично «поганий» — може бути старим, але надійним." },
+  { name: "hotfix", desc: "Термінове виправлення критичного багу, що йде напряму в продакшн в обхід звичайного циклу розробки.", syntax: "We need to ship a hotfix ASAP — payments are failing.", attrs: "patch — менш терміновий синонім", pitfalls: "Часто пропускає звичайні перевірки — після нього важливо дописати тести." },
+  { name: "WIP", desc: "Work in progress — робота ще не завершена, часто в назві Pull Request, щоб ніхто не змерджив завчасно.", syntax: "[WIP] Add user authentication — don't merge yet.", attrs: "draft PR — формальний еквівалент на GitHub", pitfalls: "Неформальна конвенція — краще використовувати офіційний статус Draft PR." },
+  { name: "MVP", desc: "Minimum viable product — найпростіша версія продукту, достатня для перевірки ідеї на користувачах.", syntax: "Let's cut this down to an MVP and add extras later.", attrs: "ship the MVP — випустити цю мінімальну версію", pitfalls: "MVP — не «неякісний продукт», а свідомо звужений набір фіч." },
+  { name: "POC / spike", desc: "Швидкий чорновий код для перевірки технічної здійсненності ідеї, без наміру довести до продакшн-якості.", syntax: "I'll do a quick spike to see if this API supports what we need.", attrs: "throwaway code — планово викидається", pitfalls: "POC-код часто «випадково» лишається жити в продакшені без рефакторингу." },
+  { name: "scope creep", desc: "Поступове непомітне розростання обсягу задачі понад початковий план.", syntax: "Watch out for scope creep — the ticket said 'add a button,' not 'redesign the page.'", attrs: "feature creep — те саме, але про нові функції продукту", pitfalls: "Головне — усвідомлено вирішувати розширювати обсяг, а не «підхопити» його непомітно." },
+  { name: "code smell", desc: "Ознака в коді, що не є помилкою, але натякає на можливу глибшу проблему.", syntax: "This deeply nested if-statement is a bit of a code smell.", attrs: "smells fishy — розмовний синонім", pitfalls: "Не є помилкою й не завжди потребує негайного виправлення — це лише сигнал." },
+  { name: "yak shaving", desc: "Ланцюжок дрібних, на перший погляд непов'язаних задач, що виникають на шляху до простої мети.", syntax: "I just wanted to fix a typo, but that led to yak shaving.", attrs: "down the rabbit hole — схожий вираз", pitfalls: "Йдеться саме про НЕПОВ'ЯЗАНІ підзадачі, а не про логічні залежності." },
+  { name: "bikeshedding", desc: "Витрачання непропорційно багато часу на обговорення дрібної, легкої деталі, ігноруючи складніші питання.", syntax: "We spent 40 minutes bikeshedding the button color.", attrs: "Parkinson's law of triviality — формальна назва ефекту", pitfalls: "Назва від жарту про обговорення кольору велосипедного накриття замість атомної станції." },
+  { name: "footgun", desc: "Функція чи API, яку легко використати неправильно й ненавмисно «вистрелити собі в ногу».", syntax: "Mutable default arguments in Python are a classic footgun.", attrs: "gotcha — менш драматичний синонім", pitfalls: "Описує можливість помилки в дизайні інструменту, а не факт, що хтось уже помилився." },
+  { name: "cargo cult programming", desc: "Копіювання коду чи практик без розуміння, навіщо вони насправді потрібні.", syntax: "We're cargo culting this config — nobody knows why half these flags are set.", attrs: "copy-paste programming — суміжний термін", pitfalls: "Ритуал заради ритуалу — назва від культів, що будували муляжі аеродромів." },
+  { name: "glue code", desc: "Код, що не містить бізнес-логіки, а лише з'єднує різні частини системи між собою.", syntax: "Most of this file is just glue code connecting the API to our database.", attrs: "wiring — синонім про з'єднання компонентів", pitfalls: "Часто недооцінюють як «просту» роботу, хоча там ховаються помилки інтеграції." },
+  { name: "gold plating", desc: "Додавання зайвих, ніким не замовлених покращень понад те, що реально потрібно.", syntax: "Adding animations and three themes at this point is gold plating.", attrs: "over-engineering — суміжний термін", pitfalls: "Робиться з добрих намірів, але коштує часу, який можна витратити ефективніше." },
+  { name: "happy path", desc: "Сценарій, коли все йде як задумано — без помилок і несподіваних вводів.", syntax: "The happy path works fine, but what if the API call times out?", attrs: "sad path — антонім, сценарій з помилкою", pitfalls: "Тестування лише happy path — код падає при першому ж несподіваному вводі." },
+  { name: "\"works on my machine\"", desc: "Іронічна фраза, коли код працює локально, але падає в іншому середовищі.", syntax: "\"Works on my machine\" — turns out I had an old config cached.", attrs: "WOMM — жартівлива абревіатура", pitfalls: "Вживається як самоіронія над пасткою, а не як буквальне виправдання." },
+  { name: "bus factor", desc: "Кількість людей, чия відсутність зупинить проєкт через брак знань про критичну частину системи.", syntax: "Our deployment process has a bus factor of one — only Max knows it.", attrs: "knowledge silo — суміжний термін", pitfalls: "Ризик проєкту, а не привід звинувачувати конкретну людину." },
+  { name: "war room", desc: "Термінова спільна нарада для вирішення критичного інциденту в реальному часі.", syntax: "Production is down — jumping into a war room call now.", attrs: "incident channel — сучасніший еквівалент", pitfalls: "Скликають для СПРАВДІ критичних інцидентів, не для звичайних багів." },
+  { name: "postmortem", desc: "Аналіз причин і наслідків серйозного інциденту після його усунення — заради навчання, не покарання.", syntax: "Let's schedule a postmortem — we need a clear root cause.", attrs: "blameless postmortem — без пошуку винного", pitfalls: "Головний принцип — зосередженість на системі й процесах, не на людині." },
+  { name: "10x engineer", desc: "Напівжартівливий термін для розробника з нібито в 10 разів вищою продуктивністю.", syntax: "He calls himself a 10x engineer, but half his PRs break the build.", attrs: "rockstar / ninja developer — суміжні терміни", pitfalls: "Сьогодні частіше вживається іронічно/скептично." },
+  { name: "imposter syndrome", desc: "Постійне відчуття недостатньої компетентності попри реальні докази протилежного.", syntax: "I still get imposter syndrome in code reviews after five years.", attrs: "дуже поширене явище в IT", pitfalls: "Це реальне відчуття, а не «слабкість» — визнання його вголос часто допомагає." },
+  { name: "crunch time", desc: "Період інтенсивної, часто понаднормової роботи перед важливим дедлайном.", syntax: "We're in crunch time before the launch.", attrs: "burnout — виснаження від тривалого crunch time", pitfalls: "Постійний (не винятковий) crunch — сигнал проблем з плануванням команди." },
+];
+
 /* =========================================================================
    TERM GUIDES — рich, step-by-step explanations with code + result for each
    step, in the "Масив (Array)" slide format. Each guide is linked to a
@@ -11841,7 +11865,7 @@ function ReferencePage() {
 function LibraryPage() {
   const [tab, setTab] = useState("html");
   const [openGuide, setOpenGuide] = useState(null);
-  const data = { html: LIBRARY_HTML, css: LIBRARY_CSS, js: LIBRARY_JS, python: LIBRARY_PYTHON, sql: LIBRARY_SQL, servers: LIBRARY_SERVERS }[tab];
+  const data = { html: LIBRARY_HTML, css: LIBRARY_CSS, js: LIBRARY_JS, python: LIBRARY_PYTHON, sql: LIBRARY_SQL, servers: LIBRARY_SERVERS, slang: LIBRARY_SLANG }[tab];
 
   if (openGuide) return <TermGuidePage guideId={openGuide} onBack={() => setOpenGuide(null)} />;
 
@@ -11850,7 +11874,7 @@ function LibraryPage() {
       <h1 className="text-2xl font-semibold text-stone-100 mb-1 flex items-center gap-2"><Library size={22} className="text-amber-400" /> Бібліотека</h1>
       <p className="text-stone-500 text-sm mb-5">Довідник тегів, властивостей і концепцій — шукай і читай у будь-якому порядку. {data.length} записів у цьому розділі.</p>
       <div className="flex flex-wrap gap-2 mb-5">
-        {[["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["python", "Python"], ["sql", "SQL"], ["servers", "Сервери"]].map(([id, label]) => (
+        {[["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["python", "Python"], ["sql", "SQL"], ["servers", "Сервери"], ["slang", "Сленг"]].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`px-3 py-1.5 rounded-md text-sm ${tab === id ? "bg-stone-800 text-amber-400" : "text-stone-400 hover:bg-stone-900"}`}>{label}</button>
         ))}
       </div>
@@ -12104,7 +12128,7 @@ function buildSearchIndex() {
     idx.push({ kind: "Урок", label: l.title, sub: l.theory.slice(0, 70) + "…", nav: { view: "course", courseId, lessonId: l.id } });
   });
   SYMBOLS.forEach((s) => idx.push({ kind: "Символ", label: `${s.sym} — ${s.ua}`, sub: s.en, nav: { view: "symbols" } }));
-  [...LIBRARY_HTML, ...LIBRARY_CSS, ...LIBRARY_JS, ...LIBRARY_PYTHON, ...LIBRARY_SQL, ...LIBRARY_SERVERS].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
+  [...LIBRARY_HTML, ...LIBRARY_CSS, ...LIBRARY_JS, ...LIBRARY_PYTHON, ...LIBRARY_SQL, ...LIBRARY_SERVERS, ...LIBRARY_SLANG].forEach((l) => idx.push({ kind: "Бібліотека", label: l.name, sub: l.desc, nav: { view: "library" } }));
   ENGLISH_WORDS.forEach((w) => idx.push({ kind: "English", label: w.en, sub: w.ua, nav: { view: "english" } }));
   UKRAINIAN_TERMS.forEach((t) => idx.push({ kind: "Українська", label: t.correct, sub: t.en, nav: { view: "ukrainian" } }));
   Object.entries(CHEATSHEETS).forEach(([id, sheet]) => {
