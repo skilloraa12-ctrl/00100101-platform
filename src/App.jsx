@@ -7018,6 +7018,99 @@ print(sorted(ages, reverse=True))</pre>
     related: ["py-comprehensions", "py-lists"],
   },
 
+  "py-files": {
+    badge: "Python",
+    title: "Робота з файлами (open, with)",
+    whatIsIt: "open() відкриває файл для читання чи запису. Конструкція with автоматично закриває файл після виконання блоку, навіть якщо станеться помилка — надійніший спосіб, ніж вручну викликати close().",
+    useCases: ["читання конфігурації чи даних з текстового файлу", "запис результатів роботи скрипта у файл", "обробка CSV чи логів рядок за рядком"],
+    syntax: `with open("data.txt", "r") as f:\n    content = f.read()`,
+    attributes: [
+      { name: "open(path, mode)", desc: "відкриває файл; mode: 'r' читання, 'w' запис (перезаписує), 'a' додавання" },
+      { name: "with ... as f:", desc: "гарантує закриття файлу після блоку, навіть при помилці" },
+      { name: "read() / readline() / readlines()", desc: "читають увесь файл, один рядок чи всі рядки списком" },
+      { name: "write(text)", desc: "записує текст у файл (режим 'w' чи 'a')" },
+      { name: "for line in f:", desc: "перебирає файл рядок за рядком — ефективно для великих файлів" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;"># Запис
+with open("notes.txt", "w") as f:
+    f.write("Перший рядок\\n")
+    f.write("Другий рядок")
+
+# Читання
+with open("notes.txt", "r") as f:
+    for line in f:
+        print(line.strip())</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Перший рядок
+Другий рядок</pre>`,
+    pitfalls: [
+      "open() без with вимагає ручного f.close() — забутий close() лишає файл заблокованим чи дані незбереженими.",
+      "Режим 'w' ПОВНІСТЮ ОЧИЩАЄ існуючий файл перед записом — для додавання в кінець потрібен режим 'a'.",
+      "Читання дуже великого файлу через read() одразу — займає багато пам'яті; краще перебір по рядках.",
+    ],
+    related: ["py-exceptions"],
+  },
+  "py-modules-imports": {
+    badge: "Python",
+    title: "import, модулі й пакети",
+    whatIsIt: "import підключає код з інших файлів (модулів) чи стандартної бібліотеки. Модуль — це просто .py файл, пакет — папка з модулями й файлом __init__.py.",
+    useCases: ["підключення стандартної бібліотеки (math, random, datetime)", "розділення великого проєкту на логічні файли", "підключення сторонніх бібліотек, встановлених через pip"],
+    syntax: `import math\nfrom datetime import datetime\nfrom mymodule import my_function`,
+    attributes: [
+      { name: "import module", desc: "підключає весь модуль — звернення через module.function()" },
+      { name: "from module import name", desc: "підключає конкретне ім'я — звернення напряму, без префіксу" },
+      { name: "import module as alias", desc: "підключає з коротшим псевдонімом, напр. import numpy as np" },
+      { name: "from module import *", desc: "підключає ВСЕ з модуля напряму (зазвичай не рекомендується)" },
+      { name: "__name__ == '__main__'", desc: "перевіряє, чи файл запущено напряму, а не імпортовано" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import math
+from datetime import datetime
+
+print(math.sqrt(16))
+print(datetime.now().year)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (рік — приклад):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">4.0
+2026</pre>`,
+    pitfalls: [
+      "from module import * забруднює простір імен і ускладнює розуміння, звідки взялась та чи інша назва — краще явний імпорт конкретних імен.",
+      "Циклічні імпорти (два модулі імпортують один одного) можуть викликати ImportError.",
+    ],
+    related: ["py-venv-pip"],
+  },
+  "py-decorators": {
+    badge: "Python",
+    title: "Декоратори (@decorator)",
+    whatIsIt: "Декоратор — функція, що обгортає іншу функцію/метод, додаючи їй поведінку без зміни її власного коду. Записується через @ перед оголошенням функції.",
+    useCases: ["вимірювання часу виконання функції", "логування викликів функції", "кешування результатів (@lru_cache)", "спеціальні методи класу (@property, @staticmethod)"],
+    syntax: `def my_decorator(func):\n    def wrapper(*args, **kwargs):\n        print("До виклику")\n        result = func(*args, **kwargs)\n        print("Після виклику")\n        return result\n    return wrapper\n\n@my_decorator\ndef greet():\n    print("Привіт!")`,
+    attributes: [
+      { name: "@decorator", desc: "застосовує decorator до функції нижче — те саме, що func = decorator(func)" },
+      { name: "@property", desc: "робить метод доступним як атрибут (без дужок виклику)" },
+      { name: "@staticmethod / @classmethod", desc: "метод без self / метод, що отримує клас замість self" },
+      { name: "@functools.lru_cache", desc: "кешує результати функції для однакових аргументів" },
+      { name: "*args, **kwargs у wrapper", desc: "дозволяють декоратору працювати з функціями будь-якої сигнатури" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">def loud(func):
+    def wrapper(*args):
+        print(f"Виклик {func.__name__}")
+        return func(*args)
+    return wrapper
+
+@loud
+def add(a, b):
+    return a + b
+
+print(add(2, 3))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Виклик add
+5</pre>`,
+    pitfalls: [
+      "Декоратор без *args, **kwargs у wrapper не зможе обгорнути функції з іншою кількістю параметрів.",
+      "Забутий import functools і @functools.wraps(func) — обгорнута функція втрачає своє ім'я й docstring для інструментів інтроспекції.",
+    ],
+    related: ["py-classes", "py-functions"],
+  },
+
 };
 
 const TERM_GUIDES = {
