@@ -1018,6 +1018,7 @@ const REF_NAV = {
   "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
   "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
   "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
+  "Інше": ["a", "div", "span", "menu"],
 };
 
 const TERM_PAGES_V2 = {
@@ -2865,6 +2866,78 @@ const TERM_PAGES_V2 = {
       "Плутанина з <canvas> — SVG підходить для чіткої векторної графіки й доступу через DOM/CSS, а canvas — для піксельного малювання й анімацій із великою кількістю об'єктів.",
     ],
     related: ["canvas"],
+  },
+
+  a: {
+    badge: "HTML",
+    title: "<a>",
+    whatIsIt: "Створює гіперпосилання — найважливіший елемент вебу, що дозволяє переходити між сторінками, файлами, розділами сторінки чи запускати email/телефонні дії.",
+    useCases: ["перехід на іншу сторінку чи сайт", "перехід до розділу цієї ж сторінки (якір)", "посилання mailto:/tel: для email і дзвінків", "завантаження файлу"],
+    syntax: `<a href="https://example.com">Текст посилання</a>`,
+    attributes: [
+      { name: "href", desc: "адреса переходу — URL, #якір, mailto:, tel:" },
+      { name: "target", desc: "де відкрити: \"_blank\" — нова вкладка" },
+      { name: "rel", desc: "тип зв'язку, напр. \"noopener noreferrer\" для безпеки з target=_blank" },
+      { name: "download", desc: "змушує браузер завантажити файл замість відкриття" },
+    ],
+    example: `<a href="https://example.com" target="_blank" rel="noopener noreferrer">Відкрити example.com</a>
+<br><a href="#top">До початку сторінки</a>
+<br><a href="mailto:hello@example.com">Написати листа</a>`,
+    pitfalls: [
+      "target=\"_blank\" без rel=\"noopener\" — потенційна вразливість (нова вкладка має доступ до window.opener).",
+      "href=\"#\" чи href=\"javascript:void(0)\" замість <button> для дій без переходу — семантично неправильно.",
+      "Порожній текст посилання чи лише іконка без aria-label — проблема з доступністю.",
+    ],
+    related: ["button", "nav"],
+  },
+  div: {
+    badge: "HTML",
+    title: "<div>",
+    whatIsIt: "Універсальний блоковий контейнер без власного семантичного значення — використовується для групування елементів заради стилізації чи структури розмітки, коли жоден семантичний тег (section, article тощо) не підходить.",
+    useCases: ["групування елементів для CSS-стилізації (напр. flex/grid контейнер)", "обгортка для JS-компонента", "структурні блоки, що не мають семантичного значення"],
+    syntax: `<div class="card">Вміст</div>`,
+    attributes: [],
+    example: `<div style="display:flex;gap:10px;">
+  <div style="background:#7c3aed;color:white;padding:10px;border-radius:6px;">Блок 1</div>
+  <div style="background:#0ea5e9;color:white;padding:10px;border-radius:6px;">Блок 2</div>
+</div>`,
+    pitfalls: [
+      "Зловживання <div> замість семантичних тегів (<header>, <nav>, <section>) — гірше для SEO й доступності.",
+      "Надмірна вкладеність div-ів («divitis») ускладнює читання й стилізацію розмітки.",
+    ],
+    related: ["span", "section"],
+  },
+  span: {
+    badge: "HTML",
+    title: "<span>",
+    whatIsIt: "Універсальний рядковий (inline) контейнер без власного семантичного значення — використовується, щоб виділити частину тексту для стилізації чи маніпуляцій через JS, не розриваючи рядок.",
+    useCases: ["виділення кольором частини слова чи речення", "обгортка для іконки в тексті", "динамічний текст, що оновлюється через JS"],
+    syntax: `Текст з <span class="highlight">виділеним словом</span>.`,
+    attributes: [],
+    example: `<p>Цей текст містить <span style="color:#7c3aed;font-weight:bold;">виділене слово</span> посеред речення.</p>`,
+    pitfalls: [
+      "Використання <span> замість <strong>/<em>, коли є смислове значення виділення — тоді семантичні теги кращі.",
+      "div всередині span чи інші блокові елементи в inline-контейнері — невалідна вкладеність.",
+    ],
+    related: ["div", "strong", "em"],
+  },
+  menu: {
+    badge: "HTML",
+    title: "<menu>",
+    whatIsIt: "Семантично альтернатива <ul> для списку команд чи дій — за замовчуванням у браузерах виглядає ідентично звичайному списку, але позначає саме набір дій (напр. панель інструментів чи контекстне меню), а не просто перелік.",
+    useCases: ["список дій/команд у панелі інструментів", "контекстне меню з опціями"],
+    syntax: `<menu>\n  <li><button>Копіювати</button></li>\n  <li><button>Вставити</button></li>\n</menu>`,
+    attributes: [],
+    example: `<menu style="display:flex;gap:8px;list-style:none;padding:0;">
+  <li><button>Зберегти</button></li>
+  <li><button>Видалити</button></li>
+  <li><button>Поділитись</button></li>
+</menu>`,
+    pitfalls: [
+      "Використання <menu> для звичайного текстового списку — тоді краще <ul>, бо <menu> семантично означає саме дії.",
+      "Обмежена й непослідовна підтримка деяких можливостей <menu> (напр. toolbar-типу) у браузерах.",
+    ],
+    related: ["ul", "li", "button"],
   },
 
 };
