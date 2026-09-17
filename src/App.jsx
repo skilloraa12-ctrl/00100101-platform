@@ -7111,6 +7111,101 @@ print(add(2, 3))</pre>
     related: ["py-classes", "py-functions"],
   },
 
+  "py-type-hints": {
+    badge: "Python",
+    title: "Підказки типів (type hints)",
+    whatIsIt: "Необов'язкові анотації типів для змінних, параметрів і повернених значень функцій. Python НЕ перевіряє їх під час виконання — вони лише документація й підказки для інструментів (mypy, IDE), що ловлять помилки типів ДО запуску коду.",
+    useCases: ["документування очікуваних типів параметрів функції", "автодоповнення й підказки в редакторі коду", "ловля помилок типів статичним аналізатором (mypy) до запуску"],
+    syntax: `def greet(name: str, age: int = 18) -> str:\n    return f"{name}, {age} років"`,
+    attributes: [
+      { name: "param: type", desc: "анотація типу параметра функції" },
+      { name: "-> type", desc: "анотація типу повернутого значення" },
+      { name: "list[int] / dict[str, int]", desc: "типізовані колекції (Python 3.9+)" },
+      { name: "Optional[X] / X | None", desc: "значення може бути вказаного типу або None" },
+      { name: "Union[X, Y] / X | Y", desc: "значення може бути одним з кількох типів" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">def total_price(items: list[float], discount: float = 0) -> float:
+    subtotal = sum(items)
+    return subtotal * (1 - discount)
+
+print(total_price([10.0, 20.0, 5.0], discount=0.1))</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">31.5</pre>`,
+    pitfalls: [
+      "Type hints НЕ примушують правильність типів у рантаймі — total_price('текст') виконається без помилки, доки код не спробує щось з ним зробити.",
+      "Для реальної перевірки типів потрібен окремий інструмент (mypy) — самі підказки лише документація без встановленого лінтера.",
+    ],
+    related: ["py-dataclasses"],
+  },
+  "py-dataclasses": {
+    badge: "Python",
+    title: "@dataclass",
+    whatIsIt: "Декоратор, що автоматично генерує __init__, __repr__ і __eq__ для класів, які переважно зберігають дані — економить написання шаблонного коду порівняно зі звичайним класом.",
+    useCases: ["класи-контейнери для структурованих даних (напр. координати, налаштування)", "заміна звичайних класів, де потрібні лише поля без складної логіки"],
+    syntax: `from dataclasses import dataclass\n\n@dataclass\nclass Point:\n    x: int\n    y: int`,
+    attributes: [
+      { name: "@dataclass", desc: "автоматично генерує __init__, __repr__, __eq__ на основі анотацій полів" },
+      { name: "поле: тип = значення", desc: "оголошення поля з опціональним значенням за замовчуванням" },
+      { name: "@dataclass(frozen=True)", desc: "робить екземпляри незмінюваними (як tuple)" },
+      { name: "field(default_factory=list)", desc: "безпечне значення за замовчуванням для змінюваних типів (список, словник)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+p1 = Point(10, 20)
+p2 = Point(10, 20)
+print(p1)
+print(p1 == p2)</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання:</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Point(x=10, y=20)
+True</pre>`,
+    pitfalls: [
+      "Звичайний клас порівнює об'єкти за ІДЕНТИЧНІСТЮ (той самий об'єкт у пам'яті), dataclass — за ЗНАЧЕННЯМИ полів — це і є головна перевага для порівняння двох 'однакових' об'єктів.",
+      "Змінюваний тип (list) як значення за замовчуванням напряму (items: list = []) — помилка, потрібен field(default_factory=list).",
+    ],
+    related: ["py-classes", "py-type-hints"],
+  },
+  "py-async": {
+    badge: "Python",
+    title: "async/await, asyncio",
+    whatIsIt: "Асинхронне програмування дозволяє виконувати багато операцій вводу-виводу (мережеві запити, читання файлів) паралельно в одному потоці, не блокуючи виконання, поки чекаємо відповіді. async визначає корутину, await очікує її завершення.",
+    useCases: ["одночасне виконання багатьох мережевих запитів без блокування", "веб-сервери, що обробляють багато з'єднань одночасно (FastAPI)", "операції, де більшість часу йде на очікування (I/O-bound задачі)"],
+    syntax: `import asyncio\n\nasync def fetch_data():\n    await asyncio.sleep(1)\n    return "Дані"\n\nasyncio.run(fetch_data())`,
+    attributes: [
+      { name: "async def", desc: "оголошує корутину — функцію, що можна призупиняти" },
+      { name: "await", desc: "очікує завершення асинхронної операції, не блокуючи інші задачі" },
+      { name: "asyncio.run(coro)", desc: "запускає корутину як точку входу в асинхронний код" },
+      { name: "asyncio.gather(*coros)", desc: "виконує кілька корутин ПАРАЛЕЛЬНО, чекає на всі" },
+      { name: "asyncio.sleep(sec)", desc: "неблокуюча затримка (на відміну від time.sleep)" },
+    ],
+    example: `<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:13px;">import asyncio
+
+async def download(name, delay):
+    await asyncio.sleep(delay)
+    print(f"{name} завантажено")
+
+async def main():
+    await asyncio.gather(
+        download("Файл 1", 1),
+        download("Файл 2", 0.5)
+    )
+
+asyncio.run(main())</pre>
+<p style="font-size:12px;color:#666;margin-top:6px;">Результат виконання (Файл 2 швидший, тому перший):</p>
+<pre style="background:#111;color:#0f0;padding:10px;border-radius:6px;font-size:13px;">Файл 2 завантажено
+Файл 1 завантажено</pre>`,
+    pitfalls: [
+      "await поза async def — SyntaxError; асинхронний код можна викликати лише з іншого асинхронного контексту чи через asyncio.run().",
+      "asyncio не дає справжнього паралелізму для CPU-інтенсивних задач (обчислення) — лише для I/O-очікування; для CPU-задач потрібні процеси (multiprocessing).",
+      "Послідовні await замість asyncio.gather() виконуються ПО ЧЕРЗІ, а не одночасно — втрачається сенс асинхронності.",
+    ],
+    related: ["js-async-await"],
+  },
+
 };
 
 const TERM_GUIDES = {
