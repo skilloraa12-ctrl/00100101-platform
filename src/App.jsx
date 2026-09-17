@@ -1017,6 +1017,7 @@ const REF_NAV = {
   "Текст": ["strong", "em", "mark", "code", "pre", "blockquote"],
   "Структура документа": ["html", "head", "title", "base", "link", "meta", "script", "style", "noscript"],
   "Текстова семантика": ["b", "i", "small", "del", "ins", "s", "u", "sub", "sup", "abbr", "cite", "q", "kbd", "samp", "var", "time", "data", "bdi", "bdo", "ruby", "rt", "rp", "dfn", "wbr", "br", "hr"],
+  "Інтерактивність і графіка": ["dialog", "details", "summary", "template", "slot", "canvas", "svg"],
 };
 
 const TERM_PAGES_V2 = {
@@ -2707,6 +2708,163 @@ const TERM_PAGES_V2 = {
       "<area> без <map> не має сенсу — завжди дочірній елемент <map>.",
     ],
     related: ["map", "img"],
+  },
+
+  dialog: {
+    badge: "HTML",
+    title: "<dialog>",
+    whatIsIt: "Вбудований елемент модального чи немодального діалогового вікна — браузер сам керує його показом/приховуванням і навіть затемненням фону для модального режиму, без сторонніх бібліотек.",
+    useCases: ["модальні вікна підтвердження", "спливаючі форми (логін, підписка)", "сповіщення, які потребують дії користувача"],
+    syntax: `<dialog id="d">Вміст діалогу</dialog>\n<script>document.getElementById('d').showModal();<\/script>`,
+    attributes: [
+      { name: "open", desc: "діалог видимий (додається автоматично методами show/showModal)" },
+    ],
+    example: `<button id="openBtn">Відкрити діалог</button>
+<dialog id="myDialog" style="border-radius:8px;border:1px solid #ccc;padding:16px;">
+  <p>Це модальне вікно!</p>
+  <button id="closeBtn">Закрити</button>
+</dialog>
+<script>
+  const dialog = document.getElementById('myDialog');
+  document.getElementById('openBtn').onclick = () => dialog.showModal();
+  document.getElementById('closeBtn').onclick = () => dialog.close();
+<\/script>`,
+    pitfalls: [
+      "show() відкриває немодальний діалог (фон клікабельний), а showModal() — модальний із затемненням.",
+      "Забутий close() у кнопці всередині — діалог не закриється без явного виклику.",
+    ],
+    related: ["button"],
+  },
+  details: {
+    badge: "HTML",
+    title: "<details>",
+    whatIsIt: "Створює розкривний блок — панель, яку можна згорнути й розгорнути кліком, без жодного JavaScript. Заголовок панелі задається через <summary>.",
+    useCases: ["розділ «Часті запитання» (FAQ)", "додаткові подробиці, приховані за замовчуванням", "згортні секції в довгих документах"],
+    syntax: `<details>\n  <summary>Заголовок</summary>\n  Прихований вміст\n</details>`,
+    attributes: [{ name: "open", desc: "панель розгорнута за замовчуванням" }],
+    example: `<details>
+  <summary>Що таке HTML?</summary>
+  <p>HTML — мова розмітки гіпертексту, основа будь-якої веб-сторінки.</p>
+</details>`,
+    pitfalls: [
+      "Стилізація <summary> по-різному в різних браузерах (маркер трикутника) — варто явно керувати через CSS.",
+      "Забутий <summary> — тоді браузер показує стандартний текст «Details» замість власного заголовка.",
+    ],
+    related: ["summary"],
+  },
+  summary: {
+    badge: "HTML",
+    title: "<summary>",
+    whatIsIt: "Задає видимий заголовок для <details> — текст, на який клікають, щоб розгорнути чи згорнути панель. Має бути першим дочірнім елементом <details>.",
+    useCases: ["заголовок розкривної панелі FAQ", "клікабельний ярлик згорнутого блоку"],
+    syntax: `<details>\n  <summary>Клікни мене</summary>\n  Вміст\n</details>`,
+    attributes: [],
+    example: `<details open>
+  <summary>Натисни, щоб згорнути</summary>
+  <p>Цей блок відкритий за замовчуванням (атрибут open).</p>
+</details>`,
+    pitfalls: [
+      "<summary> поза <details> не має сенсу — завжди перший дочірній елемент.",
+      "Кілька <summary> в одному <details> — використовується лише перший.",
+    ],
+    related: ["details"],
+  },
+  template: {
+    badge: "HTML",
+    title: "<template>",
+    whatIsIt: "Зберігає розмітку, яка не рендериться й не виконується браузером одразу — її вміст можна клонувати через JavaScript і вставляти на сторінку скільки завгодно разів. Корисно для повторюваних блоків (картки, рядки таблиці).",
+    useCases: ["шаблон картки товару, що клонується для кожного елемента списку", "повторювані рядки таблиці, згенеровані з даних"],
+    syntax: `<template id="t"><li class="item"></li></template>\n<script>\n  const clone = document.getElementById('t').content.cloneNode(true);\n<\/script>`,
+    attributes: [],
+    example: `<ul id="list"></ul>
+<template id="itemTemplate">
+  <li style="padding:4px 0;">🍎 Товар</li>
+</template>
+<script>
+  const tpl = document.getElementById('itemTemplate');
+  const list = document.getElementById('list');
+  for (let i = 0; i < 3; i++) {
+    const clone = tpl.content.cloneNode(true);
+    list.appendChild(clone);
+  }
+<\/script>`,
+    pitfalls: [
+      "Вміст <template> не видно на сторінці, поки його явно не клонувати й не вставити через JS — це не звичайний прихований блок (display:none).",
+      "Скрипти й зображення всередині <template> не завантажуються, поки контент не активовано.",
+    ],
+    related: ["script", "slot"],
+  },
+  slot: {
+    badge: "HTML",
+    title: "<slot>",
+    whatIsIt: "Використовується у веб-компонентах (Shadow DOM) як місце-заповнювач — куди підставляється контент, переданий ззовні компонента. Дозволяє створювати компоненти з кастомізованим вмістом, як діти в React.",
+    useCases: ["кастомні елементи з вставленим ззовні вмістом (напр. <my-card>Текст</my-card>)", "перевикористовувані веб-компоненти з гнучким контентом"],
+    syntax: `<template id="t"><div class="card"><slot></slot></div></template>`,
+    attributes: [{ name: "name", desc: "іменований слот — для кількох різних місць вставки контенту" }],
+    example: `<my-card>Привіт зі слота!</my-card>
+<script>
+  class MyCard extends HTMLElement {
+    connectedCallback() {
+      const shadow = this.attachShadow({ mode: 'open' });
+      shadow.innerHTML = '<div style="border:1px solid #ccc;border-radius:8px;padding:10px;"><slot></slot></div>';
+    }
+  }
+  customElements.define('my-card', MyCard);
+<\/script>`,
+    pitfalls: [
+      "<slot> працює лише всередині Shadow DOM веб-компонента, не в звичайному HTML.",
+      "Забутий вміст усередині кастомного тега — слот покаже запасний вміст (якщо він заданий) або нічого.",
+    ],
+    related: ["template"],
+  },
+  canvas: {
+    badge: "HTML",
+    title: "<canvas>",
+    whatIsIt: "Порожнє полотно, на якому можна малювати графіку, анімації чи ігри через JavaScript (2D Canvas API або WebGL). Сам по собі тег не показує нічого — весь вміст малюється кодом.",
+    useCases: ["графіки й діаграми, намальовані кодом", "прості ігри в браузері", "редактори зображень онлайн"],
+    syntax: `<canvas id="c" width="300" height="150"></canvas>\n<script>\n  const ctx = document.getElementById('c').getContext('2d');\n<\/script>`,
+    attributes: [
+      { name: "width", desc: "ширина полотна в пікселях (типово 300)" },
+      { name: "height", desc: "висота полотна в пікселях (типово 150)" },
+    ],
+    example: `<canvas id="myCanvas" width="300" height="100" style="border:1px solid #ccc;"></canvas>
+<script>
+  const ctx = document.getElementById('myCanvas').getContext('2d');
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(20, 20, 100, 60);
+  ctx.fillStyle = '#0ea5e9';
+  ctx.beginPath();
+  ctx.arc(200, 50, 30, 0, Math.PI * 2);
+  ctx.fill();
+<\/script>`,
+    pitfalls: [
+      "Зміна width/height через CSS замість атрибутів — розтягує намальоване, а не змінює роздільну здатність.",
+      "Малювання без перевірки, що canvas завантажився в DOM — скрипт до елемента поверне null.",
+    ],
+    related: ["svg", "script"],
+  },
+  svg: {
+    badge: "HTML",
+    title: "<svg>",
+    whatIsIt: "Векторна графіка прямо в HTML — фігури описуються математично (координати, криві), тому масштабуються без втрати якості на будь-яких екранах. На відміну від canvas, елементи SVG — це справжні DOM-вузли, доступні для стилізації CSS і подій.",
+    useCases: ["іконки, що чітко виглядають на будь-якому масштабі", "діаграми й графіки з інтерактивністю", "логотипи й ілюстрації"],
+    syntax: `<svg width="100" height="100" viewBox="0 0 100 100">\n  <circle cx="50" cy="50" r="40" fill="teal" />\n</svg>`,
+    attributes: [
+      { name: "viewBox", desc: "визначає систему координат і область видимості SVG" },
+      { name: "width / height", desc: "розмір SVG на сторінці" },
+      { name: "fill", desc: "колір заливки фігури (можна на кожному елементі)" },
+      { name: "stroke", desc: "колір і товщина контуру фігури" },
+    ],
+    example: `<svg width="200" height="100" viewBox="0 0 200 100">
+  <rect x="10" y="10" width="80" height="60" fill="#7c3aed" rx="8" />
+  <circle cx="150" cy="40" r="30" fill="#0ea5e9" />
+  <text x="10" y="90" font-size="14" fill="#333">SVG-текст</text>
+</svg>`,
+    pitfalls: [
+      "Забутий viewBox — SVG може погано масштабуватись під різні розміри контейнера.",
+      "Плутанина з <canvas> — SVG підходить для чіткої векторної графіки й доступу через DOM/CSS, а canvas — для піксельного малювання й анімацій із великою кількістю об'єктів.",
+    ],
+    related: ["canvas"],
   },
 
 };
