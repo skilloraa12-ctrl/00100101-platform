@@ -353,18 +353,25 @@ const HTML_LESSONS = [
       { title: "Таблиці — тільки для даних", points: ["У 1990-х таблицями верстали цілі сторінки", "Сьогодні це anti-pattern — для макета є CSS", "table використовують лише для табличних даних"] },
       { title: "Доступність таблиць", points: ["Скрінрідер оголошує th як заголовок колонки", "Кожна td прив'язується до свого заголовка", "th не можна замінювати td з жирним текстом «для вигляду»"] },
     ],
-    task: 'Створи таблицю з рядком заголовків (th): "Ім\'я" і "Вік", і одним рядком даних (td) із будь-якими значеннями.',
+    task: 'Створи таблицю для свого сайту (наприклад порівняння тарифів, характеристики товару чи прайс-лист): рядок заголовків (th) щонайменше з 2 колонками, і щонайменше один рядок даних (td) з тією самою кількістю комірок.',
     starter: "",
-    hints: ["Потрібні tr з двома th і tr з двома td.", 'Текст заголовків має бути точно "Ім\'я" і "Вік".', "<table>\n  <tr><th>Ім'я</th><th>Вік</th></tr>\n  <tr><td>Оля</td><td>20</td></tr>\n</table>"],
-    solution: `<table>\n  <tr><th>Ім'я</th><th>Вік</th></tr>\n  <tr><td>Оля</td><td>20</td></tr>\n</table>`,
+    hints: ["Перший tr — заголовки (th), наступні tr — дані (td).", "Кількість th і td у кожному рядку має збігатися.", "<table>\n  <tr><th>Модель</th><th>Ціна</th></tr>\n  <tr><td>TechPro 15</td><td>32000</td></tr>\n</table>"],
+    solution: `<table>\n  <tr><th>Модель</th><th>Ціна</th></tr>\n  <tr><td>TechPro 15</td><td>32000 грн</td></tr>\n</table>`,
     type: "html",
     check: (doc) => {
-      const ths = Array.from(doc.querySelectorAll("th")).map((t) => t.textContent.trim());
-      if (ths.length < 2) return { pass: false, message: "Потрібно щонайменше два <th>." };
-      if (!ths.includes("Ім'я") || !ths.includes("Вік")) return { pass: false, message: "th мають містити точно «Ім'я» і «Вік»." };
-      const tds = doc.querySelectorAll("td");
-      if (tds.length < 2) return { pass: false, message: "Потрібен рядок даних із двома <td>." };
-      return { pass: true, message: "table/tr/th/td — стандартна структура будь-якої HTML-таблиці." };
+      const table = doc.querySelector("table");
+      if (!table) return { pass: false, message: "Потрібен тег <table>." };
+      const rows = table.querySelectorAll("tr");
+      if (rows.length < 2) return { pass: false, message: "Потрібно щонайменше 2 рядки: заголовки й дані." };
+      const headerRow = rows[0];
+      const ths = headerRow.querySelectorAll("th");
+      if (ths.length < 2) return { pass: false, message: "Перший рядок має містити щонайменше 2 заголовки <th>." };
+      if (Array.from(ths).some((th) => !th.textContent.trim())) return { pass: false, message: "Кожен <th> має мати власний непорожній текст." };
+      const dataRow = rows[1];
+      const tds = dataRow.querySelectorAll("td");
+      if (tds.length < ths.length) return { pass: false, message: `Рядок даних має мати щонайменше ${ths.length} комірок <td>, стільки ж, скільки заголовків.` };
+      if (Array.from(tds).some((td) => !td.textContent.trim())) return { pass: false, message: "Кожна <td> має мати власний непорожній текст." };
+      return { pass: true, message: "table/tr/th/td — стандартна структура будь-якої HTML-таблиці, від прайс-листа до порівняння тарифів." };
     },
   },
   {
@@ -1763,21 +1770,21 @@ const CSS_LESSONS = [
       "За замовчуванням у таблиці кожна комірка має ВЛАСНУ рамку, і між сусідніми комірками лишається подвійна лінія з невеликим проміжком. border-collapse: collapse «зливає» сусідні рамки в одну спільну лінію — саме так виглядає переважна більшість реальних таблиць у вебі, а не з подвійними лініями за замовчуванням.\n\npadding для th і td критично важливий — без нього текст комірок впритул торкається рамок сусідніх комірок, і таблицю важко читати. Типовий мінімум — 8-12px з усіх боків.\n\ntext-align для числових колонок часто ставлять right (числа зручніше порівнювати, коли вони вирівняні по правому краю, як у бухгалтерських таблицях), тоді як текстові колонки лишають left (типово для західних мов, де читають зліва направо).\n\nЗебра-розфарбування рядків (tr:nth-child(even) з попереднього уроку) особливо корисне саме для таблиць з великою кількістю рядків — людині значно легше не «загубити» рядок під час читання по горизонталі.",
     previewHTML: `<table class="data-table"><tr><th>Товар</th><th>Ціна</th></tr><tr><td>Хліб</td><td>25</td></tr></table>`,
     examples: [
-      { title: "Злиті рамки", code: `.data-table {\n  border-collapse: collapse;\n  width: 100%;\n}\n.data-table th, .data-table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}`, explain: "collapse прибирає подвійні лінії між сусідніми комірками — одна спільна рамка замість двох." },
-      { title: "Вирівнювання чисел", code: `.data-table td.price {\n  text-align: right;\n}`, explain: "Числові значення зручніше порівнювати, вирівняні по правому краю." },
+      { title: "Злиті рамки", code: `main table {\n  border-collapse: collapse;\n  width: 100%;\n}\nmain table th, main table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}`, explain: "collapse прибирає подвійні лінії між сусідніми комірками — одна спільна рамка замість двох." },
+      { title: "Вирівнювання чисел", code: `main table td.price {\n  text-align: right;\n}`, explain: "Числові значення зручніше порівнювати, вирівняні по правому краю." },
     ],
     presentation: [
       { title: "border-collapse", points: ["За замовчуванням — подвійні рамки між комірками", "collapse зливає їх в одну спільну лінію", "Стандартний вигляд для переважної більшості таблиць"] },
       { title: "Зручність читання", points: ["padding у th/td — щоб текст не торкався рамок", "Числа зазвичай text-align: right", "Зебра-розфарбування рядків для довгих таблиць"] },
     ],
-    task: "Стилізуй .data-table: border-collapse: collapse, і .data-table th, .data-table td з border і padding.",
+    task: "Стилізуй таблицю свого сайту (селектор main table): border-collapse: collapse, і main table th, main table td з border і padding.",
     starter: "",
-    hints: ["border-collapse пишеться на самій table.", "Друге правило — груповий селектор для th і td через кому.", ".data-table {\n  border-collapse: collapse;\n}\n.data-table th, .data-table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}"],
-    solution: `.data-table {\n  border-collapse: collapse;\n  width: 100%;\n}\n.data-table th, .data-table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}`,
+    hints: ["border-collapse пишеться на main table.", "Друге правило — груповий селектор для th і td через кому.", "main table {\n  border-collapse: collapse;\n}\nmain table th, main table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}"],
+    solution: `main table {\n  border-collapse: collapse;\n  width: 100%;\n}\nmain table th, main table td {\n  border: 1px solid #cbd5e1;\n  padding: 10px;\n}`,
     type: "css",
     tests: [
-      { re: /\.data-table\s*{[^}]*border-collapse\s*:\s*collapse\s*;/i, msg: "Потрібен border-collapse: collapse у .data-table." },
-      { re: /\.data-table\s+th\s*,\s*\.data-table\s+td\s*{[^}]*border\s*:\s*[^;]+;/i, msg: "Потрібне правило .data-table th, .data-table td з border." },
+      { re: /main\s+table\s*{[^}]*border-collapse\s*:\s*collapse\s*;/i, msg: "Потрібен border-collapse: collapse у правилі main table." },
+      { re: /main\s+table\s+th\s*,\s*main\s+table\s+td\s*{[^}]*border\s*:\s*[^;]+;/i, msg: "Потрібне правило main table th, main table td з border." },
     ],
   },
   {
@@ -2575,11 +2582,11 @@ function defaultProject() {
 
 // Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
 const HEADER_MILESTONE = "html-17";
-const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-8"];
+const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-11", "html-8"];
 
 // Milestone CSS lessons whose submitted rules style the same growing site —
 // order is the order they're concatenated into project.css.
-const CSS_MILESTONES = ["css-3", "css-4", "css-21", "css-9", "css-14", "css-17", "css-19", "css-20", "css-34", "css-40"];
+const CSS_MILESTONES = ["css-3", "css-4", "css-21", "css-9", "css-14", "css-17", "css-18", "css-19", "css-20", "css-34", "css-40"];
 
 function renderProjectCss(project) {
   const blocks = project.blocks || {};
