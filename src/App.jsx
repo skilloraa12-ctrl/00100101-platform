@@ -2876,6 +2876,7 @@ const JS_LESSONS = [
     solution: `function fetchUser() {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve({ name: "Тарас", age: 27 }), 30);\n  });\n}\n\nasync function loadUserName() {\n  const user = await fetchUser();\n  return user.name;\n}`,
     type: "js",
     testCode: `if (typeof loadUserName !== 'function') return {pass:false, message:"Функція loadUserName не знайдена."};\nconst result = await loadUserName();\nif (result !== 'Тарас') return {pass:false, message:"loadUserName() має повертати 'Тарас' (зараз: '" + result + "')."};\nreturn {pass:true, message:"Той самий патерн await fetch(...).json() працюватиме і зі справжнім сервером, коли ти підключиш його в розділі Бібліотека → Сервери."};`,
+    serverPicker: true,
   },
   {
     id: "js-35",
@@ -3158,8 +3159,50 @@ const PROJECT_THEMES = [
 ];
 
 function defaultProject() {
-  return { themeId: null, siteName: "", navLinks: [], blocks: {}, html: "", css: "", js: "" };
+  return { themeId: null, siteName: "", navLinks: [], blocks: {}, html: "", css: "", js: "", chosenServer: null };
 }
+
+// Curated subset of LIBRARY_SERVERS with a real fetch()-based REST call each
+// (not an SDK import) — used by the js-34 "fetch і дані з сервера" lesson's
+// server picker, since that lesson teaches raw fetch, not service SDKs.
+const SERVER_FETCH_EXAMPLES = [
+  {
+    name: "Supabase",
+    guide: "server-supabase",
+    code: `const res = await fetch(\n  "https://ТВІЙ_ПРОЄКТ.supabase.co/rest/v1/products",\n  { headers: { apikey: SUPABASE_ANON_KEY } }\n);\nconst products = await res.json();`,
+    note: "Supabase автоматично генерує REST API для кожної таблиці бази даних — жодного бекенд-коду писати не треба.",
+  },
+  {
+    name: "Firebase",
+    guide: "server-firebase",
+    code: `const res = await fetch(\n  "https://ТВІЙ_ПРОЄКТ-default-rtdb.firebaseio.com/products.json"\n);\nconst products = await res.json();`,
+    note: "Realtime Database Firebase має власний REST API — досить дописати .json в кінці шляху до даних.",
+  },
+  {
+    name: "OpenAI",
+    guide: "server-openai",
+    code: `const res = await fetch("https://api.openai.com/v1/chat/completions", {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    Authorization: "Bearer " + OPENAI_API_KEY,\n  },\n  body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: "Привіт!" }] }),\n});\nconst data = await res.json();`,
+    note: "Ключ API у фронтенд-коді видно будь-кому в DevTools — у реальному проєкті такий запит роблять лише з власного бекенду.",
+  },
+  {
+    name: "Resend",
+    guide: "server-resend",
+    code: `const res = await fetch("https://api.resend.com/emails", {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    Authorization: "Bearer " + RESEND_API_KEY,\n  },\n  body: JSON.stringify({ from, to, subject, html }),\n});`,
+    note: "Так само, як OpenAI — секретний ключ означає, що цей запит належить бекенду, а не коду в браузері користувача.",
+  },
+  {
+    name: "ElevenLabs",
+    guide: "server-elevenlabs",
+    code: `const res = await fetch(\n  "https://api.elevenlabs.io/v1/text-to-speech/" + voiceId,\n  { method: "POST", headers: { "xi-api-key": apiKey }, body: JSON.stringify({ text }) }\n);\nconst audio = await res.blob();`,
+    note: "Відповідь тут — не JSON, а аудіофайл: response.blob() замість response.json().",
+  },
+  {
+    name: "Cloudinary",
+    guide: "server-cloudinary",
+    code: `const res = await fetch(\n  "https://res.cloudinary.com/ТВІЙ_ХМАРНИЙ_НІК/image/upload/w_400/photo.jpg"\n);\nconst imageBlob = await res.blob();`,
+    note: "Розмір і трансформації зображення (w_400 — ширина 400px) задаються прямо в URL, без окремого API-виклику.",
+  },
+];
 
 // Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
 const HEADER_MILESTONE = "html-17";
@@ -13678,7 +13721,40 @@ function PresentationBlock({ slides }) {
    LESSON VIEW
    ========================================================================= */
 
-function LessonView({ course, lesson, isDone, onComplete, onNav }) {
+function ServerPickerBlock({ chosenServer, onPick }) {
+  const [openName, setOpenName] = useState(chosenServer);
+  const active = SERVER_FETCH_EXAMPLES.find((s) => s.name === openName);
+
+  return (
+    <div className="border border-stone-800 rounded-md p-3 mb-4 bg-stone-950">
+      <div className="text-xs uppercase tracking-wide text-stone-500 mb-2 flex items-center gap-1.5">
+        <Server size={12} /> Обери сервер для практики (з Бібліотека → Сервери)
+      </div>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {SERVER_FETCH_EXAMPLES.map((s) => (
+          <button
+            key={s.name}
+            onClick={() => { setOpenName(s.name); onPick?.(s.name); }}
+            className={`text-xs px-2.5 py-1.5 rounded-md border ${
+              openName === s.name ? "border-sky-700 text-sky-400 bg-sky-950/30" : "border-stone-800 text-stone-400 hover:border-stone-700 hover:text-stone-200"
+            }`}
+          >
+            {s.name}
+          </button>
+        ))}
+      </div>
+      {active && (
+        <div>
+          <pre className="text-xs font-mono text-stone-200 bg-stone-900 border border-stone-800 rounded-md p-3 overflow-x-auto mb-2 whitespace-pre-wrap">{active.code}</pre>
+          <p className="text-xs text-stone-500">{active.note}</p>
+        </div>
+      )}
+      {!active && <p className="text-xs text-stone-600">Обери сервіс — і тут з'явиться реальний fetch()-запит саме до нього, замість мокової функції з завдання нижче.</p>}
+    </div>
+  );
+}
+
+function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPickServer }) {
   const [code, setCode] = useState(lesson.starter ?? "");
   const [result, setResult] = useState(null);
   const [hintLevel, setHintLevel] = useState(0);
@@ -13796,6 +13872,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
 
       <ExamplesBlock key={`e-${lesson.id}`} lesson={lesson} />
+
+      {lesson.serverPicker && <ServerPickerBlock chosenServer={project?.chosenServer} onPick={onPickServer} />}
 
       <div className={`border ${accent.border} rounded-md p-3 mb-4 ${accent.bgSoft} bg-opacity-30`}>
         <div className={`text-xs uppercase tracking-wide ${accent.text} mb-1`}>Завдання</div>
@@ -13950,7 +14028,7 @@ function WhereToPractice({ courseId }) {
    COURSE PAGE (sidebar of lessons + lesson view)
    ========================================================================= */
 
-function CoursePage({ course, lessonId, progress, onComplete, onNav }) {
+function CoursePage({ course, lessonId, progress, onComplete, onNav, project, onPickServer }) {
   if (course.status === "planned") {
     return (
       <div className="max-w-2xl">
@@ -14011,6 +14089,8 @@ function CoursePage({ course, lessonId, progress, onComplete, onNav }) {
         isDone={done.has(lesson.id)}
         onComplete={onComplete}
         onNav={onNav}
+        project={project}
+        onPickServer={onPickServer}
       />
     </div>
   );
@@ -14468,6 +14548,7 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
       </div>
       <p className="text-stone-500 text-sm mb-3">
         {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
+        {project.chosenServer && <> Обраний сервер для підключення: <span className="text-sky-400">{project.chosenServer}</span>.</>}
       </p>
 
       {htmlDoneCount < htmlMilestoneIds.length && (
@@ -14912,6 +14993,14 @@ export default function App() {
     saveProject(next);
   }, []);
 
+  const handlePickServer = useCallback((serverName) => {
+    setProject((prev) => {
+      const next = { ...prev, chosenServer: serverName };
+      saveProject(next);
+      return next;
+    });
+  }, []);
+
   const handleComplete = useCallback((id, code) => {
     setProgress((prev) => {
       const list = prev.completed[courseId] || [];
@@ -15000,7 +15089,7 @@ export default function App() {
 
         <main className="flex-1 p-4 md:p-8">
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
-          {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} />}
+          {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} project={project} onPickServer={handlePickServer} />}
           {view === "myproject" && (project.themeId
             ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(cId, lId) => goCourse(cId, lId)} />
             : <ProjectSetup onCreate={handleCreateProject} />)}
