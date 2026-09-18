@@ -2957,6 +2957,61 @@ const JS_LESSONS = [
     type: "js",
     testCode: `const input = document.querySelector('#todo-input');\nconst btn = document.querySelector('#todo-add');\nconst list = document.querySelector('#todo-list');\nif (!input || !btn || !list) return {pass:false, message:"Елементи зникли зі сторінки."};\ninput.value = '  Купити хліб  ';\nbtn.click();\nawait new Promise(r => setTimeout(r, 0));\nif (list.children.length !== 1) return {pass:false, message:"Після кліку в #todo-list має з'явитись 1 пункт (зараз: " + list.children.length + ")."};\nif (list.children[0].textContent !== 'Купити хліб') return {pass:false, message:'Новий пункт має мати текст "Купити хліб" (без зайвих пробілів), зараз: "' + list.children[0].textContent + '".'};\nif (input.value !== '') return {pass:false, message:"Поле #todo-input має очиститись після додавання."};\ninput.value = '   ';\nbtn.click();\nawait new Promise(r => setTimeout(r, 0));\nif (list.children.length !== 1) return {pass:false, message:"Порожній (лише пробіли) ввід НЕ має додавати новий пункт."};\nreturn {pass:true, message:"Прочитати → перевірити → створити елемент → додати на сторінку → очистити поле — цей патерн ти зустрінеш у майже кожному інтерактивному списку на реальних сайтах."};`,
   },
+  {
+    id: "js-41",
+    title: "Проєкт: кнопка «Догори»",
+    theory:
+      "Це перший з чотирьох уроків, де ти оживляєш СВІЙ ВЛАСНИЙ сайт із розділу «Мій сайт» — код, який тут напишеш, стане частиною JavaScript твого проєкту, поруч із HTML з html-уроків і CSS з css-уроків.\n\nКнопка «Догори» — популярний елемент довгих сторінок: з'являється, коли користувач прогорнув достатньо вниз, і за клік миттєво повертає на початок сторінки. Головна причина, чому це вдалий перший «проєктний» урок — вона повністю СТВОРЮЄТЬСЯ самим JS (createElement, з уроку 22), тому працює на будь-якому сайті, незалежно від того, яку саме HTML-структуру ти обрала в попередніх уроках.\n\nwindow.scrollTo({ top: 0, behavior: \"smooth\" }) — вбудований метод браузера для програмної прокрутки сторінки: top: 0 означає «прокрутити до самого верху», behavior: \"smooth\" робить це плавною анімацією замість миттєвого стрибка.\n\nОскільки елемент не існує в HTML заздалегідь, весь патерн такий самий, як в уроці 22: createElement, задати текст і id, підписати обробник кліку, і додати на сторінку через appendChild — лише замість <li> у список тут кнопка додається прямо в document.body.",
+    example: { code: `const btn = document.createElement("button");\nbtn.textContent = "Догори ↑";\nbtn.id = "back-to-top";\nbtn.addEventListener("click", () => {\n  window.scrollTo({ top: 0, behavior: "smooth" });\n});\ndocument.body.appendChild(btn);`, explain: "Кнопка створюється й одразу отримує обробник кліку, ще ДО того, як потрапляє на сторінку через appendChild." },
+    task: 'Створи кнопку з textContent "Догори ↑" та id="back-to-top", підпишись на клік по ній так, щоб він викликав window.scrollTo({ top: 0, behavior: "smooth" }), і додай кнопку на сторінку через document.body.appendChild.',
+    starter: "// const btn = document.createElement(\"button\");\n// ...\n// document.body.appendChild(btn);\n",
+    hints: ["Спочатку createElement(\"button\"), потім textContent і id.", "addEventListener(\"click\", ...) — ДО appendChild чи ПІСЛЯ, байдуже, аби до реального кліку користувача.", "const btn = document.createElement(\"button\");\nbtn.textContent = \"Догори ↑\";\nbtn.id = \"back-to-top\";\nbtn.addEventListener(\"click\", () => {\n  window.scrollTo({ top: 0, behavior: \"smooth\" });\n});\ndocument.body.appendChild(btn);"],
+    solution: `const btn = document.createElement("button");\nbtn.textContent = "Догори ↑";\nbtn.id = "back-to-top";\nbtn.addEventListener("click", () => {\n  window.scrollTo({ top: 0, behavior: "smooth" });\n});\ndocument.body.appendChild(btn);`,
+    type: "js",
+    testCode: `const btn = document.querySelector('#back-to-top');\nif (!btn) return {pass:false, message:"Кнопка з id=\\"back-to-top\\" не знайдена на сторінці."};\nif (!document.body.contains(btn)) return {pass:false, message:"Кнопка має бути додана на сторінку через appendChild."};\nlet scrolledCalled = false;\nconst origScrollTo = window.scrollTo;\nwindow.scrollTo = () => { scrolledCalled = true; };\nbtn.click();\nawait new Promise(r => setTimeout(r, 0));\nwindow.scrollTo = origScrollTo;\nif (!scrolledCalled) return {pass:false, message:"Клік по кнопці має викликати window.scrollTo(...)."};\nreturn {pass:true, message:"Готово — ця кнопка щойно стала частиною JS твого власного сайту в «Мій сайт»."};`,
+  },
+  {
+    id: "js-42",
+    title: "Проєкт: актуальний рік у підвалі",
+    theory:
+      "Підвал (footer) твого сайту з html-уроків завжди містить рядок © 2025 — і без утручання цей рік так і лишиться захардкодженим «2025» назавжди, навіть коли настане 2027-й. Цей урок виправляє це раз і назавжди, поєднуючи querySelector (урок 19) з об'єктом Date (урок 37).\n\nЗамість того щоб хтось вручну заходив у HTML і міняв цифру щороку, JS може підставляти ПОТОЧНИЙ рік автоматично при кожному завантаженні сторінки: new Date().getFullYear() завжди повертає рік, актуальний на момент виконання коду — сьогодні, за рік, за десять років.\n\nfooter p — селектор, що знаходить абзац усередині footer незалежно від того, яку назву сайту ти обрала (текст «© 2025 НАЗВА» відрізняється для кожного учня, але тег footer > p — завжди той самий, бо його генерує сама платформа).\n\n.replace(\"2025\", рядок) знаходить підрядок \"2025\" усередині поточного тексту й замінює його — так рік оновлюється, а решта тексту (© і назва сайту) лишається недоторканою.",
+    domTemplate: `<footer><p>© 2025 Мій сайт</p></footer>`,
+    example: { code: `const footerP = document.querySelector("footer p");\nconst year = new Date().getFullYear();\nfooterP.textContent = footerP.textContent.replace("2025", String(year));`, explain: "textContent читається, у ньому шукається \"2025\", і саме цей шматок замінюється на реальний поточний рік." },
+    task: 'Онови текст усередині footer p: заміни в ньому "2025" на РЕАЛЬНИЙ поточний рік, отриманий через new Date().getFullYear() (не хардкодь число вручну).',
+    starter: "// const footerP = document.querySelector(\"footer p\");\n// const year = new Date().getFullYear();\n// footerP.textContent = ...\n",
+    hints: ["new Date().getFullYear() повертає число — його треба перетворити на рядок для replace.", "footerP.textContent.replace(\"2025\", String(year)) повертає НОВИЙ рядок — його треба знову присвоїти textContent.", "const footerP = document.querySelector(\"footer p\");\nconst year = new Date().getFullYear();\nfooterP.textContent = footerP.textContent.replace(\"2025\", String(year));"],
+    solution: `const footerP = document.querySelector("footer p");\nconst year = new Date().getFullYear();\nfooterP.textContent = footerP.textContent.replace("2025", String(year));`,
+    type: "js",
+    testCode: `const footerP = document.querySelector('footer p');\nif (!footerP) return {pass:false, message:"footer p не знайдено на сторінці."};\nconst expectedYear = String(new Date().getFullYear());\nif (!footerP.textContent.includes(expectedYear)) return {pass:false, message:'Текст footer має містити поточний рік ' + expectedYear + ' (зараз: "' + footerP.textContent + '").'};\nif (expectedYear !== '2025' && footerP.textContent.includes('2025')) return {pass:false, message:"Старий рік 2025 не мав лишитись у тексті після заміни."};\nreturn {pass:true, message:"Тепер © у підвалі твого сайту завжди показуватиме правильний рік — без ручного редагування щороку."};`,
+  },
+  {
+    id: "js-43",
+    title: "Проєкт: оживи картки товарів",
+    theory:
+      "Сітка карток (.cards / .card-item) з html- і css-уроків поки що виглядає красиво, але ніяк не реагує на клік. Цей урок застосовує делегування подій (урок 35) саме до неї: один обробник клацань на .cards підсвічує картку, по якій клікнули.\n\nПідсвічування конкретної картки реалізують через клас: коли клікаєш на картку, вона отримує клас (наприклад, \"selected\") — а разом з відповідним CSS-правилом (яке ти вже вмієш писати з CSS-курсу) це дає видиму рамку чи тінь навколо обраної картки.\n\nВажливо прибирати клас з УСІХ карток ПЕРЕД тим, як додати його новій — інакше при повторних кліках підсвіченими лишаться одразу кілька карток замість однієї: querySelectorAll(\".card-item\").forEach(c => c.classList.remove(\"selected\")) очищує всі, а тоді один .classList.add(\"selected\") додає клас лише щойно обраній.\n\nevent.target.closest(\".card-item\") (з уроку 35) гарантує коректну роботу, навіть якщо клікнули не рівно по краю картки, а по вкладеному в неї заголовку чи картинці — closest піднімається вгору по дереву, доки не знайде найближчого предка з класом card-item.",
+    domTemplate: `<div class="cards"><div class="card-item">Товар 1</div><div class="card-item">Товар 2</div><div class="card-item">Товар 3</div></div>`,
+    example: { code: `document.querySelector(".cards").addEventListener("click", (event) => {\n  const card = event.target.closest(".card-item");\n  if (!card) return;\n  document.querySelectorAll(".card-item").forEach((c) => c.classList.remove("selected"));\n  card.classList.add("selected");\n});`, explain: "Один обробник на .cards ловить клік по будь-якій картці; closest знаходить саму картку, навіть якщо клікнули по вкладеному елементу." },
+    task: 'Підпишись ОДНИМ обробником на .cards: при кліку на картку (event.target.closest(".card-item")) прибери клас "selected" з УСІХ карток, а потім додай його клікнутій.',
+    starter: "// document.querySelector(\".cards\").addEventListener(\"click\", (event) => {\n//   const card = event.target.closest(\".card-item\");\n//   ...\n// });\n",
+    hints: ["Спочатку перевір, що card існує (event.target.closest може повернути null).", "Прибери \"selected\" з УСІХ .card-item ПЕРЕД тим, як додати його новій картці.", "document.querySelector(\".cards\").addEventListener(\"click\", (event) => {\n  const card = event.target.closest(\".card-item\");\n  if (!card) return;\n  document.querySelectorAll(\".card-item\").forEach((c) => c.classList.remove(\"selected\"));\n  card.classList.add(\"selected\");\n});"],
+    solution: `document.querySelector(".cards").addEventListener("click", (event) => {\n  const card = event.target.closest(".card-item");\n  if (!card) return;\n  document.querySelectorAll(".card-item").forEach((c) => c.classList.remove("selected"));\n  card.classList.add("selected");\n});`,
+    type: "js",
+    testCode: `const cards = document.querySelectorAll('.card-item');\nif (cards.length < 3) return {pass:false, message:"Картки .card-item не знайдені."};\ncards[0].click();\nawait new Promise(r => setTimeout(r, 0));\nif (!cards[0].classList.contains('selected')) return {pass:false, message:"Клік по картці має додати їй клас 'selected'."};\ncards[1].click();\nawait new Promise(r => setTimeout(r, 0));\nif (cards[0].classList.contains('selected')) return {pass:false, message:"Попередня картка має втратити клас 'selected', коли обрано нову."};\nif (!cards[1].classList.contains('selected')) return {pass:false, message:"Нова обрана картка має отримати клас 'selected'."};\nreturn {pass:true, message:"Тепер картки твого сайту реагують на клік — залишилось хіба що додати .card-item.selected { ... } у CSS для видимого ефекту."};`,
+  },
+  {
+    id: "js-44",
+    title: "Проєкт: зворотний зв'язок при відправці форми",
+    theory:
+      "Форма з html-8 (label + input + button, без обгортки <form>) поки що не реагує на клік узагалі. Цей урок додає до неї ЗВОРОТНИЙ ЗВ'ЯЗОК — повідомлення, що з'являється після кліку по кнопці, як у формі валідації з уроку 27, але без <form>/submit, бо твоя реальна форма влаштована саме так.\n\nОскільки id поля й кнопки в РІЗНИХ учнів різні (кожен обирав своє ім'я поля в html-8), тут використовують не id, а СЕЛЕКТОР ЗА ТЕГОМ у межах <main>: document.querySelector(\"main input\") і document.querySelector(\"main button\") надійно знаходять саме ЦІ елементи незалежно від того, як їх назвали — адже інші блоки твого сайту (шапка, картки, список) input чи button не містять.\n\nПовідомлення-результат тут теж СТВОРЮЄТЬСЯ через JS (createElement, як в уроці 22 й 41), а не додається заздалегідь у HTML — тому воно з'являється одразу після кнопки автоматично, без потреби змінювати саму HTML-розмітку форми.\n\nЛогіка та сама, що й в уроці 27: порожнє поле (після .trim()) — повідомлення з проханням заповнити; непорожнє — подяка і очищення поля для наступного разу.",
+    domTemplate: `<main><label for="phone">Телефон</label><input id="phone" type="text"><button>Замовити</button></main>`,
+    example: { code: `const input = document.querySelector("main input");\nconst button = document.querySelector("main button");\nconst message = document.createElement("p");\ndocument.querySelector("main").appendChild(message);\nbutton.addEventListener("click", () => {\n  const value = input.value.trim();\n  if (value === "") {\n    message.textContent = "Заповніть поле, будь ласка.";\n  } else {\n    message.textContent = "Дякуємо! Ми зв'яжемось з вами.";\n    input.value = "";\n  }\n});`, explain: "message створюється й додається в main ОДИН раз, а далі обробник кліку лише змінює її textContent." },
+    task: 'Знайди "main input" і "main button", створи новий <p> і додай його в main. По кліку на кнопку: якщо поле порожнє (після trim) — покажи в <p> "Заповніть поле, будь ласка.", інакше — "Дякуємо! Ми зв\'яжемось з вами." і очисти поле.',
+    starter: "const input = document.querySelector(\"main input\");\nconst button = document.querySelector(\"main button\");\nconst message = document.createElement(\"p\");\ndocument.querySelector(\"main\").appendChild(message);\n\nbutton.addEventListener(\"click\", () => {\n  // твоя перевірка тут\n});\n",
+    hints: ["Селектори за ТЕГОМ (\"main input\"), а не за id — id у різних учнів різний.", "if (value === \"\") { ... } else { ... input.value = \"\"; }", "button.addEventListener(\"click\", () => {\n  const value = input.value.trim();\n  if (value === \"\") {\n    message.textContent = \"Заповніть поле, будь ласка.\";\n  } else {\n    message.textContent = \"Дякуємо! Ми зв'яжемось з вами.\";\n    input.value = \"\";\n  }\n});"],
+    solution: `const input = document.querySelector("main input");\nconst button = document.querySelector("main button");\nconst message = document.createElement("p");\ndocument.querySelector("main").appendChild(message);\n\nbutton.addEventListener("click", () => {\n  const value = input.value.trim();\n  if (value === "") {\n    message.textContent = "Заповніть поле, будь ласка.";\n  } else {\n    message.textContent = "Дякуємо! Ми зв'яжемось з вами.";\n    input.value = "";\n  }\n});`,
+    type: "js",
+    testCode: `const input = document.querySelector('main input');\nconst button = document.querySelector('main button');\nif (!input || !button) return {pass:false, message:"Елементи input/button у main не знайдені."};\nbutton.click();\nawait new Promise(r => setTimeout(r, 0));\nconst msg1 = document.querySelector('main p');\nif (!msg1 || !msg1.textContent.trim()) return {pass:false, message:"Після кліку з порожнім полем має з'явитись повідомлення в новому <p> усередині main."};\ninput.value = 'Оксана';\nbutton.click();\nawait new Promise(r => setTimeout(r, 0));\nconst msg2 = document.querySelector('main p');\nif (!msg2.textContent.includes('Дякуємо')) return {pass:false, message:'Із заповненим полем має з\\'явитись повідомлення подяки (зараз: "' + msg2.textContent + '").'};\nif (input.value !== '') return {pass:false, message:"Поле має очиститись після успішної відправки."};\nreturn {pass:true, message:"Тепер форма твого сайту відповідає користувачу — а селектори за тегом спрацюють, хоч би яке ім'я поля ти обрала в html-8."};`,
+  },
 ];
 
 const ENGLISH_LESSONS = [
@@ -3117,6 +3172,19 @@ const CSS_MILESTONES = ["css-41", "css-3", "css-4", "css-42", "css-21", "css-9",
 function renderProjectCss(project) {
   const blocks = project.blocks || {};
   return CSS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
+}
+
+// Milestone JS lessons whose submitted code brings the same growing site to
+// life. Each targets either a fixed part of the page (footer, or the
+// header/main/footer never change shape) or the FIXED class names/tags that
+// the HTML/CSS milestones themselves require (.cards/.card-item, "main
+// input"/"main button") — never an id, since ids in freeform HTML milestones
+// like html-8 are chosen by the learner and can't be relied on here.
+const JS_MILESTONES = ["js-41", "js-42", "js-43", "js-44"];
+
+function renderProjectJs(project) {
+  const blocks = project.blocks || {};
+  return JS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
 }
 
 // Produces the FULL document — DOCTYPE, <html lang>, <head> with the meta
@@ -13640,7 +13708,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav }) {
       setConsoleLogs(e.data.logs || []);
       if (checking) {
         setResult(e.data.testResult);
-        if (e.data.testResult?.pass) onComplete(lesson.id);
+        if (e.data.testResult?.pass) onComplete(lesson.id, code);
       }
       window.removeEventListener("message", handler);
     };
@@ -14385,6 +14453,9 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
   const cssDoneIds = progress?.completed?.css || [];
   const cssDoneCount = CSS_MILESTONES.filter((id) => cssDoneIds.includes(id)).length;
 
+  const jsDoneIds = progress?.completed?.javascript || [];
+  const jsDoneCount = JS_MILESTONES.filter((id) => jsDoneIds.includes(id)).length;
+
   return (
     <div className="max-w-5xl">
       <div className="flex items-start justify-between gap-4 mb-1 flex-wrap">
@@ -14422,7 +14493,7 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
       )}
 
       {cssDoneCount < CSS_MILESTONES.length && (
-        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
+        <div className="mb-3 border border-stone-800 rounded-md p-3 bg-stone-950">
           <div className="text-xs text-stone-500 mb-2">Стилі сайту з уроків CSS ({cssDoneCount}/{CSS_MILESTONES.length}):</div>
           <div className="flex flex-wrap gap-2">
             {CSS_MILESTONES.map((id) => {
@@ -14433,6 +14504,28 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
                   key={id}
                   disabled={done}
                   onClick={() => onGoLesson?.("css", id)}
+                  className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
+                >
+                  {done ? "✓ " : ""}{lesson?.title || id}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {jsDoneCount < JS_MILESTONES.length && (
+        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
+          <div className="text-xs text-stone-500 mb-2">JS-код сайту з уроків JavaScript ({jsDoneCount}/{JS_MILESTONES.length}):</div>
+          <div className="flex flex-wrap gap-2">
+            {JS_MILESTONES.map((id) => {
+              const lesson = JS_LESSONS.find((l) => l.id === id);
+              const done = jsDoneIds.includes(id);
+              return (
+                <button
+                  key={id}
+                  disabled={done}
+                  onClick={() => onGoLesson?.("javascript", id)}
                   className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
                 >
                   {done ? "✓ " : ""}{lesson?.title || id}
@@ -14830,7 +14923,8 @@ export default function App() {
     });
     const isHtmlMilestone = id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id);
     const isCssMilestone = CSS_MILESTONES.includes(id);
-    if (code !== undefined && (isHtmlMilestone || isCssMilestone)) {
+    const isJsMilestone = JS_MILESTONES.includes(id);
+    if (code !== undefined && (isHtmlMilestone || isCssMilestone || isJsMilestone)) {
       setProject((prev) => {
         if (!prev.themeId) return prev;
         const theme = PROJECT_THEMES.find((t) => t.id === prev.themeId);
@@ -14839,6 +14933,7 @@ export default function App() {
         const next = { ...prev, blocks };
         if (isHtmlMilestone) next.html = renderProjectHtml({ ...prev, blocks }, theme);
         if (isCssMilestone) next.css = renderProjectCss({ ...prev, blocks });
+        if (isJsMilestone) next.js = renderProjectJs({ ...prev, blocks });
         saveProject(next);
         return next;
       });
