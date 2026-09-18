@@ -8,6 +8,7 @@ import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
 import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
 import { PYTHON_OOP_LESSONS } from "./data/pythonOOP.js";
 import { PYTHON_GAMEDEV_LESSONS } from "./data/pythonGameDev.js";
+import { PYTHON_DESKTOP_LESSONS } from "./data/pythonDesktop.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3062,8 +3063,9 @@ const COURSES = [
     lessons:
       d.id === "python-core" ? PYTHON_CORE_LESSONS :
       d.id === "python-oop" ? PYTHON_OOP_LESSONS :
-      d.id === "python-gamedev" ? PYTHON_GAMEDEV_LESSONS : [],
-    status: ["python-core", "python-oop", "python-gamedev"].includes(d.id) ? "available" : "planned",
+      d.id === "python-gamedev" ? PYTHON_GAMEDEV_LESSONS :
+      d.id === "python-desktop" ? PYTHON_DESKTOP_LESSONS : [],
+    status: ["python-core", "python-oop", "python-gamedev", "python-desktop"].includes(d.id) ? "available" : "planned",
     accent: d.accent,
   })),
   { id: "sql", title: "SQL", subtitle: "власна база даних", lessons: [], status: "planned", accent: "rose" },
