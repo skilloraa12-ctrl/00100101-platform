@@ -14029,6 +14029,26 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
             <pre className="bg-stone-950 border border-stone-800 rounded-md p-2 text-xs text-stone-300 font-mono inline-block">{lesson.finalProject.runCommand}</pre>
           </div>
 
+          {lesson.finalProject.installGuide && (
+            <div className="mb-4">
+              <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Як встановити Python і запустити це на своєму комп'ютері</div>
+              {lesson.finalProject.installGuide.intro && (
+                <p className="text-sm text-stone-300 mb-3">{lesson.finalProject.installGuide.intro}</p>
+              )}
+              <div className="space-y-3">
+                {lesson.finalProject.installGuide.steps.map((step, i) => (
+                  <div key={i} className="border border-stone-800 rounded-md p-3 bg-stone-900/50">
+                    <div className="text-sm font-medium text-stone-200 mb-1">{step.title}</div>
+                    {step.text && <div className="text-sm text-stone-400 whitespace-pre-line mb-2">{step.text}</div>}
+                    {step.code && (
+                      <pre className="bg-stone-950 border border-stone-800 rounded-md p-2 text-xs text-emerald-300 font-mono whitespace-pre-wrap overflow-x-auto">{step.code}</pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="mb-4">
             <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Що можна покращити</div>
             <ul className="text-sm text-stone-300 space-y-0.5 list-disc list-inside">
