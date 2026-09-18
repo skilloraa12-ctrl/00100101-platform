@@ -1361,6 +1361,78 @@ const HTML_LESSONS = [
       return { pass: true, message: "Це вже структура реальної продакшн-сторінки — саме так організовані лендінги справжніх продуктів. Курс HTML завершено!" };
     },
   },
+  {
+    id: "html-41",
+    title: "Hero-секція: перший екран сайту",
+    theory:
+      "«Hero» (від англ. «головний герой») — перший великий блок, який бачить відвідувач одразу після завантаження сторінки, ще до прокручування. Це «обличчя» сайту: великий заголовок, короткий опис і кнопка дії (CTA — call to action, «заклик до дії»), що веде до головної мети сторінки — купити, записатись, підписатись.\n\nHero-секція структурно проста: заголовок (h2 — бо h1 уже зайнятий назвою сайту в header), абзац з коротким описом, і посилання a, оформлене як кнопка. Уся «магія» hero — не в HTML, а в CSS: великий текст, фонове зображення чи градієнт, центрування — про це наступний урок.\n\nЩоб CSS міг знайти саме цю секцію серед інших блоків main, її позначають окремим класом: <section class=\"hero\">. Клас \"hero\" — це домовленість, а не зарезервоване слово HTML, але настільки поширена в реальних проєктах, що досвідчений розробник одразу впізнає її призначення.\n\nCTA-кнопка технічно — це звичайний <a> з href, просто стилізований CSS-ом так, щоб виглядати як кнопка (background, padding, border-radius — саме так свого часу вже стилізувала посилання-кнопку в курсі CSS). Головне — текст кнопки має чітко казати, що станеться після кліку: «Замовити», «Записатись», «Дізнатись більше», а не абстрактне «Тут».",
+    examples: [
+      { title: "Базова hero-секція", code: `<section class="hero">\n  <h2>Ласкаво просимо</h2>\n  <p>Найкращі товари за найкращими цінами.</p>\n  <a href="#catalog">Переглянути каталог</a>\n</section>`, explain: "h2, p і a разом утворюють перший великий блок сторінки — усе, що потрібно для hero структурно." },
+      { title: "Hero для салону краси", code: `<section class="hero">\n  <h2>Твоя краса — наша турбота</h2>\n  <p>Запишись на процедуру вже сьогодні й отримай знижку 10%.</p>\n  <a href="#booking">Записатись</a>\n</section>`, explain: "Той самий структурний шаблон, лише текст і CTA підлаштовані під тему сайту." },
+    ],
+    presentation: [
+      { title: "Що таке hero-секція", points: ["Перший великий блок, який бачить відвідувач", "h2 (заголовок) + p (опис) + a (CTA-кнопка)", "class=\"hero\" — щоб CSS міг знайти саме цей блок"] },
+      { title: "CTA-кнопка", points: ["Технічно звичайний <a>, стилізований як кнопка", "Текст має чітко казати, що станеться після кліку", "«Замовити», «Записатись» — не абстрактне «Тут»"] },
+    ],
+    task: 'Створи в main секцію <section class="hero"> з h2 (головний заголовок сайту), p (короткий опис) і посиланням a з href і текстом дії (наприклад «Переглянути каталог», «Записатись», «Дізнатись більше»).',
+    starter: "",
+    hints: [
+      'section має атрибут class="hero".',
+      "Усередині — h2, p і a, кожен зі своїм текстом.",
+      '<section class="hero">\n  <h2>Заголовок</h2>\n  <p>Опис.</p>\n  <a href="#">Дія</a>\n</section>',
+    ],
+    solution: `<section class="hero">\n  <h2>Технології майбутнього — вже сьогодні</h2>\n  <p>Підбери для себе преміальну електроніку від топових брендів.</p>\n  <a href="#catalog">Переглянути каталог</a>\n</section>`,
+    type: "html",
+    check: (doc) => {
+      const hero = doc.querySelector("section.hero");
+      if (!hero) return { pass: false, message: 'Потрібна <section class="hero">.' };
+      const h2 = hero.querySelector("h2");
+      if (!h2 || !h2.textContent.trim()) return { pass: false, message: "Усередині .hero потрібен <h2> з текстом." };
+      const p = hero.querySelector("p");
+      if (!p || !p.textContent.trim()) return { pass: false, message: "Усередині .hero потрібен <p> з описом." };
+      const a = hero.querySelector("a");
+      if (!a || !a.getAttribute("href") || !a.textContent.trim()) return { pass: false, message: "Усередині .hero потрібне посилання <a> з href і текстом." };
+      return { pass: true, message: "Це і є hero-секція — перше, що побачить відвідувач твого сайту. CSS зробить її по-справжньому яскравою." };
+    },
+  },
+  {
+    id: "html-42",
+    title: "Сітка карток: товари чи послуги",
+    theory:
+      "Практично кожен комерційний сайт показує свою пропозицію однаковими за структурою «картками»: товари в магазині, послуги салону, тренування в спортзалі — усе це один і той самий патерн: зображення, назва, короткий опис чи ціна, кнопка дії.\n\nСтруктурно сітка карток — це контейнер (наприклад, <div class=\"cards\">), усередині якого лежать кілька ОДНАКОВИХ за структурою блоків-карток (<div class=\"card-item\">). Кожна картка самостійна й самодостатня — її можна переставити чи видалити, не зламавши решту.\n\nКожна картка типово містить: img (фото товару чи послуги), заголовок h3 (третій рівень — бо картка лежить усередині секції з власним h2), і p з описом чи ціною. Можна додати ще посилання чи кнопку «Купити» / «Записатись», але для базової структури досить трьох елементів.\n\nЧому саме div, а не article? Тут можна сперечатись — article теж підійшов би (кожна картка самодостатня), але на практиці div.card-item лишається найпоширенішим вибором, коли картка — суто візуальний елемент дизайну, а не незалежний контент на кшталт статті блогу.",
+    examples: [
+      { title: "Сітка з трьома картками", code: `<div class="cards">\n  <div class="card-item">\n    <img src="item1.jpg" alt="Ноутбук на столі">\n    <h3>Ноутбук</h3>\n    <p>32000 грн</p>\n  </div>\n  <div class="card-item">\n    <img src="item2.jpg" alt="Смартфон у руці">\n    <h3>Смартфон</h3>\n    <p>25000 грн</p>\n  </div>\n  <div class="card-item">\n    <img src="item3.jpg" alt="Навушники на столі">\n    <h3>Навушники</h3>\n    <p>4500 грн</p>\n  </div>\n</div>`, explain: "Три однакові за структурою картки — img, h3, p — усередині спільного контейнера .cards." },
+      { title: "Картка послуги", code: `<div class="card-item">\n  <img src="service.jpg" alt="Майстер робить манікюр клієнтці">\n  <h3>Манікюр</h3>\n  <p>від 500 грн</p>\n</div>`, explain: "Той самий шаблон картки підходить для послуг салону так само, як для товарів магазину." },
+    ],
+    presentation: [
+      { title: "Анатомія картки", points: ["Контейнер .cards, усередині — кілька .card-item", "Кожна картка: img + h3 + p", "Однакова структура для всіх карток — товарів чи послуг"] },
+      { title: "Універсальний патерн", points: ["Товари магазину, послуги салону, тренування залу", "Той самий шаблон картки, різний вміст", "CSS Grid розкладе картки в акуратну сітку наступним уроком"] },
+    ],
+    task: 'Створи в main <div class="cards">, а всередині — щонайменше 3 <div class="card-item">, кожен з img (src, alt), h3 (назва) і p (ціна чи опис).',
+    starter: "",
+    hints: [
+      'Зовнішній контейнер — <div class="cards">.',
+      'Кожна картка — <div class="card-item"> з img, h3, p усередині.',
+      '<div class="cards">\n  <div class="card-item"><img src="a.jpg" alt="Опис"><h3>Назва</h3><p>Ціна</p></div>\n  ...\n</div>',
+    ],
+    solution: `<div class="cards">\n  <div class="card-item">\n    <img src="laptop.jpg" alt="Срібний ноутбук на столі">\n    <h3>Ноутбук TechPro 15</h3>\n    <p>32 000 грн</p>\n  </div>\n  <div class="card-item">\n    <img src="phone.jpg" alt="Чорний смартфон у руці">\n    <h3>Смартфон X12</h3>\n    <p>25 000 грн</p>\n  </div>\n  <div class="card-item">\n    <img src="headphones.jpg" alt="Бездротові навушники на столі">\n    <h3>Навушники SoundMax</h3>\n    <p>4 500 грн</p>\n  </div>\n</div>`,
+    type: "html",
+    check: (doc) => {
+      const cards = doc.querySelector("div.cards");
+      if (!cards) return { pass: false, message: 'Потрібен <div class="cards">.' };
+      const items = cards.querySelectorAll(":scope > div.card-item");
+      if (items.length < 3) return { pass: false, message: `Потрібно щонайменше 3 <div class="card-item"> усередині .cards, зараз: ${items.length}.` };
+      for (const item of items) {
+        const img = item.querySelector("img");
+        if (!img || !img.getAttribute("src") || !img.getAttribute("alt")) return { pass: false, message: "Кожна .card-item має містити <img> з src і alt." };
+        const h3 = item.querySelector("h3");
+        if (!h3 || !h3.textContent.trim()) return { pass: false, message: "Кожна .card-item має містити <h3> з назвою." };
+        const p = item.querySelector("p");
+        if (!p || !p.textContent.trim()) return { pass: false, message: "Кожна .card-item має містити <p> з ціною чи описом." };
+      }
+      return { pass: true, message: "Це універсальний патерн картки — товар, послуга, тренування — усе розкладається за однією структурою. CSS Grid перетворить це на охайну сітку." };
+    },
+  },
 ];
 
 const CSS_LESSONS = [
@@ -2301,6 +2373,56 @@ const CSS_LESSONS = [
       { re: /footer\s*{[^}]*text-align\s*:\s*center\s*;/i, msg: "Потрібен text-align: center у правилі footer." },
     ],
   },
+  {
+    id: "css-41",
+    title: "Стилізуй hero-секцію",
+    theory:
+      "Hero-секція — перший екран, тому саме тут найдоречніше «не пошкодувати» стилю: великий текст, багато повітря (padding), і фон — суцільний яскравий колір, градієнт чи фонове зображення з затемненням, щоб текст лишався читабельним.\n\npadding у hero зазвичай значно більший, ніж у звичайних блоках — 60-100px згори й знизу, а не типові 16-24px. Це навмисно: hero має «дихати», займати помітну частину екрана, а не тулитись до країв.\n\ntext-align: center разом з великим font-size на заголовку — типовий, перевірений часом підхід для hero: погляд відвідувача одразу концентрується по центру, там, де головний меседж і CTA-кнопка.\n\nCTA-посилання всередині hero стилізують окремим правилом (.hero a), перетворюючи звичайне посилання на кнопку: display: inline-block, власний background (що контрастує з фоном hero), padding, border-radius. Це той самий прийом «посилання-кнопка», який вивчала раніше в курсі — тепер застосований у конкретному, реальному контексті.",
+    previewHTML: `<section class="hero"><h2>Ласкаво просимо</h2><p>Найкращі товари за найкращими цінами.</p><a href="#">Переглянути каталог</a></section>`,
+    examples: [
+      { title: "Hero з градієнтом", code: `.hero {\n  background: linear-gradient(to right, #1d4ed8, #9333ea);\n  color: white;\n  padding: 80px 20px;\n  text-align: center;\n}`, explain: "Градієнт і великий padding роблять hero помітним першим екраном сторінки." },
+      { title: "CTA-кнопка всередині hero", code: `.hero a {\n  display: inline-block;\n  background: white;\n  color: #1d4ed8;\n  padding: 12px 28px;\n  border-radius: 8px;\n  text-decoration: none;\n  font-weight: 600;\n}`, explain: "Контрастний колір (білий на синьому фоні) робить кнопку помітною одразу." },
+    ],
+    presentation: [
+      { title: "Стилізація hero", points: ["Великий padding (60-100px) — hero має «дихати»", "background: градієнт чи фонове зображення", "text-align: center — фокус на головному меседжі"] },
+      { title: "CTA як кнопка", points: [".hero a — окреме правило для CTA-посилання", "Контрастний background відносно фону hero", "display: inline-block + padding + border-radius"] },
+    ],
+    task: "Стилізуй .hero: background (градієнт), color, padding (щонайменше 60px), text-align: center. Додай .hero a як кнопку: display: inline-block, background, padding.",
+    starter: "",
+    hints: ["Селектор .hero для секції, .hero a — для кнопки.", "linear-gradient(to right, колір1, колір2) для фону.", ".hero {\n  background: linear-gradient(to right, #1d4ed8, #9333ea);\n  color: white;\n  padding: 80px 20px;\n  text-align: center;\n}\n.hero a {\n  display: inline-block;\n  background: white;\n  color: #1d4ed8;\n  padding: 12px 28px;\n  border-radius: 8px;\n}"],
+    solution: `.hero {\n  background: linear-gradient(to right, #1d4ed8, #9333ea);\n  color: white;\n  padding: 80px 20px;\n  text-align: center;\n}\n.hero a {\n  display: inline-block;\n  background: white;\n  color: #1d4ed8;\n  padding: 12px 28px;\n  border-radius: 8px;\n  text-decoration: none;\n  font-weight: 600;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.hero\s*{[^}]*background\s*:\s*[^;]+;/i, msg: "Потрібен background у .hero." },
+      { re: /\.hero\s*{[^}]*padding\s*:\s*[^;]+;/i, msg: "Потрібен padding у .hero." },
+      { re: /\.hero\s+a\s*{[^}]*background\s*:\s*[^;]+;/i, msg: "Потрібне правило .hero a з background (кнопка)." },
+    ],
+  },
+  {
+    id: "css-42",
+    title: "Сітка карток: Grid для товарів і послуг",
+    theory:
+      "Сітка карток — одне з найпоширеніших застосувань CSS Grid у реальних сайтах. grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) — потужна комбінація: картки автоматично перелаштовуються в стільки колонок, скільки поміщається, і кожна лишається не вужчою за 220px. Це адаптивна сітка БЕЗ жодного медіазапиту.\n\nauto-fit «стискає» порожні колонки, коли карток замало, щоб заповнити рядок, — на відміну від auto-fill, який лишає порожні колонки-примари. Для сітки карток товарів auto-fit майже завжди дає кращий, передбачуваніший результат.\n\nКожна картка (.card-item) отримує власне оформлення: border-radius і box-shadow (з попередніх уроків) роблять її візуально «підняту» над фоном, overflow: hidden обрізає зображення точно за заокругленими краями картки, якщо саме зображення прямокутне.\n\nЗображення всередині картки (.card-item img) отримує width: 100% і об'єкт-фіт (object-fit: cover — властивість, яка кадрує зображення, заповнюючи задану область, не спотворюючи пропорції) — так усі картки виглядають однаково акуратно, навіть якщо оригінальні фото різного співвідношення сторін.",
+    previewHTML: `<div class="cards"><div class="card-item"><img src="a.jpg" alt="Товар 1"><h3>Товар 1</h3><p>1000 грн</p></div><div class="card-item"><img src="b.jpg" alt="Товар 2"><h3>Товар 2</h3><p>2000 грн</p></div></div>`,
+    examples: [
+      { title: "Адаптивна сітка карток", code: `.cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 20px;\n}`, explain: "Картки самі перелаштовуються в потрібну кількість колонок залежно від ширини екрана." },
+      { title: "Оформлення картки", code: `.card-item {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n  overflow: hidden;\n  padding-bottom: 16px;\n}\n.card-item img {\n  width: 100%;\n  height: 180px;\n  object-fit: cover;\n}`, explain: "overflow: hidden обрізає зображення за заокругленими краями картки; object-fit: cover не спотворює пропорції фото." },
+    ],
+    presentation: [
+      { title: "Адаптивна сітка без медіазапитів", points: ["repeat(auto-fit, minmax(220px, 1fr))", "Картки самі перелаштовуються під ширину екрана", "auto-fit прибирає порожні колонки, auto-fill — лишає"] },
+      { title: "Оформлення картки", points: ["border-radius + box-shadow — «піднята» картка", "overflow: hidden обрізає вміст за заокругленими краями", "object-fit: cover — фото не спотворюється"] },
+    ],
+    task: "Стилізуй .cards: display: grid, grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)), gap. Додай .card-item: border-radius, box-shadow.",
+    starter: "",
+    hints: ["Селектор .cards для сітки, .card-item — для кожної картки.", "minmax(220px, 1fr) усередині repeat(auto-fit, ...).", ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 20px;\n}\n.card-item {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n}"],
+    solution: `.cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 20px;\n}\n.card-item {\n  border-radius: 12px;\n  box-shadow: 0 4px 8px rgba(0,0,0,0.1);\n  overflow: hidden;\n  padding-bottom: 16px;\n}\n.card-item img {\n  width: 100%;\n  height: 180px;\n  object-fit: cover;\n}`,
+    type: "css",
+    tests: [
+      { re: /\.cards\s*{[^}]*display\s*:\s*grid\s*;/i, msg: "Потрібно display: grid у .cards." },
+      { re: /\.cards\s*{[^}]*grid-template-columns\s*:\s*[^;]+;/i, msg: "Потрібен grid-template-columns у .cards." },
+      { re: /\.card-item\s*{[^}]*border-radius\s*:\s*[^;]+;/i, msg: "Потрібен border-radius у .card-item." },
+    ],
+  },
 ];
 
 const JS_LESSONS = [
@@ -2582,11 +2704,11 @@ function defaultProject() {
 
 // Milestone lessons whose submitted HTML feeds the growing "Мій сайт" project.
 const HEADER_MILESTONE = "html-17";
-const MAIN_MILESTONES = ["html-3", "html-4", "html-5", "html-6", "html-11", "html-8"];
+const MAIN_MILESTONES = ["html-41", "html-3", "html-42", "html-4", "html-5", "html-6", "html-11", "html-8"];
 
 // Milestone CSS lessons whose submitted rules style the same growing site —
 // order is the order they're concatenated into project.css.
-const CSS_MILESTONES = ["css-3", "css-4", "css-21", "css-9", "css-14", "css-17", "css-18", "css-19", "css-20", "css-34", "css-40"];
+const CSS_MILESTONES = ["css-41", "css-3", "css-4", "css-42", "css-21", "css-9", "css-14", "css-17", "css-18", "css-19", "css-20", "css-34", "css-40"];
 
 function renderProjectCss(project) {
   const blocks = project.blocks || {};
