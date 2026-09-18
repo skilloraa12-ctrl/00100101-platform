@@ -5,6 +5,7 @@ import {
   ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw
 } from "lucide-react";
 import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
+import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3019,17 +3020,54 @@ const JS_LESSONS = [
 // ENGLISH_LESSONS moved to ./data/englishForIT.js (imported below) — the
 // full English for IT course grew too large to keep inline in this file.
 
+// Python is not one flat course — it's a hub of 16 independent directions,
+// each its own mini-course (intro block + 20 lessons + final project), since
+// "learn Python" means very different things depending on what you build
+// with it. Each direction is registered as an ordinary COURSES entry (so it
+// gets progress tracking, routing, and LessonView for free) but is EXCLUDED
+// from the main sidebar/Home course list — PythonHubPage is the one place
+// that lists all 16, and the sidebar has a single "Python" entry pointing
+// to that hub instead of straight to one course.
+const PYTHON_DIRECTIONS = [
+  { id: "python-core", icon: "🐍", title: "Python Core", blurb: "Синтаксис, типи даних, цикли, функції, структури даних — фундамент, без якого решта напрямків не мають сенсу.", accent: "emerald" },
+  { id: "python-oop", icon: "🧠", title: "Python OOP", blurb: "Класи, об'єкти, успадкування — як організовувати код великих програм, а не лише окремі функції.", accent: "violet" },
+  { id: "python-gamedev", icon: "🎮", title: "Game Development", blurb: "Створення невеликих ігор і прототипів на Pygame: game loop, керування, зіткнення, рахунок.", accent: "rose" },
+  { id: "python-desktop", icon: "🖥️", title: "Desktop Development", blurb: "Застосунки з вікнами, кнопками й полями — програми, які запускають подвійним кліком, а не в браузері.", accent: "sky" },
+  { id: "python-automation", icon: "⚙️", title: "Automation", blurb: "Автоматизація рутинних задач: файли, папки, звіти, повторювані процеси — без ручної роботи.", accent: "amber" },
+  { id: "python-scraping", icon: "🕷️", title: "Web Scraping", blurb: "Автоматизоване отримання структурованих даних із дозволених вебсторінок і їх обробка.", accent: "stone" },
+  { id: "python-api", icon: "🌐", title: "API Development", blurb: "Створення власного API — інтерфейсу, через який інші програми отримують дані від твого сервера.", accent: "teal" },
+  { id: "python-backend", icon: "🏗️", title: "Backend Development", blurb: "Серверна частина сайтів: бізнес-логіка, авторизація, робота з базою даних, Django/Flask/FastAPI.", accent: "orange" },
+  { id: "python-db", icon: "🗄️", title: "Databases", blurb: "Як Python зберігає й дістає дані з баз — SQLite, PostgreSQL, ORM замість ручного SQL.", accent: "rose" },
+  { id: "python-dataanalysis", icon: "📊", title: "Data Analysis", blurb: "Збір, очищення, фільтрація й аналіз даних у таблицях — з Pandas замість Excel.", accent: "sky" },
+  { id: "python-datascience", icon: "📈", title: "Data Science", blurb: "Глибший аналіз даних, статистика, візуалізація — крок перед машинним навчанням.", accent: "violet" },
+  { id: "python-ai", icon: "🤖", title: "AI / Machine Learning", blurb: "Шлях даних до моделі: підготовка, навчання, перевірка, прогноз чи класифікація.", accent: "fuchsia" },
+  { id: "python-security", icon: "🔐", title: "Cybersecurity", blurb: "Основи безпеки: як Python допомагає шукати вразливості й захищати системи.", accent: "rose" },
+  { id: "python-science", icon: "🧪", title: "Science & Research", blurb: "Python у наукових обчисленнях і дослідженнях — числові розрахунки, моделювання.", accent: "teal" },
+  { id: "python-devops", icon: "🧰", title: "DevOps / System Administration", blurb: "Скрипти для розгортання, моніторингу й адміністрування серверів та інфраструктури.", accent: "stone" },
+  { id: "python-fullproject", icon: "🚀", title: "Python Full Project", blurb: "Об'єднання кількох напрямків в один завершений, реальний проєкт від початку до кінця.", accent: "amber" },
+];
+
 const COURSES = [
   { id: "html", title: "HTML", subtitle: "твоя перша вебсторінка", lessons: HTML_LESSONS, status: "available", accent: "amber" },
   { id: "css", title: "CSS", subtitle: "стилі та вигляд сторінки", lessons: CSS_LESSONS, status: "available", accent: "teal" },
   { id: "javascript", title: "JavaScript", subtitle: "твій перший інтерактивний застосунок", lessons: JS_LESSONS, status: "available", accent: "sky" },
   { id: "english", title: "English for IT", subtitle: "англійська для програмування", lessons: ENGLISH_LESSONS, status: "available", accent: "fuchsia" },
   { id: "frontend", title: "Frontend", subtitle: "повноцінний frontend", lessons: [], status: "planned", accent: "violet" },
-  { id: "python", title: "Python", subtitle: "власна програма на Python", lessons: [], status: "planned", accent: "emerald" },
+  ...PYTHON_DIRECTIONS.map((d) => ({
+    id: d.id,
+    title: `Python: ${d.title}`,
+    subtitle: d.blurb,
+    lessons: d.id === "python-core" ? PYTHON_CORE_LESSONS : [],
+    status: d.id === "python-core" ? "available" : "planned",
+    accent: d.accent,
+  })),
   { id: "sql", title: "SQL", subtitle: "власна база даних", lessons: [], status: "planned", accent: "rose" },
   { id: "backend", title: "Backend", subtitle: "власний сервер + API", lessons: [], status: "planned", accent: "orange" },
   { id: "fullstack", title: "Full Stack", subtitle: "повноцінний власний продукт", lessons: [], status: "planned", accent: "stone" },
 ];
+
+// Sidebar/Home show ONE "Python" entry (→ the hub), not all 16 sub-courses.
+const NAV_COURSES = COURSES.filter((c) => !c.id.startsWith("python-"));
 
 const PROJECT_THEMES = [
   { id: "tech-store", icon: "💻", title: "Магазин техніки", description: "Інтернет-магазин з каталогом товарів, картками і кошиком.", defaultName: "TechShop", navLinks: ["Каталог", "Про нас", "Контакти"], accent: "sky" },
@@ -13294,6 +13332,66 @@ function parseHTMLDoc(code) {
   return new DOMParser().parseFromString(code, "text/html");
 }
 
+// Pyodide (CPython compiled to WebAssembly) loaded lazily from a CDN on first
+// use — keeps it out of the main bundle entirely; only Python lessons pay for
+// it, and only once (cached in this module-level promise for the session).
+let __pyodidePromise = null;
+function loadPyodideOnce() {
+  if (!__pyodidePromise) {
+    __pyodidePromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.type = "module";
+      script.textContent =
+        'import { loadPyodide } from "/pyodide/pyodide.mjs"; window.__loadPyodideFn = loadPyodide; window.dispatchEvent(new Event("__pyodide-script-ready"));';
+      window.addEventListener(
+        "__pyodide-script-ready",
+        () => {
+          window.__loadPyodideFn({ indexURL: "/pyodide/" }).then(resolve, reject);
+        },
+        { once: true }
+      );
+      script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл Pyodide."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __pyodidePromise = null;
+      throw new Error("Не вдалося завантажити Python-середовище (Pyodide): " + String(err.message || err));
+    });
+  }
+  return __pyodidePromise;
+}
+
+// Runs learner code + testCode in a FRESH Python namespace each time (so one
+// lesson's variables never leak into the next), captures print() output, and
+// expects testCode to set __result__ = {"pass": True/False, "message": "..."}.
+async function runPythonCheck(code, testCode) {
+  const pyodide = await loadPyodideOnce();
+  const logs = [];
+  pyodide.setStdout({ batched: (line) => logs.push(line) });
+  pyodide.setStderr({ batched: (line) => logs.push(line) });
+  const namespace = pyodide.globals.get("dict")();
+  try {
+    try {
+      await pyodide.runPythonAsync(code || "", { globals: namespace });
+    } catch (err) {
+      return { logs, testResult: { pass: false, message: "Помилка виконання коду: " + String(err.message || err).split("\n").pop() } };
+    }
+    try {
+      namespace.set("__logs", pyodide.toPy(logs));
+      await pyodide.runPythonAsync(
+        (testCode || '__result__ = {"pass": True, "message": ""}') + "\n",
+        { globals: namespace }
+      );
+    } catch (err) {
+      return { logs, testResult: { pass: false, message: "Помилка в перевірці: " + String(err.message || err).split("\n").pop() } };
+    }
+    const raw = namespace.get("__result__");
+    const testResult = raw && raw.toJs ? raw.toJs() : { pass: false, message: "Перевірка не повернула результат." };
+    return { logs, testResult };
+  } finally {
+    namespace.destroy();
+  }
+}
+
 function buildJsSandboxDoc(code, testCode, domTemplate) {
   const safeCode = code || "";
   const safeTest = testCode || "return {pass:true,message:''}";
@@ -13641,6 +13739,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const [hintLevel, setHintLevel] = useState(0);
   const [previewDoc, setPreviewDoc] = useState("");
   const [consoleLogs, setConsoleLogs] = useState([]);
+  const [pyLoading, setPyLoading] = useState(false);
+  const [pyError, setPyError] = useState(null);
   const iframeRef = useRef(null);
   const listenerRef = useRef(null);
 
@@ -13650,6 +13750,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setHintLevel(0);
     setConsoleLogs([]);
     setPreviewDoc("");
+    setPyError(null);
   }, [lesson.id]);
 
   useEffect(() => {
@@ -13675,6 +13776,23 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setPreviewDoc(doc);
   };
 
+  const runPython = async (checking) => {
+    setPyError(null);
+    setPyLoading(true);
+    try {
+      const { logs, testResult } = await runPythonCheck(code, checking ? lesson.testCode : '__result__ = {"pass": True, "message": ""}');
+      setConsoleLogs(logs);
+      if (checking) {
+        setResult(testResult);
+        if (testResult?.pass) onComplete(lesson.id, code);
+      }
+    } catch (err) {
+      setPyError(String(err.message || err));
+    } finally {
+      setPyLoading(false);
+    }
+  };
+
   const runHtml = () => {
     setPreviewDoc(`<!DOCTYPE html><html><body>${code}</body></html>`);
   };
@@ -13685,6 +13803,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
   const handleRun = () => {
     if (lesson.type === "js") runJs(false);
+    else if (lesson.type === "python") runPython(false);
     else if (lesson.type === "css") runCss();
     else runHtml();
   };
@@ -13692,6 +13811,10 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const handleCheck = () => {
     if (lesson.type === "js") {
       runJs(true);
+      return;
+    }
+    if (lesson.type === "python") {
+      runPython(true);
       return;
     }
     if (lesson.type === "html") {
@@ -13731,12 +13854,33 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setCode(lesson.starter ?? "");
     setResult(null);
     setConsoleLogs([]);
+    setPyError(null);
   };
 
   const idx = course.lessons.findIndex((l) => l.id === lesson.id);
   const prev = course.lessons[idx - 1];
   const next = course.lessons[idx + 1];
   const accent = ACCENT_MAP[course.accent];
+
+  if (lesson.type === "intro") {
+    return (
+      <div className="max-w-3xl">
+        <div className="flex items-center gap-2 text-xs text-stone-500 mb-2 font-mono">
+          <span>{course.title}</span>
+        </div>
+        <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
+        <JargonText key={lesson.id} text={lesson.theory} />
+        <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
+        <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
+        <button
+          onClick={() => { onComplete(lesson.id); if (next) onNav(course.id, next.id); }}
+          className={`flex items-center gap-2 px-4 py-2.5 ${accent.bg} hover:opacity-90 text-stone-950 font-medium rounded-md text-sm`}
+        >
+          Почати навчання <ChevronRight size={16} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl">
@@ -13775,17 +13919,38 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
       <div className="flex flex-wrap gap-2 mt-3 mb-4">
         {lesson.type !== "vocab" && (
-          <button onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-100 rounded-md text-sm">
+          <button disabled={pyLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
             <Play size={14} /> Запустити
           </button>
         )}
-        <button onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 text-stone-950 font-medium rounded-md text-sm`}>
+        <button disabled={pyLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
           <CheckCircle2 size={14} /> Перевірити
         </button>
         <button onClick={handleReset} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 hover:bg-stone-900 text-stone-300 rounded-md text-sm">
           <RotateCcw size={14} /> Скинути
         </button>
       </div>
+
+      {lesson.type === "python" && pyLoading && (
+        <div className="mb-4 text-sm text-stone-400 flex items-center gap-2">
+          <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
+          Завантаження Python-середовища (лише першого разу)…
+        </div>
+      )}
+      {lesson.type === "python" && pyError && (
+        <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
+          <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="text-sm text-rose-300">{pyError}</div>
+        </div>
+      )}
+      {lesson.type === "python" && consoleLogs.length > 0 && (
+        <div className="mb-4">
+          <div className="text-xs uppercase tracking-wide text-stone-500 mb-2 flex items-center gap-1.5"><Terminal size={12} /> Вивід (stdout)</div>
+          <div className="bg-stone-950 border border-stone-800 rounded-md p-3 font-mono text-sm text-emerald-400 space-y-1">
+            {consoleLogs.map((l, i) => <div key={i}>{"> "}{l}</div>)}
+          </div>
+        </div>
+      )}
 
       {(lesson.type === "html" || lesson.type === "css") && previewDoc && (
         <div className="mb-4">
@@ -13818,6 +13983,57 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
           <div className="text-sm">
             <div className={result.pass ? "text-emerald-300 font-medium" : "text-rose-300 font-medium"}>{result.pass ? "Правильно!" : "Поки що неправильно"}</div>
             <div className="text-stone-300 mt-0.5">{result.message}</div>
+          </div>
+        </div>
+      )}
+
+      {lesson.finalProject && result?.pass && (
+        <div className="mb-8 border border-emerald-800 rounded-lg p-5 bg-emerald-950 bg-opacity-20">
+          <div className="text-lg font-semibold text-emerald-300 mb-1">🎉 ПРОЄКТ ЗАВЕРШЕНО</div>
+          <div className="text-sm text-stone-300 mb-4 italic">Ти створив це сам, крок за кроком.</div>
+
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Використані технології</div>
+              <div className="flex flex-wrap gap-1.5">
+                {lesson.finalProject.techs.map((t) => (
+                  <span key={t} className="text-xs px-2 py-1 rounded bg-stone-800 text-stone-300">{t}</span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Навички</div>
+              <ul className="text-sm text-stone-300 space-y-0.5 list-disc list-inside">
+                {lesson.finalProject.skills.map((s) => <li key={s}>{s}</li>)}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Структура проєкту</div>
+            <pre className="bg-stone-950 border border-stone-800 rounded-md p-3 text-xs text-stone-300 whitespace-pre-wrap font-mono">{lesson.finalProject.structure}</pre>
+          </div>
+
+          <div className="mb-4">
+            <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Фінальний код</div>
+            <pre className="bg-stone-950 border border-stone-800 rounded-md p-3 text-xs text-emerald-300 whitespace-pre-wrap font-mono overflow-x-auto">{lesson.finalProject.code}</pre>
+          </div>
+
+          <div className="mb-4">
+            <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Команда запуску</div>
+            <pre className="bg-stone-950 border border-stone-800 rounded-md p-2 text-xs text-stone-300 font-mono inline-block">{lesson.finalProject.runCommand}</pre>
+          </div>
+
+          <div className="mb-4">
+            <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Що можна покращити</div>
+            <ul className="text-sm text-stone-300 space-y-0.5 list-disc list-inside">
+              {lesson.finalProject.improvements.map((s) => <li key={s}>{s}</li>)}
+            </ul>
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Наступний рівень</div>
+            <div className="text-sm text-stone-300">{lesson.finalProject.nextLevel}</div>
           </div>
         </div>
       )}
@@ -14002,7 +14218,7 @@ function Home({ progress, onGo }) {
 
       <div className="text-xs uppercase tracking-wide text-stone-500 mb-3">Навчальний шлях</div>
       <div className="space-y-2 mb-8">
-        {COURSES.map((c) => {
+        {NAV_COURSES.map((c) => {
           const accent = ACCENT_MAP[c.accent];
           const done = (progress.completed[c.id] || []).length;
           return (
@@ -14024,6 +14240,21 @@ function Home({ progress, onGo }) {
             </button>
           );
         })}
+        <button
+          onClick={() => onGo("python")}
+          className="w-full flex items-center justify-between border border-stone-800 hover:border-stone-700 rounded-md px-4 py-3 bg-stone-900 hover:bg-stone-900/70 text-left transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <div>
+              <div className="text-stone-100 text-sm font-medium">🐍 Python</div>
+              <div className="text-stone-500 text-xs">16 напрямків: Core, OOP, ігри, автоматизація, backend, AI...</div>
+            </div>
+          </div>
+          <div className="text-xs text-stone-500 font-mono shrink-0 ml-4">
+            {PYTHON_DIRECTIONS.filter((d) => COURSES.find((c) => c.id === d.id)?.status === "available").length}/{PYTHON_DIRECTIONS.length} відкрито
+          </div>
+        </button>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -14041,6 +14272,46 @@ function Home({ progress, onGo }) {
             <div className="text-stone-500 text-xs">правильні технічні терміни</div>
           </div>
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PythonHubPage({ progress, onGo }) {
+  return (
+    <div className="max-w-4xl">
+      <div className="flex items-center gap-2 text-xs text-stone-500 mb-2 font-mono">
+        <span>Курси</span><span>/</span><span>Python</span>
+      </div>
+      <h1 className="text-2xl font-semibold text-stone-100 mb-2 flex items-center gap-2">🐍 Python</h1>
+      <p className="text-stone-400 text-sm mb-8 max-w-2xl">
+        «Вивчити Python» означає дуже різні речі залежно від того, що ти хочеш будувати. Тому Python тут —
+        не один курс, а 16 окремих напрямків: кожен починається з фундаменту (Python Core), а далі — своя мова,
+        свої інструменти, свій фінальний проєкт.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        {PYTHON_DIRECTIONS.map((d) => {
+          const course = COURSES.find((c) => c.id === d.id);
+          const accent = ACCENT_MAP[d.accent];
+          const available = course?.status === "available";
+          const done = (progress.completed[d.id] || []).length;
+          return (
+            <button
+              key={d.id}
+              onClick={() => onGo(d.id)}
+              className={`text-left border rounded-md p-4 transition-colors ${available ? "border-stone-800 hover:border-stone-700 bg-stone-900 hover:bg-stone-900/70" : "border-stone-900 bg-stone-950 hover:border-stone-800"}`}
+            >
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="text-2xl">{d.icon}</div>
+                <div className={`text-xs font-mono shrink-0 ${available ? accent.text : "text-stone-600"}`}>
+                  {available ? `${done}/${course.lessons.length}` : "Незабаром"}
+                </div>
+              </div>
+              <div className="text-stone-100 text-sm font-medium mb-1">{d.title}</div>
+              <div className="text-stone-500 text-xs leading-relaxed">{d.blurb}</div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -14941,9 +15212,10 @@ export default function App() {
         </button>
         <NavButton icon={HomeIcon} label="Головна" active={view === "home"} onClick={goHome} />
         <div className="text-xs uppercase tracking-wide text-stone-600 mt-4 mb-1 px-3">Курси</div>
-        {COURSES.map((c) => (
+        {NAV_COURSES.map((c) => (
           <NavButton key={c.id} icon={BookOpen} label={c.title} active={view === "course" && courseId === c.id} onClick={() => goCourse(c.id)} />
         ))}
+        <NavButton icon={BookOpen} label="Python" active={view === "pythonhub" || (view === "course" && courseId?.startsWith("python-"))} onClick={() => goPage("pythonhub")} />
         <NavButton icon={Layout} label="Мій сайт" active={view === "myproject"} onClick={() => goPage("myproject")} />
         <div className="text-xs uppercase tracking-wide text-stone-600 mt-4 mb-1 px-3">Мова</div>
         <NavButton icon={Globe} label="English for Devs" active={view === "english"} onClick={() => goPage("english")} />
@@ -14969,7 +15241,8 @@ export default function App() {
         </header>
 
         <main className="flex-1 p-4 md:p-8">
-          {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : goCourse(id))} />}
+          {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : id === "python" ? goPage("pythonhub") : goCourse(id))} />}
+          {view === "pythonhub" && <PythonHubPage progress={progress} onGo={goCourse} />}
           {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} project={project} onPickServer={handlePickServer} />}
           {view === "myproject" && (project.themeId
             ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(cId, lId) => goCourse(cId, lId)} />
