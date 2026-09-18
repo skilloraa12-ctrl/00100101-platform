@@ -12,6 +12,7 @@ import { PYTHON_DESKTOP_LESSONS } from "./data/pythonDesktop.js";
 import { PYTHON_AUTOMATION_LESSONS } from "./data/pythonAutomation.js";
 import { PYTHON_SCRAPING_LESSONS } from "./data/pythonScraping.js";
 import { PYTHON_API_LESSONS } from "./data/pythonAPI.js";
+import { PYTHON_BACKEND_LESSONS } from "./data/pythonBackend.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3070,8 +3071,9 @@ const COURSES = [
       d.id === "python-desktop" ? PYTHON_DESKTOP_LESSONS :
       d.id === "python-automation" ? PYTHON_AUTOMATION_LESSONS :
       d.id === "python-scraping" ? PYTHON_SCRAPING_LESSONS :
-      d.id === "python-api" ? PYTHON_API_LESSONS : [],
-    status: ["python-core", "python-oop", "python-gamedev", "python-desktop", "python-automation", "python-scraping", "python-api"].includes(d.id) ? "available" : "planned",
+      d.id === "python-api" ? PYTHON_API_LESSONS :
+      d.id === "python-backend" ? PYTHON_BACKEND_LESSONS : [],
+    status: ["python-core", "python-oop", "python-gamedev", "python-desktop", "python-automation", "python-scraping", "python-api", "python-backend"].includes(d.id) ? "available" : "planned",
     accent: d.accent,
   })),
   { id: "sql", title: "SQL", subtitle: "власна база даних", lessons: [], status: "planned", accent: "rose" },
