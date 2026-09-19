@@ -21,6 +21,7 @@ import { PYTHON_SECURITY_LESSONS } from "./data/pythonSecurity.js";
 import { PYTHON_SCIENCE_LESSONS } from "./data/pythonScience.js";
 import { PYTHON_DEVOPS_LESSONS } from "./data/pythonDevOps.js";
 import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
+import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3067,7 +3068,7 @@ const COURSES = [
   { id: "css", title: "CSS", subtitle: "стилі та вигляд сторінки", lessons: CSS_LESSONS, status: "available", accent: "teal" },
   { id: "javascript", title: "JavaScript", subtitle: "твій перший інтерактивний застосунок", lessons: JS_LESSONS, status: "available", accent: "sky" },
   { id: "english", title: "English for IT", subtitle: "англійська для програмування", lessons: ENGLISH_LESSONS, status: "available", accent: "fuchsia" },
-  { id: "frontend", title: "Frontend", subtitle: "повноцінний frontend", lessons: [], status: "planned", accent: "violet" },
+  { id: "frontend", title: "Frontend", subtitle: "HTML+CSS+JS разом — реальні компоненти для твого сайту", lessons: FRONTEND_LESSONS, status: "available", accent: "violet" },
   ...PYTHON_DIRECTIONS.map((d) => ({
     id: d.id,
     title: `Python: ${d.title}`,
@@ -3164,7 +3165,7 @@ const CSS_MILESTONES = ["css-41", "css-3", "css-4", "css-42", "css-21", "css-9",
 
 function renderProjectCss(project) {
   const blocks = project.blocks || {};
-  return CSS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
+  return [...CSS_MILESTONES, ...FRONTEND_CSS_MILESTONES].map((id) => blocks[id]).filter(Boolean).join("\n\n");
 }
 
 // Milestone JS lessons whose submitted code brings the same growing site to
@@ -3177,7 +3178,7 @@ const JS_MILESTONES = ["js-41", "js-42", "js-43", "js-44"];
 
 function renderProjectJs(project) {
   const blocks = project.blocks || {};
-  return JS_MILESTONES.map((id) => blocks[id]).filter(Boolean).join("\n\n");
+  return [...JS_MILESTONES, ...FRONTEND_JS_MILESTONES].map((id) => blocks[id]).filter(Boolean).join("\n\n");
 }
 
 // Produces the FULL document — DOCTYPE, <html lang>, <head> with the meta
@@ -3189,7 +3190,7 @@ function renderProjectHtml(project, theme, siteName) {
   const header =
     blocks[HEADER_MILESTONE] ||
     `<header>\n    <h1>${name}</h1>\n    <nav>\n${theme.navLinks.map((l) => `      <a href="#">${l}</a>`).join("\n")}\n    </nav>\n  </header>`;
-  const mainBlocks = MAIN_MILESTONES.map((id) => blocks[id]).filter(Boolean);
+  const mainBlocks = [...MAIN_MILESTONES, ...FRONTEND_MAIN_MILESTONES].map((id) => blocks[id]).filter(Boolean);
   const main = mainBlocks.length
     ? `<main>\n${mainBlocks.map((b) => "    " + b.split("\n").join("\n    ")).join("\n\n")}\n  </main>`
     : `<main>\n    <!-- Тут з'являться нові блоки в міру проходження уроків -->\n  </main>`;
@@ -14739,18 +14740,48 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
   const jsDoneIds = progress?.completed?.javascript || [];
   const jsDoneCount = JS_MILESTONES.filter((id) => jsDoneIds.includes(id)).length;
 
+  const frontendMilestoneIds = [...FRONTEND_MAIN_MILESTONES, ...FRONTEND_CSS_MILESTONES, ...FRONTEND_JS_MILESTONES];
+  const frontendDoneIds = progress?.completed?.frontend || [];
+  const frontendDoneCount = frontendMilestoneIds.filter((id) => frontendDoneIds.includes(id)).length;
+
+  const downloadSiteFiles = () => {
+    const files = [
+      { name: "index.html", content: project.html || "" },
+      { name: "style.css", content: project.css || "" },
+      { name: "script.js", content: project.js || "" },
+    ];
+    files.forEach(({ name, content }, i) => {
+      setTimeout(() => {
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }, i * 300);
+    });
+  };
+
   return (
     <div className="max-w-5xl">
       <div className="flex items-start justify-between gap-4 mb-1 flex-wrap">
         <h1 className="text-2xl font-semibold text-stone-100 flex items-center gap-2">
           <Layout size={22} className={accent.text} /> {project.siteName}
         </h1>
-        <button onClick={onReset} className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-300 border border-stone-800 rounded-md px-2.5 py-1.5">
-          <RefreshCw size={12} /> Почати новий сайт
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={downloadSiteFiles} className={`flex items-center gap-1.5 text-xs font-medium text-stone-950 rounded-md px-2.5 py-1.5 ${accent.bg} hover:opacity-90`}>
+            <ExternalLink size={12} /> Завантажити сайт
+          </button>
+          <button onClick={onReset} className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-300 border border-stone-800 rounded-md px-2.5 py-1.5">
+            <RefreshCw size={12} /> Почати новий сайт
+          </button>
+        </div>
       </div>
       <p className="text-stone-500 text-sm mb-3">
-        {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS і JavaScript.
+        {theme.icon} {theme.title} — цей сайт росте разом із твоїм прогресом у курсах HTML, CSS, JavaScript і Frontend.
         {project.chosenServer && <> Обраний сервер для підключення: <span className="text-sky-400">{project.chosenServer}</span>.</>}
       </p>
 
@@ -14820,8 +14851,30 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
         </div>
       )}
 
+      {frontendDoneCount < frontendMilestoneIds.length && (
+        <div className="mb-5 border border-stone-800 rounded-md p-3 bg-stone-950">
+          <div className="text-xs text-stone-500 mb-2">Розширені секції з курсу Frontend ({frontendDoneCount}/{frontendMilestoneIds.length}):</div>
+          <div className="flex flex-wrap gap-2">
+            {frontendMilestoneIds.map((id) => {
+              const lesson = FRONTEND_LESSONS.find((l) => l.id === id);
+              const done = frontendDoneIds.includes(id);
+              return (
+                <button
+                  key={id}
+                  disabled={done}
+                  onClick={() => onGoLesson?.("frontend", id)}
+                  className={`text-xs px-2.5 py-1.5 rounded-md border ${done ? "border-emerald-800 text-emerald-400 bg-emerald-950/30" : "border-stone-800 text-stone-400 hover:border-amber-700 hover:text-amber-400"}`}
+                >
+                  {done ? "✓ " : ""}{lesson?.title || id}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2 mb-3">
-        {[["preview", "Результат"], ["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"]].map(([id, label]) => (
+        {[["preview", "Результат"], ["html", "HTML"], ["css", "CSS"], ["js", "JavaScript"], ["publish", "Публікація"]].map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className={`px-3 py-1.5 rounded-md text-sm ${tab === id ? "bg-stone-800 text-amber-400" : "text-stone-400 hover:bg-stone-900"}`}>{label}</button>
         ))}
       </div>
@@ -14837,6 +14890,36 @@ function MyProjectPage({ project, progress, onReset, onGoLesson }) {
       )}
       {tab === "js" && (
         <pre className="w-full h-[600px] overflow-auto bg-stone-950 border border-stone-800 rounded-md p-4 text-xs font-mono text-stone-200 whitespace-pre-wrap">{project.js || "// Поки що порожньо — інтерактивність з'явиться в курсі JavaScript."}</pre>
+      )}
+      {tab === "publish" && (
+        <div className="w-full overflow-auto bg-stone-950 border border-stone-800 rounded-md p-5 text-sm text-stone-300">
+          <p className="mb-4 text-stone-400">
+            Твій сайт — три реальні файли (index.html, style.css, script.js), готові для БЕЗКОШТОВНОГО хостингу на GitHub Pages. Жодного бекенду чи сервера для цього не потрібно.
+          </p>
+          <ol className="space-y-4">
+            <li>
+              <div className="font-medium text-stone-100 mb-1">1. Завантаж файли сайту</div>
+              <p className="text-stone-400 mb-2">Кнопка «Завантажити сайт» зверху збереже index.html, style.css і script.js на твій комп'ютер.</p>
+              <button onClick={downloadSiteFiles} className={`text-xs font-medium text-stone-950 rounded-md px-2.5 py-1.5 ${accent.bg} hover:opacity-90`}>Завантажити сайт</button>
+            </li>
+            <li>
+              <div className="font-medium text-stone-100 mb-1">2. Створи репозиторій на GitHub</div>
+              <p className="text-stone-400">Зайди на <span className="text-sky-400">github.com</span>, натисни «New repository», дай йому назву (наприклад, «my-site») і створи його публічним.</p>
+            </li>
+            <li>
+              <div className="font-medium text-stone-100 mb-1">3. Завантаж файли через веб-інтерфейс</div>
+              <p className="text-stone-400">У новому репозиторії: «Add file» → «Upload files» → перетягни всі три завантажені файли мишею → «Commit changes». Жодних git-команд у терміналі не потрібно.</p>
+            </li>
+            <li>
+              <div className="font-medium text-stone-100 mb-1">4. Увімкни GitHub Pages</div>
+              <p className="text-stone-400">Settings → Pages → Source: «Deploy from a branch» → Branch: <span className="text-sky-400">main</span>, папка <span className="text-sky-400">/ (root)</span> → Save.</p>
+            </li>
+            <li>
+              <div className="font-medium text-stone-100 mb-1">5. Відкрий сайт наживо</div>
+              <p className="text-stone-400">Через хвилину-дві сайт стане доступний за адресою виду <span className="text-sky-400">https://твій-нікнейм.github.io/my-site/</span> — цим посиланням можна ділитись з будь-ким.</p>
+            </li>
+          </ol>
+        </div>
       )}
     </div>
   );
@@ -15213,9 +15296,9 @@ export default function App() {
       saveProgress(next);
       return next;
     });
-    const isHtmlMilestone = id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id);
-    const isCssMilestone = CSS_MILESTONES.includes(id);
-    const isJsMilestone = JS_MILESTONES.includes(id);
+    const isHtmlMilestone = id === HEADER_MILESTONE || MAIN_MILESTONES.includes(id) || FRONTEND_MAIN_MILESTONES.includes(id);
+    const isCssMilestone = CSS_MILESTONES.includes(id) || FRONTEND_CSS_MILESTONES.includes(id);
+    const isJsMilestone = JS_MILESTONES.includes(id) || FRONTEND_JS_MILESTONES.includes(id);
     if (code !== undefined && (isHtmlMilestone || isCssMilestone || isJsMilestone)) {
       setProject((prev) => {
         if (!prev.themeId) return prev;
