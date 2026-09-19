@@ -19,6 +19,7 @@ import { PYTHON_DATA_SCIENCE_LESSONS } from "./data/pythonDataScience.js";
 import { PYTHON_AI_LESSONS } from "./data/pythonAI.js";
 import { PYTHON_SECURITY_LESSONS } from "./data/pythonSecurity.js";
 import { PYTHON_SCIENCE_LESSONS } from "./data/pythonScience.js";
+import { PYTHON_DEVOPS_LESSONS } from "./data/pythonDevOps.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3084,8 +3085,9 @@ const COURSES = [
       d.id === "python-datascience" ? PYTHON_DATA_SCIENCE_LESSONS :
       d.id === "python-ai" ? PYTHON_AI_LESSONS :
       d.id === "python-security" ? PYTHON_SECURITY_LESSONS :
-      d.id === "python-science" ? PYTHON_SCIENCE_LESSONS : [],
-    status: ["python-core", "python-oop", "python-gamedev", "python-desktop", "python-automation", "python-scraping", "python-api", "python-backend", "python-db", "python-dataanalysis", "python-datascience", "python-ai", "python-security", "python-science"].includes(d.id) ? "available" : "planned",
+      d.id === "python-science" ? PYTHON_SCIENCE_LESSONS :
+      d.id === "python-devops" ? PYTHON_DEVOPS_LESSONS : [],
+    status: ["python-core", "python-oop", "python-gamedev", "python-desktop", "python-automation", "python-scraping", "python-api", "python-backend", "python-db", "python-dataanalysis", "python-datascience", "python-ai", "python-security", "python-science", "python-devops"].includes(d.id) ? "available" : "planned",
     accent: d.accent,
   })),
   { id: "sql", title: "SQL", subtitle: "власна база даних", lessons: [], status: "planned", accent: "rose" },
