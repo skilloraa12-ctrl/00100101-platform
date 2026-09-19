@@ -22,6 +22,7 @@ import { PYTHON_SCIENCE_LESSONS } from "./data/pythonScience.js";
 import { PYTHON_DEVOPS_LESSONS } from "./data/pythonDevOps.js";
 import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
 import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
+import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3067,6 +3068,7 @@ const COURSES = [
   { id: "html", title: "HTML", subtitle: "твоя перша вебсторінка", lessons: HTML_LESSONS, status: "available", accent: "amber" },
   { id: "css", title: "CSS", subtitle: "стилі та вигляд сторінки", lessons: CSS_LESSONS, status: "available", accent: "teal" },
   { id: "javascript", title: "JavaScript", subtitle: "твій перший інтерактивний застосунок", lessons: JS_LESSONS, status: "available", accent: "sky" },
+  { id: "typescript", title: "TypeScript", subtitle: "JavaScript із реальною перевіркою типів", lessons: TYPESCRIPT_LESSONS, status: "available", accent: "emerald" },
   { id: "english", title: "English for IT", subtitle: "англійська для програмування", lessons: ENGLISH_LESSONS, status: "available", accent: "fuchsia" },
   { id: "frontend", title: "Frontend", subtitle: "HTML+CSS+JS разом — реальні компоненти для твого сайту", lessons: FRONTEND_LESSONS, status: "available", accent: "violet" },
   ...PYTHON_DIRECTIONS.map((d) => ({
@@ -13424,6 +13426,103 @@ async function runPythonCheck(code, testCode) {
   }
 }
 
+// TypeScript compiler (classic UMD build) loaded lazily from a self-hosted
+// static file — same reasoning as Pyodide: no CDN/npm access at runtime, and
+// only TS lessons pay for the 8.6MB bundle, once per session. The script is a
+// classic (non-module) script, so it creates a plain global `ts` variable.
+let __tsPromise = null;
+function loadTypeScriptOnce() {
+  if (!__tsPromise) {
+    __tsPromise = new Promise((resolve, reject) => {
+      if (window.ts) { resolve(window.ts); return; }
+      const script = document.createElement("script");
+      script.src = "/typescript/typescript.js";
+      script.onload = () => resolve(window.ts);
+      script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл TypeScript."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __tsPromise = null;
+      throw new Error("Не вдалося завантажити компілятор TypeScript: " + String(err.message || err));
+    });
+  }
+  return __tsPromise;
+}
+
+// TypeScript's own lib.*.d.ts files (bundled once at build time into a single
+// JSON map, see scripts/bundle-ts-libs), fetched lazily so real semantic type
+// checking (not just syntax transpilation) works against real DOM/ES types.
+let __tsLibFilesPromise = null;
+function loadTsLibFilesOnce() {
+  if (!__tsLibFilesPromise) {
+    __tsLibFilesPromise = fetch("/typescript/lib-files.json")
+      .then((r) => r.json())
+      .catch((err) => {
+        __tsLibFilesPromise = null;
+        throw new Error("Не вдалося завантажити файли типів TypeScript: " + String(err.message || err));
+      });
+  }
+  return __tsLibFilesPromise;
+}
+
+function formatTsDiagnostics(ts, diagnostics) {
+  return diagnostics
+    .map((d) => {
+      let loc = "";
+      if (d.file && d.start !== undefined) {
+        const { line, character } = d.file.getLineAndCharacterOfPosition(d.start);
+        loc = `Рядок ${line + 1}:${character + 1} — `;
+      }
+      return loc + ts.flattenDiagnosticMessageText(d.messageText, "\n");
+    })
+    .join("\n");
+}
+
+// Real type-checking (not just syntax stripping) via a virtual in-memory
+// CompilerHost backed by TypeScript's own bundled lib .d.ts files. Returns
+// { ok:false, message } on a type error, or { ok:true, emittedJs } with the
+// compiled JS ready to run in the existing JS sandbox (buildJsSandboxDoc).
+async function runTypeScriptCheck(code) {
+  const ts = await loadTypeScriptOnce();
+  const libFiles = await loadTsLibFilesOnce();
+  const fileName = "input.ts";
+  const compilerOptions = {
+    target: ts.ScriptTarget.ES2017,
+    lib: ["lib.es2017.d.ts", "lib.dom.d.ts"],
+    strict: true,
+    noImplicitAny: true,
+    module: ts.ModuleKind.None,
+    noEmitOnError: false,
+  };
+  const outputs = {};
+  const host = {
+    getSourceFile: (name, langVersion) => {
+      if (name === fileName) return ts.createSourceFile(name, code, langVersion, true);
+      if (Object.prototype.hasOwnProperty.call(libFiles, name)) {
+        return ts.createSourceFile(name, libFiles[name], langVersion, true);
+      }
+      return undefined;
+    },
+    getDefaultLibFileName: (options) => ts.getDefaultLibFileName(options),
+    writeFile: (name, data) => { outputs[name] = data; },
+    getCurrentDirectory: () => "/",
+    getCanonicalFileName: (name) => name,
+    useCaseSensitiveFileNames: () => true,
+    getNewLine: () => "\n",
+    fileExists: (name) => name === fileName || Object.prototype.hasOwnProperty.call(libFiles, name),
+    readFile: (name) => (name === fileName ? code : libFiles[name]),
+    directoryExists: () => true,
+    getDirectories: () => [],
+  };
+  const program = ts.createProgram([fileName], compilerOptions, host);
+  const diagnostics = ts.getPreEmitDiagnostics(program);
+  if (diagnostics.length > 0) {
+    return { ok: false, message: formatTsDiagnostics(ts, diagnostics) };
+  }
+  program.emit();
+  const emittedJs = outputs[fileName.replace(/\.ts$/, ".js")] || "";
+  return { ok: true, emittedJs };
+}
+
 function buildJsSandboxDoc(code, testCode, domTemplate) {
   const safeCode = code || "";
   const safeTest = testCode || "return {pass:true,message:''}";
@@ -13773,6 +13872,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const [consoleLogs, setConsoleLogs] = useState([]);
   const [pyLoading, setPyLoading] = useState(false);
   const [pyError, setPyError] = useState(null);
+  const [tsLoading, setTsLoading] = useState(false);
+  const [tsError, setTsError] = useState(null);
   const iframeRef = useRef(null);
   const listenerRef = useRef(null);
 
@@ -13783,6 +13884,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setConsoleLogs([]);
     setPreviewDoc("");
     setPyError(null);
+    setTsError(null);
   }, [lesson.id]);
 
   useEffect(() => {
@@ -13825,6 +13927,39 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
   };
 
+  const runTs = async (checking) => {
+    setTsError(null);
+    setTsLoading(true);
+    try {
+      const { ok, message, emittedJs } = await runTypeScriptCheck(code);
+      if (!ok) {
+        setConsoleLogs([]);
+        setPreviewDoc("");
+        if (checking) setResult({ pass: false, message: "Помилка типів:\n" + message });
+        else setTsError("Помилка типів:\n" + message);
+        return;
+      }
+      if (listenerRef.current) window.removeEventListener("message", listenerRef.current);
+      const handler = (e) => {
+        if (!e.data || e.data.type !== "sandbox-result") return;
+        setConsoleLogs(e.data.logs || []);
+        if (checking) {
+          setResult(e.data.testResult);
+          if (e.data.testResult?.pass) onComplete(lesson.id, code);
+        }
+        window.removeEventListener("message", handler);
+      };
+      listenerRef.current = handler;
+      window.addEventListener("message", handler);
+      const doc = buildJsSandboxDoc(emittedJs, checking ? lesson.testCode : undefined, lesson.domTemplate);
+      setPreviewDoc(doc);
+    } catch (err) {
+      setTsError(String(err.message || err));
+    } finally {
+      setTsLoading(false);
+    }
+  };
+
   const runHtml = () => {
     setPreviewDoc(`<!DOCTYPE html><html><body>${code}</body></html>`);
   };
@@ -13836,6 +13971,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const handleRun = () => {
     if (lesson.type === "js") runJs(false);
     else if (lesson.type === "python") runPython(false);
+    else if (lesson.type === "ts") runTs(false);
     else if (lesson.type === "css") runCss();
     else runHtml();
   };
@@ -13847,6 +13983,10 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
     if (lesson.type === "python") {
       runPython(true);
+      return;
+    }
+    if (lesson.type === "ts") {
+      runTs(true);
       return;
     }
     if (lesson.type === "html") {
@@ -13887,6 +14027,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setResult(null);
     setConsoleLogs([]);
     setPyError(null);
+    setTsError(null);
   };
 
   const idx = course.lessons.findIndex((l) => l.id === lesson.id);
@@ -13951,11 +14092,11 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
       <div className="flex flex-wrap gap-2 mt-3 mb-4">
         {lesson.type !== "vocab" && (
-          <button disabled={pyLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
+          <button disabled={pyLoading || tsLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
             <Play size={14} /> Запустити
           </button>
         )}
-        <button disabled={pyLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
+        <button disabled={pyLoading || tsLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
           <CheckCircle2 size={14} /> Перевірити
         </button>
         <button onClick={handleReset} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 hover:bg-stone-900 text-stone-300 rounded-md text-sm">
@@ -13984,6 +14125,19 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
       )}
 
+      {lesson.type === "ts" && tsLoading && (
+        <div className="mb-4 text-sm text-stone-400 flex items-center gap-2">
+          <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
+          Завантаження компілятора TypeScript (лише першого разу)…
+        </div>
+      )}
+      {lesson.type === "ts" && tsError && (
+        <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
+          <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="text-sm text-rose-300 whitespace-pre-wrap font-mono">{tsError}</div>
+        </div>
+      )}
+
       {(lesson.type === "html" || lesson.type === "css") && previewDoc && (
         <div className="mb-4">
           <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Результат</div>
@@ -13991,7 +14145,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
       )}
 
-      {lesson.type === "js" && consoleLogs.length > 0 && (
+      {(lesson.type === "js" || lesson.type === "ts") && consoleLogs.length > 0 && (
         <div className="mb-4">
           <div className="text-xs uppercase tracking-wide text-stone-500 mb-2 flex items-center gap-1.5"><Terminal size={12} /> Консоль</div>
           <div className="bg-stone-950 border border-stone-800 rounded-md p-3 font-mono text-sm text-emerald-400 space-y-1">
@@ -13999,13 +14153,13 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
           </div>
         </div>
       )}
-      {lesson.type === "js" && previewDoc && lesson.domTemplate && (
+      {(lesson.type === "js" || lesson.type === "ts") && previewDoc && lesson.domTemplate && (
         <div className="mb-4">
           <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Сторінка</div>
           <iframe title="dom-preview" srcDoc={previewDoc} sandbox="allow-scripts" className="w-full h-24 bg-white rounded-md border border-stone-800" />
         </div>
       )}
-      {lesson.type === "js" && previewDoc && !lesson.domTemplate && (
+      {(lesson.type === "js" || lesson.type === "ts") && previewDoc && !lesson.domTemplate && (
         <iframe title="js-sandbox" srcDoc={previewDoc} sandbox="allow-scripts" className="hidden" />
       )}
 
@@ -14058,7 +14212,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
           {lesson.finalProject.installGuide && (
             <div className="mb-4">
-              <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Як встановити Python і запустити це на своєму комп'ютері</div>
+              <div className="text-xs uppercase tracking-wide text-stone-500 mb-1.5">Як запустити це на своєму комп'ютері</div>
               {lesson.finalProject.installGuide.intro && (
                 <p className="text-sm text-stone-300 mb-3">{lesson.finalProject.installGuide.intro}</p>
               )}
