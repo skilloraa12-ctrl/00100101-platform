@@ -15636,7 +15636,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex">
       {/* Sidebar nav */}
-      <aside className={`w-60 shrink-0 border-r border-stone-800 p-4 flex-col gap-1 fixed md:sticky top-0 h-screen bg-stone-950 z-40 ${sidebarOpen ? "flex" : "hidden md:flex"}`}>
+      <aside className={`w-60 shrink-0 border-r border-stone-800 p-4 flex-col gap-1 fixed md:sticky top-0 h-screen overflow-y-auto bg-stone-950 z-40 ${sidebarOpen ? "flex" : "hidden md:flex"}`}>
         <button onClick={goHome} className="mb-6 flex items-center justify-between">
           <Logo />
           <button className="md:hidden" onClick={() => setSidebarOpen(false)}><X size={18} className="text-stone-500" /></button>
