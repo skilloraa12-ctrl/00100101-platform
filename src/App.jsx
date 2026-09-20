@@ -23,6 +23,7 @@ import { PYTHON_DEVOPS_LESSONS } from "./data/pythonDevOps.js";
 import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
 import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
 import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
+import { SQL_LESSONS } from "./data/sqlLessons.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3095,7 +3096,7 @@ const COURSES = [
     status: ["python-core", "python-oop", "python-gamedev", "python-desktop", "python-automation", "python-scraping", "python-api", "python-backend", "python-db", "python-dataanalysis", "python-datascience", "python-ai", "python-security", "python-science", "python-devops", "python-fullproject"].includes(d.id) ? "available" : "planned",
     accent: d.accent,
   })),
-  { id: "sql", title: "SQL", subtitle: "власна база даних", lessons: [], status: "planned", accent: "rose" },
+  { id: "sql", title: "SQL", subtitle: "реальна SQLite у браузері — власна база даних", lessons: SQL_LESSONS, status: "available", accent: "rose" },
   { id: "backend", title: "Backend", subtitle: "власний сервер + API", lessons: [], status: "planned", accent: "orange" },
   { id: "fullstack", title: "Full Stack", subtitle: "повноцінний власний продукт", lessons: [], status: "planned", accent: "stone" },
 ];
@@ -13523,6 +13524,62 @@ async function runTypeScriptCheck(code) {
   return { ok: true, emittedJs };
 }
 
+// SQL.js (SQLite compiled to WebAssembly) loaded lazily from a self-hosted
+// static file — same reasoning as Pyodide/TypeScript: no CDN/npm access at
+// runtime, and only SQL lessons pay for it, once per session. The script is
+// a classic (non-module) script exposing a global initSqlJs() factory.
+let __sqlJsPromise = null;
+function loadSqlJsOnce() {
+  if (!__sqlJsPromise) {
+    __sqlJsPromise = new Promise((resolve, reject) => {
+      if (window.initSqlJs) { resolve(window.initSqlJs); return; }
+      const script = document.createElement("script");
+      script.src = "/sql/sql-wasm.js";
+      script.onload = () => resolve(window.initSqlJs);
+      script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл SQL.js."));
+      document.head.appendChild(script);
+    })
+      .then((initSqlJs) => initSqlJs({ locateFile: (f) => "/sql/" + f }))
+      .catch((err) => {
+        __sqlJsPromise = null;
+        throw new Error("Не вдалося завантажити SQL-середовище (SQL.js): " + String(err.message || err));
+      });
+  }
+  return __sqlJsPromise;
+}
+
+// Runs setupSql (schema + seed data) against a FRESH in-memory SQLite database
+// each time (so one lesson's data never leaks into the next), then the
+// learner's query, then testCode — which gets both the raw db handle (to run
+// its own follow-up queries, needed for INSERT/UPDATE/DELETE lessons) and
+// execResult (db.exec's own return value, useful for SELECT lessons).
+async function runSqlCheck(setupSql, code, testCode) {
+  const SQL = await loadSqlJsOnce();
+  const db = new SQL.Database();
+  try {
+    try {
+      db.run(setupSql || "");
+    } catch (err) {
+      return { execResult: [], testResult: { pass: false, message: "Помилка в підготовці даних уроку: " + String(err.message || err) } };
+    }
+    let execResult;
+    try {
+      execResult = db.exec(code || "");
+    } catch (err) {
+      return { execResult: [], testResult: { pass: false, message: "Помилка в SQL-запиті: " + String(err.message || err) } };
+    }
+    try {
+      const testFn = new Function("db", "execResult", testCode || "return {pass:true, message:''};");
+      const testResult = testFn(db, execResult);
+      return { execResult, testResult };
+    } catch (err) {
+      return { execResult, testResult: { pass: false, message: "Помилка в перевірці: " + String(err.message || err) } };
+    }
+  } finally {
+    db.close();
+  }
+}
+
 function buildJsSandboxDoc(code, testCode, domTemplate) {
   const safeCode = code || "";
   const safeTest = testCode || "return {pass:true,message:''}";
@@ -13874,6 +13931,9 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const [pyError, setPyError] = useState(null);
   const [tsLoading, setTsLoading] = useState(false);
   const [tsError, setTsError] = useState(null);
+  const [sqlLoading, setSqlLoading] = useState(false);
+  const [sqlError, setSqlError] = useState(null);
+  const [sqlResult, setSqlResult] = useState(null);
   const iframeRef = useRef(null);
   const listenerRef = useRef(null);
 
@@ -13885,6 +13945,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setPreviewDoc("");
     setPyError(null);
     setTsError(null);
+    setSqlError(null);
+    setSqlResult(null);
   }, [lesson.id]);
 
   useEffect(() => {
@@ -13960,6 +14022,23 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
   };
 
+  const runSql = async (checking) => {
+    setSqlError(null);
+    setSqlLoading(true);
+    try {
+      const { execResult, testResult } = await runSqlCheck(lesson.setupSql, code, checking ? lesson.testCode : "return {pass:true, message:''};");
+      setSqlResult(execResult);
+      if (checking) {
+        setResult(testResult);
+        if (testResult?.pass) onComplete(lesson.id, code);
+      }
+    } catch (err) {
+      setSqlError(String(err.message || err));
+    } finally {
+      setSqlLoading(false);
+    }
+  };
+
   const runHtml = () => {
     setPreviewDoc(`<!DOCTYPE html><html><body>${code}</body></html>`);
   };
@@ -13972,6 +14051,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     if (lesson.type === "js") runJs(false);
     else if (lesson.type === "python") runPython(false);
     else if (lesson.type === "ts") runTs(false);
+    else if (lesson.type === "sql") runSql(false);
     else if (lesson.type === "css") runCss();
     else runHtml();
   };
@@ -13987,6 +14067,10 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
     if (lesson.type === "ts") {
       runTs(true);
+      return;
+    }
+    if (lesson.type === "sql") {
+      runSql(true);
       return;
     }
     if (lesson.type === "html") {
@@ -14028,6 +14112,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setConsoleLogs([]);
     setPyError(null);
     setTsError(null);
+    setSqlError(null);
+    setSqlResult(null);
   };
 
   const idx = course.lessons.findIndex((l) => l.id === lesson.id);
@@ -14092,11 +14178,11 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
       <div className="flex flex-wrap gap-2 mt-3 mb-4">
         {lesson.type !== "vocab" && (
-          <button disabled={pyLoading || tsLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
+          <button disabled={pyLoading || tsLoading || sqlLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
             <Play size={14} /> Запустити
           </button>
         )}
-        <button disabled={pyLoading || tsLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
+        <button disabled={pyLoading || tsLoading || sqlLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
           <CheckCircle2 size={14} /> Перевірити
         </button>
         <button onClick={handleReset} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 hover:bg-stone-900 text-stone-300 rounded-md text-sm">
@@ -14135,6 +14221,45 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
           <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
           <div className="text-sm text-rose-300 whitespace-pre-wrap font-mono">{tsError}</div>
+        </div>
+      )}
+
+      {lesson.type === "sql" && sqlLoading && (
+        <div className="mb-4 text-sm text-stone-400 flex items-center gap-2">
+          <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
+          Завантаження SQL-середовища (лише першого разу)…
+        </div>
+      )}
+      {lesson.type === "sql" && sqlError && (
+        <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
+          <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="text-sm text-rose-300 whitespace-pre-wrap font-mono">{sqlError}</div>
+        </div>
+      )}
+      {lesson.type === "sql" && sqlResult && (
+        <div className="mb-4">
+          <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Результат запиту</div>
+          {sqlResult.length === 0 && (
+            <div className="text-sm text-stone-500 font-mono bg-stone-950 border border-stone-800 rounded-md p-3">Запит виконано, рядків не повернуто.</div>
+          )}
+          {sqlResult.map((res, ri) => (
+            <div key={ri} className="overflow-x-auto mb-2">
+              <table className="w-full text-xs font-mono border border-stone-800 rounded-md overflow-hidden">
+                <thead>
+                  <tr className="bg-stone-900">
+                    {res.columns.map((c, ci) => <th key={ci} className="text-left px-2 py-1.5 text-stone-400 border-b border-stone-800">{c}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {res.values.map((row, rowI) => (
+                    <tr key={rowI} className="odd:bg-stone-950 even:bg-stone-900/50">
+                      {row.map((v, ci) => <td key={ci} className="px-2 py-1.5 text-emerald-400">{v === null ? "NULL" : String(v)}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       )}
 
