@@ -24,6 +24,7 @@ import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
 import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
 import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
 import { SQL_LESSONS } from "./data/sqlLessons.js";
+import { BACKEND_LESSONS } from "./data/backendLessons.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3097,7 +3098,7 @@ const COURSES = [
     accent: d.accent,
   })),
   { id: "sql", title: "SQL", subtitle: "реальна SQLite у браузері — власна база даних", lessons: SQL_LESSONS, status: "available", accent: "rose" },
-  { id: "backend", title: "Backend", subtitle: "власний сервер + API", lessons: [], status: "planned", accent: "orange" },
+  { id: "backend", title: "Backend", subtitle: "маршрути, middleware й автентифікація — реально виконуються", lessons: BACKEND_LESSONS, status: "available", accent: "orange" },
   { id: "fullstack", title: "Full Stack", subtitle: "повноцінний власний продукт", lessons: [], status: "planned", accent: "stone" },
 ];
 
@@ -13580,9 +13581,10 @@ async function runSqlCheck(setupSql, code, testCode) {
   }
 }
 
-function buildJsSandboxDoc(code, testCode, domTemplate) {
+function buildJsSandboxDoc(code, testCode, domTemplate, harness) {
   const safeCode = code || "";
   const safeTest = testCode || "return {pass:true,message:''}";
+  const safeHarness = harness || "";
   return `<!DOCTYPE html><html><body>${domTemplate || '<div id="app"></div>'}<script>
 (async function(){
   const __logs = [];
@@ -13602,6 +13604,7 @@ function buildJsSandboxDoc(code, testCode, domTemplate) {
   };
   let testResult = { pass: false, message: 'Код ще не виконано.' };
   try {
+    ${safeHarness}
     ${safeCode}
     try {
       testResult = await (async function(){ ${safeTest} })();
@@ -13968,7 +13971,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     };
     listenerRef.current = handler;
     window.addEventListener("message", handler);
-    const doc = buildJsSandboxDoc(code, lesson.testCode, lesson.domTemplate);
+    const doc = buildJsSandboxDoc(code, lesson.testCode, lesson.domTemplate, lesson.harness);
     setPreviewDoc(doc);
   };
 
