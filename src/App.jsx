@@ -25,6 +25,7 @@ import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FR
 import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
 import { SQL_LESSONS } from "./data/sqlLessons.js";
 import { BACKEND_LESSONS } from "./data/backendLessons.js";
+import { FULLSTACK_LESSONS } from "./data/fullstackLessons.js";
 
 /* =========================================================================
    DATA LAYER
@@ -3099,7 +3100,7 @@ const COURSES = [
   })),
   { id: "sql", title: "SQL", subtitle: "реальна SQLite у браузері — власна база даних", lessons: SQL_LESSONS, status: "available", accent: "rose" },
   { id: "backend", title: "Backend", subtitle: "маршрути, middleware й автентифікація — реально виконуються", lessons: BACKEND_LESSONS, status: "available", accent: "orange" },
-  { id: "fullstack", title: "Full Stack", subtitle: "повноцінний власний продукт", lessons: [], status: "planned", accent: "stone" },
+  { id: "fullstack", title: "Full Stack", subtitle: "git, shell і розгортання — реально виконуються", lessons: FULLSTACK_LESSONS, status: "available", accent: "stone" },
 ];
 
 // Sidebar/Home show ONE "Python" entry (→ the hub), not all 16 sub-courses.
@@ -14056,6 +14057,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     else if (lesson.type === "ts") runTs(false);
     else if (lesson.type === "sql") runSql(false);
     else if (lesson.type === "css") runCss();
+    else if (lesson.type === "text") { /* no live preview for plain text/config files */ }
     else runHtml();
   };
 
@@ -14095,6 +14097,19 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       const r = firstFail ? { pass: false, message: firstFail } : { pass: true, message: "Кожне правило застосовується саме до того селектора, який ти вказала — так CSS і працює." };
       setResult(r);
       runCss();
+      if (r.pass) onComplete(lesson.id, code);
+      return;
+    }
+    if (lesson.type === "text") {
+      let firstFail = null;
+      for (const t of lesson.tests) {
+        if (!t.re.test(code)) {
+          firstFail = t.msg;
+          break;
+        }
+      }
+      const r = firstFail ? { pass: false, message: firstFail } : { pass: true, message: lesson.successMessage || "Файл відповідає всім вимогам." };
+      setResult(r);
       if (r.pass) onComplete(lesson.id, code);
       return;
     }
