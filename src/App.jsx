@@ -13376,14 +13376,15 @@ let __pyodidePromise = null;
 function loadPyodideOnce() {
   if (!__pyodidePromise) {
     __pyodidePromise = new Promise((resolve, reject) => {
+      const pyodideBase = import.meta.env.BASE_URL + "pyodide/";
       const script = document.createElement("script");
       script.type = "module";
       script.textContent =
-        'import { loadPyodide } from "/pyodide/pyodide.mjs"; window.__loadPyodideFn = loadPyodide; window.dispatchEvent(new Event("__pyodide-script-ready"));';
+        `import { loadPyodide } from "${pyodideBase}pyodide.mjs"; window.__loadPyodideFn = loadPyodide; window.dispatchEvent(new Event("__pyodide-script-ready"));`;
       window.addEventListener(
         "__pyodide-script-ready",
         () => {
-          window.__loadPyodideFn({ indexURL: "/pyodide/" }).then(resolve, reject);
+          window.__loadPyodideFn({ indexURL: pyodideBase }).then(resolve, reject);
         },
         { once: true }
       );
@@ -13439,7 +13440,7 @@ function loadTypeScriptOnce() {
     __tsPromise = new Promise((resolve, reject) => {
       if (window.ts) { resolve(window.ts); return; }
       const script = document.createElement("script");
-      script.src = "/typescript/typescript.js";
+      script.src = import.meta.env.BASE_URL + "typescript/typescript.js";
       script.onload = () => resolve(window.ts);
       script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл TypeScript."));
       document.head.appendChild(script);
@@ -13457,7 +13458,7 @@ function loadTypeScriptOnce() {
 let __tsLibFilesPromise = null;
 function loadTsLibFilesOnce() {
   if (!__tsLibFilesPromise) {
-    __tsLibFilesPromise = fetch("/typescript/lib-files.json")
+    __tsLibFilesPromise = fetch(import.meta.env.BASE_URL + "typescript/lib-files.json")
       .then((r) => r.json())
       .catch((err) => {
         __tsLibFilesPromise = null;
@@ -13536,12 +13537,12 @@ function loadSqlJsOnce() {
     __sqlJsPromise = new Promise((resolve, reject) => {
       if (window.initSqlJs) { resolve(window.initSqlJs); return; }
       const script = document.createElement("script");
-      script.src = "/sql/sql-wasm.js";
+      script.src = import.meta.env.BASE_URL + "sql/sql-wasm.js";
       script.onload = () => resolve(window.initSqlJs);
       script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл SQL.js."));
       document.head.appendChild(script);
     })
-      .then((initSqlJs) => initSqlJs({ locateFile: (f) => "/sql/" + f }))
+      .then((initSqlJs) => initSqlJs({ locateFile: (f) => import.meta.env.BASE_URL + "sql/" + f }))
       .catch((err) => {
         __sqlJsPromise = null;
         throw new Error("Не вдалося завантажити SQL-середовище (SQL.js): " + String(err.message || err));
