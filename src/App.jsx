@@ -23,6 +23,7 @@ import { PYTHON_DEVOPS_LESSONS } from "./data/pythonDevOps.js";
 import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
 import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
 import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
+import { REACT_LESSONS } from "./data/reactLessons.js";
 import { SQL_LESSONS } from "./data/sqlLessons.js";
 import { BACKEND_LESSONS } from "./data/backendLessons.js";
 import { FULLSTACK_LESSONS } from "./data/fullstackLessons.js";
@@ -3074,6 +3075,7 @@ const COURSES = [
   { id: "typescript", title: "TypeScript", subtitle: "JavaScript із реальною перевіркою типів", lessons: TYPESCRIPT_LESSONS, status: "available", accent: "emerald" },
   { id: "english", title: "English for IT", subtitle: "англійська для програмування", lessons: ENGLISH_LESSONS, status: "available", accent: "fuchsia" },
   { id: "frontend", title: "Frontend", subtitle: "HTML+CSS+JS разом — реальні компоненти для твого сайту", lessons: FRONTEND_LESSONS, status: "available", accent: "violet" },
+  { id: "react", title: "React", subtitle: "справжній React і JSX — компоненти, хуки, стан", lessons: REACT_LESSONS, status: "available", accent: "cyan" },
   ...PYTHON_DIRECTIONS.map((d) => ({
     id: d.id,
     title: `Python: ${d.title}`,
@@ -12700,6 +12702,13 @@ const TOOLS_BY_COURSE = {
     { name: "CodeSandbox", tag: "freemium", url: "https://codesandbox.io", note: "" },
     { name: "Vercel", tag: "freemium", url: "https://vercel.com", note: "безкоштовний деплой frontend-проєкту" },
   ],
+  react: [
+    { name: "Node.js (nodejs.org)", tag: "безкоштовно", url: "https://nodejs.org", note: "потрібен для npm/Vite" },
+    { name: "Vite (npm create vite@latest -- --template react)", tag: "безкоштовно", url: "https://vitejs.dev", note: "офіційний спосіб почати React-проєкт" },
+    { name: "StackBlitz", tag: "безкоштовно", url: "https://stackblitz.com", note: "React у браузері без інсталяції" },
+    { name: "React Developer Tools", tag: "безкоштовно", url: "https://react.dev/learn/react-developer-tools", note: "розширення для DevTools — бачиш дерево компонентів" },
+    { name: "react.dev", tag: "безкоштовно", url: "https://react.dev", note: "офіційна документація React" },
+  ],
   python: [
     { name: "python.org (локальна інсталяція)", tag: "безкоштовно", url: "https://www.python.org/downloads/", note: "офіційний інтерпретатор" },
     { name: "VS Code + розширення Python", tag: "безкоштовно", url: "https://code.visualstudio.com/", note: "" },
@@ -13583,6 +13592,56 @@ async function runSqlCheck(setupSql, code, testCode) {
   }
 }
 
+// Babel Standalone loaded lazily from a self-hosted static file — same
+// reasoning as Pyodide/TypeScript/SQL.js: no CDN access at runtime, and only
+// React lessons pay for it, once per session. It's used ONLY in the parent
+// window to transpile the learner's JSX into plain JS (React.createElement
+// calls); the resulting JS then runs inside the existing iframe sandbox via
+// buildJsSandboxDoc, exactly like the TypeScript course's emitted JS does.
+let __babelPromise = null;
+function loadBabelOnce() {
+  if (!__babelPromise) {
+    __babelPromise = new Promise((resolve, reject) => {
+      if (window.Babel) { resolve(window.Babel); return; }
+      const script = document.createElement("script");
+      script.src = import.meta.env.BASE_URL + "react/babel.min.js";
+      script.onload = () => resolve(window.Babel);
+      script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл Babel."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __babelPromise = null;
+      throw new Error("Не вдалося завантажити компілятор JSX (Babel): " + String(err.message || err));
+    });
+  }
+  return __babelPromise;
+}
+
+// React + ReactDOM aren't bundled into the app itself — lesson code is
+// arbitrary learner-written JSX, so it must run inside the same sandboxed
+// iframe as every other "js"-family lesson, not in the app's own React tree.
+// These <script> tags load the SAME self-hosted UMD builds as a classic
+// (non-module) script, exposing window.React / window.ReactDOM inside the
+// iframe, before the learner's compiled code runs.
+function reactDomTemplate(extraHtml) {
+  const base = import.meta.env.BASE_URL;
+  return `${extraHtml || '<div id="root"></div>'}
+<script src="${base}react/react.development.js"><\/script>
+<script src="${base}react/react-dom.development.js"><\/script>`;
+}
+
+// Transpiles JSX -> plain JS (React.createElement calls) via Babel's
+// "react" preset. Throws with a readable message on a JSX syntax error,
+// the same way runTypeScriptCheck surfaces a type error before ever
+// touching the iframe sandbox.
+async function runReactTranspile(code) {
+  const Babel = await loadBabelOnce();
+  try {
+    return Babel.transform(code, { presets: ["react"], filename: "input.jsx" }).code;
+  } catch (err) {
+    throw new Error("Помилка JSX: " + String(err.message || err));
+  }
+}
+
 function buildJsSandboxDoc(code, testCode, domTemplate, harness) {
   const safeCode = code || "";
   const safeTest = testCode || "return {pass:true,message:''}";
@@ -13632,6 +13691,7 @@ const ACCENT_MAP = {
   rose: { text: "text-rose-400", bg: "bg-rose-400", bgSoft: "bg-rose-950", border: "border-rose-800", ring: "ring-rose-400" },
   orange: { text: "text-orange-400", bg: "bg-orange-400", bgSoft: "bg-orange-950", border: "border-orange-800", ring: "ring-orange-400" },
   stone: { text: "text-stone-400", bg: "bg-stone-400", bgSoft: "bg-stone-800", border: "border-stone-700", ring: "ring-stone-400" },
+  cyan: { text: "text-cyan-400", bg: "bg-cyan-400", bgSoft: "bg-cyan-950", border: "border-cyan-800", ring: "ring-cyan-400" },
 };
 
 /* =========================================================================
@@ -13939,6 +13999,8 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const [sqlLoading, setSqlLoading] = useState(false);
   const [sqlError, setSqlError] = useState(null);
   const [sqlResult, setSqlResult] = useState(null);
+  const [reactLoading, setReactLoading] = useState(false);
+  const [reactError, setReactError] = useState(null);
   const iframeRef = useRef(null);
   const listenerRef = useRef(null);
 
@@ -13952,6 +14014,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setTsError(null);
     setSqlError(null);
     setSqlResult(null);
+    setReactError(null);
   }, [lesson.id]);
 
   useEffect(() => {
@@ -14044,6 +14107,35 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
   };
 
+  const runReact = async (checking) => {
+    setReactError(null);
+    setReactLoading(true);
+    try {
+      const emittedJs = await runReactTranspile(code);
+      if (listenerRef.current) window.removeEventListener("message", listenerRef.current);
+      const handler = (e) => {
+        if (!e.data || e.data.type !== "sandbox-result") return;
+        setConsoleLogs(e.data.logs || []);
+        if (checking) {
+          setResult(e.data.testResult);
+          if (e.data.testResult?.pass) onComplete(lesson.id, code);
+        }
+        window.removeEventListener("message", handler);
+      };
+      listenerRef.current = handler;
+      window.addEventListener("message", handler);
+      const doc = buildJsSandboxDoc(emittedJs, checking ? lesson.testCode : undefined, reactDomTemplate(lesson.domTemplate), lesson.harness);
+      setPreviewDoc(doc);
+    } catch (err) {
+      setConsoleLogs([]);
+      setPreviewDoc("");
+      if (checking) setResult({ pass: false, message: String(err.message || err) });
+      else setReactError(String(err.message || err));
+    } finally {
+      setReactLoading(false);
+    }
+  };
+
   const runHtml = () => {
     setPreviewDoc(`<!DOCTYPE html><html><body>${code}</body></html>`);
   };
@@ -14057,6 +14149,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     else if (lesson.type === "python") runPython(false);
     else if (lesson.type === "ts") runTs(false);
     else if (lesson.type === "sql") runSql(false);
+    else if (lesson.type === "react") runReact(false);
     else if (lesson.type === "css") runCss();
     else if (lesson.type === "text") { /* no live preview for plain text/config files */ }
     else runHtml();
@@ -14077,6 +14170,10 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     }
     if (lesson.type === "sql") {
       runSql(true);
+      return;
+    }
+    if (lesson.type === "react") {
+      runReact(true);
       return;
     }
     if (lesson.type === "html") {
@@ -14133,6 +14230,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setTsError(null);
     setSqlError(null);
     setSqlResult(null);
+    setReactError(null);
   };
 
   const idx = course.lessons.findIndex((l) => l.id === lesson.id);
@@ -14197,11 +14295,11 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
 
       <div className="flex flex-wrap gap-2 mt-3 mb-4">
         {lesson.type !== "vocab" && (
-          <button disabled={pyLoading || tsLoading || sqlLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
+          <button disabled={pyLoading || tsLoading || sqlLoading || reactLoading} onClick={handleRun} className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-100 rounded-md text-sm">
             <Play size={14} /> Запустити
           </button>
         )}
-        <button disabled={pyLoading || tsLoading || sqlLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
+        <button disabled={pyLoading || tsLoading || sqlLoading || reactLoading} onClick={handleCheck} className={`flex items-center gap-1.5 px-3 py-1.5 ${accent.bg} hover:opacity-90 disabled:opacity-50 text-stone-950 font-medium rounded-md text-sm`}>
           <CheckCircle2 size={14} /> Перевірити
         </button>
         <button onClick={handleReset} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 hover:bg-stone-900 text-stone-300 rounded-md text-sm">
@@ -14240,6 +14338,19 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
           <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
           <div className="text-sm text-rose-300 whitespace-pre-wrap font-mono">{tsError}</div>
+        </div>
+      )}
+
+      {lesson.type === "react" && reactLoading && (
+        <div className="mb-4 text-sm text-stone-400 flex items-center gap-2">
+          <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
+          Завантаження React і компілятора JSX (лише першого разу)…
+        </div>
+      )}
+      {lesson.type === "react" && reactError && (
+        <div className="mb-4 flex items-start gap-2 p-3 rounded-md border border-rose-800 bg-rose-950 bg-opacity-40">
+          <XCircle size={18} className="text-rose-400 shrink-0 mt-0.5" />
+          <div className="text-sm text-rose-300 whitespace-pre-wrap font-mono">{reactError}</div>
         </div>
       )}
 
@@ -14289,7 +14400,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
       )}
 
-      {(lesson.type === "js" || lesson.type === "ts") && consoleLogs.length > 0 && (
+      {(lesson.type === "js" || lesson.type === "ts" || lesson.type === "react") && consoleLogs.length > 0 && (
         <div className="mb-4">
           <div className="text-xs uppercase tracking-wide text-stone-500 mb-2 flex items-center gap-1.5"><Terminal size={12} /> Консоль</div>
           <div className="bg-stone-950 border border-stone-800 rounded-md p-3 font-mono text-sm text-emerald-400 space-y-1">
@@ -14305,6 +14416,12 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       )}
       {(lesson.type === "js" || lesson.type === "ts") && previewDoc && !lesson.domTemplate && (
         <iframe title="js-sandbox" srcDoc={previewDoc} sandbox="allow-scripts" className="hidden" />
+      )}
+      {lesson.type === "react" && previewDoc && (
+        <div className="mb-4">
+          <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">Сторінка</div>
+          <iframe title="react-preview" srcDoc={previewDoc} sandbox="allow-scripts" className="w-full h-64 bg-white rounded-md border border-stone-800" />
+        </div>
       )}
 
       {result && (
