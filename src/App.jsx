@@ -13924,8 +13924,9 @@ function loadEspeakOnce() {
 // Runs eSpeak-NG as a one-shot "CLI" call (this WASM build has no persistent
 // synthesis API — each call spins up a fresh instance, writes a .wav into
 // its in-memory virtual filesystem, and we read it back out as real audio
-// bytes) and returns a playable Blob.
-async function synthesizeSpeechWav(text) {
+// bytes) and returns a playable Blob. Used as the fallback voice — robotic,
+// but has no other moving parts and has never failed to load.
+async function synthesizeEspeakWav(text) {
   const ESpeakNG = await loadEspeakOnce();
   const outFile = "out.wav";
   const mod = await ESpeakNG({
@@ -13935,6 +13936,198 @@ async function synthesizeSpeechWav(text) {
   });
   const data = mod.FS.readFile(outFile);
   return new Blob([data], { type: "audio/wav" });
+}
+
+// Piper (a real neural voice, uk_UA-lada-x_low) — self-hosted at /piper/:
+// ONNX Runtime Web (the neural-net engine), the Piper phonemizer (text ->
+// IPA phonemes, itself eSpeak-ng under the hood), and the voice model
+// (obtained once from huggingface.co/diffusionstudio/piper-voices, MIT-
+// licensed, and checked into public/piper/models/ — this sandbox's network
+// policy blocks huggingface.co, so unlike every other self-hosted engine
+// here the model can't be re-fetched by scripts/bundle-piper.mjs). Both
+// ort.wasm.min.js and piper_phonemize.js are classic (non-module) scripts
+// that assign a global when loaded via a plain <script> tag, same pattern
+// as the TypeScript/SQL.js/React engines.
+let __ortPromise = null;
+function loadOnnxRuntimeOnce() {
+  if (!__ortPromise) {
+    __ortPromise = new Promise((resolve, reject) => {
+      if (window.ort) { resolve(window.ort); return; }
+      const script = document.createElement("script");
+      script.src = import.meta.env.BASE_URL + "piper/ort/ort.wasm.min.js";
+      script.onload = () => resolve(window.ort);
+      script.onerror = () => reject(new Error("Не вдалося завантажити рушій ONNX."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __ortPromise = null;
+      throw err instanceof Error ? err : new Error(String(err));
+    });
+  }
+  return __ortPromise;
+}
+
+let __piperPhonemizeCtorPromise = null;
+function loadPiperPhonemizeCtorOnce() {
+  if (!__piperPhonemizeCtorPromise) {
+    __piperPhonemizeCtorPromise = new Promise((resolve, reject) => {
+      if (window.createPiperPhonemize) { resolve(window.createPiperPhonemize); return; }
+      const script = document.createElement("script");
+      script.src = import.meta.env.BASE_URL + "piper/phonemize/piper_phonemize.js";
+      script.onload = () => resolve(window.createPiperPhonemize);
+      script.onerror = () => reject(new Error("Не вдалося завантажити фонемізатор."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __piperPhonemizeCtorPromise = null;
+      throw err instanceof Error ? err : new Error(String(err));
+    });
+  }
+  return __piperPhonemizeCtorPromise;
+}
+
+// The phonemizer is itself a one-shot "CLI" call, like eSpeak above. It
+// prints one JSON object per line of output; every line captured is
+// combined in case the tool ever splits long text into more than one line.
+async function phonemizeForPiper(text) {
+  const createPiperPhonemize = await loadPiperPhonemizeCtorOnce();
+  const base = import.meta.env.BASE_URL + "piper/phonemize/";
+  const input = JSON.stringify([{ text: text.trim() }]);
+  const lines = [];
+  const mod = await createPiperPhonemize({
+    print: (data) => { lines.push(data); },
+    printErr: (msg) => { throw new Error(msg); },
+    locateFile: (url) => {
+      if (url.endsWith(".wasm")) return base + "piper_phonemize.wasm";
+      if (url.endsWith(".data")) return base + "piper_phonemize.data";
+      return url;
+    },
+    noInitialRun: true,
+  });
+  mod.callMain(["-l", "uk", "--input", input, "--espeak_data", "/espeak-ng-data"]);
+  if (lines.length === 0) throw new Error("Фонемізатор не повернув результат.");
+  return lines.flatMap((line) => JSON.parse(line).phonemes);
+}
+
+let __piperModelPromise = null;
+function loadPiperModelOnce() {
+  if (!__piperModelPromise) {
+    const base = import.meta.env.BASE_URL + "piper/models/";
+    __piperModelPromise = Promise.all([
+      fetch(base + "uk_UA-lada-x_low.onnx").then((r) => r.arrayBuffer()),
+      fetch(base + "uk_UA-lada-x_low.onnx.json").then((r) => r.json()),
+    ])
+      .then(([modelBytes, config]) => ({ modelBytes, config }))
+      .catch((err) => {
+        __piperModelPromise = null;
+        throw new Error("Не вдалося завантажити голосову модель: " + String(err.message || err));
+      });
+  }
+  return __piperModelPromise;
+}
+
+let __piperSessionPromise = null;
+function loadPiperSessionOnce() {
+  if (!__piperSessionPromise) {
+    __piperSessionPromise = (async () => {
+      const ort = await loadOnnxRuntimeOnce();
+      const { modelBytes, config } = await loadPiperModelOnce();
+      ort.env.wasm.wasmPaths = import.meta.env.BASE_URL + "piper/ort/";
+      // GitHub Pages doesn't send the COOP/COEP headers SharedArrayBuffer
+      // needs, so multi-threaded WASM is off the table — single-threaded
+      // is slower but was verified to run this model in ~1.5s either way.
+      ort.env.wasm.numThreads = 1;
+      const session = await ort.InferenceSession.create(new Uint8Array(modelBytes), { executionProviders: ["wasm"] });
+      return { session, config, ort };
+    })().catch((err) => {
+      __piperSessionPromise = null;
+      throw err instanceof Error ? err : new Error(String(err));
+    });
+  }
+  return __piperSessionPromise;
+}
+
+// Piper's expected id sequence: BOS("^"), then pad("_") + id for every
+// phoneme, then pad("_") + EOS("$"). Phonemes the model's own map doesn't
+// cover (rare diacritics from a newer phonemizer than this particular
+// older/lighter model was trained with) are dropped rather than aborting
+// the whole synthesis — verified against real output: 3 dropped out of 265
+// for a two-sentence sample, with no audible gap.
+function phonemesToIds(phonemes, phonemeIdMap) {
+  const pad = phonemeIdMap["_"][0];
+  const ids = [phonemeIdMap["^"][0]];
+  for (const ph of phonemes) {
+    const mapped = phonemeIdMap[ph];
+    if (!mapped) continue;
+    ids.push(pad, mapped[0]);
+  }
+  ids.push(pad, phonemeIdMap["$"][0]);
+  return ids;
+}
+
+function pcmToWavBlob(pcm, sampleRate) {
+  const headerLength = 44;
+  const view = new DataView(new ArrayBuffer(pcm.length * 2 + headerLength));
+  view.setUint32(0, 0x46464952, true); // "RIFF"
+  view.setUint32(4, view.buffer.byteLength - 8, true);
+  view.setUint32(8, 0x45564157, true); // "WAVE"
+  view.setUint32(12, 0x20746d66, true); // "fmt "
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, 2 * sampleRate, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  view.setUint32(36, 0x61746164, true); // "data"
+  view.setUint32(40, 2 * pcm.length, true);
+  let p = headerLength;
+  for (let i = 0; i < pcm.length; i++) {
+    const v = pcm[i];
+    if (v >= 1) view.setInt16(p, 32767, true);
+    else if (v <= -1) view.setInt16(p, -32768, true);
+    else view.setInt16(p, (v * 32768) | 0, true);
+    p += 2;
+  }
+  return new Blob([view.buffer], { type: "audio/wav" });
+}
+
+// Neural inference is real compute, not just a download — a long lesson's
+// theory can take 30-60s to synthesize on single-threaded WASM (no
+// COOP/COEP on GitHub Pages means no SharedArrayBuffer, so no multi-thread
+// speedup). Caching the resulting audio by exact text means re-listening to
+// the SAME lesson (pause and resume, or leaving and coming back) is
+// instant instead of paying that cost again.
+const __piperAudioCache = new Map();
+
+async function synthesizePiperWav(text) {
+  const cached = __piperAudioCache.get(text);
+  if (cached) return cached;
+  const [{ session, config, ort }, phonemes] = await Promise.all([
+    loadPiperSessionOnce(),
+    phonemizeForPiper(text),
+  ]);
+  const ids = phonemesToIds(phonemes, config.phoneme_id_map);
+  const { noise_scale, length_scale, noise_w } = config.inference;
+  const feeds = {
+    input: new ort.Tensor("int64", BigInt64Array.from(ids.map(BigInt)), [1, ids.length]),
+    input_lengths: new ort.Tensor("int64", BigInt64Array.from([BigInt(ids.length)])),
+    scales: new ort.Tensor("float32", Float32Array.from([noise_scale, length_scale, noise_w])),
+  };
+  const results = await session.run(feeds);
+  const blob = pcmToWavBlob(results.output.data, config.audio.sample_rate);
+  __piperAudioCache.set(text, blob);
+  return blob;
+}
+
+// Tries the higher-quality neural voice first; if anything in that pipeline
+// fails (asset load, inference, a browser quirk), falls back to eSpeak so
+// "Прослухати" never simply breaks.
+async function synthesizeSpeechWav(text) {
+  try {
+    return await synthesizePiperWav(text);
+  } catch (err) {
+    console.warn("Piper TTS failed, falling back to eSpeak:", err);
+    return synthesizeEspeakWav(text);
+  }
 }
 
 // Reads lesson text aloud via the self-hosted eSpeak-NG engine above.
@@ -14023,7 +14216,7 @@ function SpeakButton({ text }) {
         {state === "loading" && (
           <div className="flex items-center gap-2 text-sm text-stone-400">
             <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
-            Готую озвучення…
+            Готую озвучення… (для довгого уроку може тривати до хвилини)
           </div>
         )}
         {(state === "playing" || state === "paused") && (
