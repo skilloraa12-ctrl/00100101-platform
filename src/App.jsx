@@ -13883,72 +13883,161 @@ function lessonSpeechText(lesson) {
   return [lesson.title, lesson.theory, lesson.task].filter(Boolean).join(". ");
 }
 
-// Reads lesson text aloud via the browser's built-in Web Speech API — no
-// external service, works offline once the OS has a Ukrainian voice
-// installed (most do). Self-contained: manages its own speaking/paused
-// state and cancels itself on unmount, so mounting a fresh instance per
+// eSpeak-NG compiled to WASM, self-hosted at /espeak/ — same reasoning as
+// Pyodide/TypeScript/SQL.js/React: the browser's own Web Speech API only
+// works if the learner's OS happens to have a Ukrainian voice installed,
+// which silently fails for a lot of real machines. Running a real speech
+// engine client-side via WASM works identically for every learner, with no
+// OS dependency, no network call at runtime, and no cost.
+// espeak-ng.js is an ES module (export default + import.meta.url), so it
+// can't be loaded as a classic <script> like the other self-hosted engines
+// — but a bare dynamic import() of a /public/ asset is refused by Vite's
+// OWN dev server ("this file is in /public ... should not be imported from
+// source code"), even with /* @vite-ignore */. Injecting a <script
+// type="module"> whose inline body does the import sidesteps Vite's dev
+// middleware entirely: the browser's native module loader fetches the URL
+// directly, exactly like it would any other static asset.
+let __espeakModulePromise = null;
+function loadEspeakOnce() {
+  if (!__espeakModulePromise) {
+    __espeakModulePromise = new Promise((resolve, reject) => {
+      const url = import.meta.env.BASE_URL + "espeak/espeak-ng.js";
+      const eventName = "espeak-ng-ready";
+      const onReady = () => {
+        window.removeEventListener(eventName, onReady);
+        resolve(window.__espeakNgCtor);
+      };
+      window.addEventListener(eventName, onReady);
+      const script = document.createElement("script");
+      script.type = "module";
+      script.textContent = `import ESpeakNG from ${JSON.stringify(url)}; window.__espeakNgCtor = ESpeakNG; window.dispatchEvent(new Event(${JSON.stringify(eventName)}));`;
+      script.onerror = () => reject(new Error("Не вдалося завантажити локальний файл озвучення (eSpeak)."));
+      document.head.appendChild(script);
+    }).catch((err) => {
+      __espeakModulePromise = null;
+      throw err instanceof Error ? err : new Error("Не вдалося завантажити локальний файл озвучення (eSpeak): " + String(err));
+    });
+  }
+  return __espeakModulePromise;
+}
+
+// Runs eSpeak-NG as a one-shot "CLI" call (this WASM build has no persistent
+// synthesis API — each call spins up a fresh instance, writes a .wav into
+// its in-memory virtual filesystem, and we read it back out as real audio
+// bytes) and returns a playable Blob.
+async function synthesizeSpeechWav(text) {
+  const ESpeakNG = await loadEspeakOnce();
+  const outFile = "out.wav";
+  const mod = await ESpeakNG({
+    arguments: ["-w", outFile, "-s", "155", "-v", "uk", text],
+    print: () => {},
+    printErr: () => {},
+  });
+  const data = mod.FS.readFile(outFile);
+  return new Blob([data], { type: "audio/wav" });
+}
+
+// Reads lesson text aloud via the self-hosted eSpeak-NG engine above.
+// Self-contained: owns its own audio element and cleans up (revokes the
+// blob URL, stops playback) on unmount, so mounting a fresh instance per
 // lesson (via `key`) is enough to stop any in-progress speech the moment
 // the learner navigates to a different lesson.
 function SpeakButton({ text }) {
-  const [speaking, setSpeaking] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const [state, setState] = useState("idle"); // idle | loading | playing | paused | error
+  const [errorMsg, setErrorMsg] = useState(null);
+  const audioRef = useRef(null);
+  const blobUrlRef = useRef(null);
+  const requestIdRef = useRef(0);
+
+  const cleanupAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+  };
 
   useEffect(() => {
     return () => {
-      if (supported) window.speechSynthesis.cancel();
+      requestIdRef.current += 1;
+      cleanupAudio();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!supported || !text) return null;
+  if (!text) return null;
 
-  const start = () => {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "uk-UA";
-    const voice = window.speechSynthesis.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith("uk"));
-    if (voice) utter.voice = voice;
-    utter.rate = 0.95;
-    utter.onend = () => { setSpeaking(false); setPaused(false); };
-    utter.onerror = () => { setSpeaking(false); setPaused(false); };
-    window.speechSynthesis.speak(utter);
-    setSpeaking(true);
-    setPaused(false);
+  const start = async () => {
+    const myId = ++requestIdRef.current;
+    setErrorMsg(null);
+    setState("loading");
+    try {
+      const blob = await synthesizeSpeechWav(text);
+      if (myId !== requestIdRef.current) return;
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { if (myId === requestIdRef.current) setState("idle"); };
+      audio.onerror = () => { if (myId === requestIdRef.current) { setErrorMsg("Не вдалося відтворити аудіо."); setState("error"); } };
+      await audio.play();
+      if (myId !== requestIdRef.current) return;
+      setState("playing");
+    } catch (err) {
+      if (myId !== requestIdRef.current) return;
+      setErrorMsg(String(err.message || err));
+      setState("error");
+    }
   };
 
   const togglePause = () => {
-    if (paused) {
-      window.speechSynthesis.resume();
-      setPaused(false);
-    } else {
-      window.speechSynthesis.pause();
-      setPaused(true);
+    if (!audioRef.current) return;
+    if (state === "playing") {
+      audioRef.current.pause();
+      setState("paused");
+    } else if (state === "paused") {
+      audioRef.current.play();
+      setState("playing");
     }
   };
 
   const stop = () => {
-    window.speechSynthesis.cancel();
-    setSpeaking(false);
-    setPaused(false);
+    requestIdRef.current += 1;
+    cleanupAudio();
+    setState("idle");
+    setErrorMsg(null);
   };
 
   return (
-    <div className="flex items-center gap-2 mb-4">
-      {!speaking ? (
-        <button onClick={start} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
-          <Volume2 size={14} /> Прослухати урок
-        </button>
-      ) : (
-        <>
-          <button onClick={togglePause} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
-            {paused ? <Play size={14} /> : <Pause size={14} />} {paused ? "Продовжити" : "Пауза"}
+    <div className="mb-4">
+      <div className="flex items-center gap-2">
+        {(state === "idle" || state === "error") && (
+          <button onClick={start} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+            <Volume2 size={14} /> Прослухати урок
           </button>
-          <button onClick={stop} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
-            <Square size={14} /> Зупинити
-          </button>
-        </>
-      )}
+        )}
+        {state === "loading" && (
+          <div className="flex items-center gap-2 text-sm text-stone-400">
+            <span className="w-3 h-3 border-2 border-stone-600 border-t-emerald-400 rounded-full animate-spin" />
+            Готую озвучення…
+          </div>
+        )}
+        {(state === "playing" || state === "paused") && (
+          <>
+            <button onClick={togglePause} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+              {state === "paused" ? <Play size={14} /> : <Pause size={14} />} {state === "paused" ? "Продовжити" : "Пауза"}
+            </button>
+            <button onClick={stop} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+              <Square size={14} /> Зупинити
+            </button>
+          </>
+        )}
+      </div>
+      {state === "error" && errorMsg && <div className="text-xs text-rose-400 mt-1.5">{errorMsg}</div>}
     </div>
   );
 }
