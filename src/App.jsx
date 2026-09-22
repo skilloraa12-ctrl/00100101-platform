@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from "rea
 import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
-  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw
+  ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw,
+  Volume2, Pause, Square
 } from "lucide-react";
 import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
 import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
@@ -13875,6 +13876,83 @@ function JargonText({ text }) {
   );
 }
 
+// Joins the lesson's title, theory and task into one block of plain text
+// for SpeakButton to read aloud — the same content a sighted learner reads
+// on screen, just spoken instead.
+function lessonSpeechText(lesson) {
+  return [lesson.title, lesson.theory, lesson.task].filter(Boolean).join(". ");
+}
+
+// Reads lesson text aloud via the browser's built-in Web Speech API — no
+// external service, works offline once the OS has a Ukrainian voice
+// installed (most do). Self-contained: manages its own speaking/paused
+// state and cancels itself on unmount, so mounting a fresh instance per
+// lesson (via `key`) is enough to stop any in-progress speech the moment
+// the learner navigates to a different lesson.
+function SpeakButton({ text }) {
+  const [speaking, setSpeaking] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+
+  useEffect(() => {
+    return () => {
+      if (supported) window.speechSynthesis.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!supported || !text) return null;
+
+  const start = () => {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "uk-UA";
+    const voice = window.speechSynthesis.getVoices().find((v) => v.lang && v.lang.toLowerCase().startsWith("uk"));
+    if (voice) utter.voice = voice;
+    utter.rate = 0.95;
+    utter.onend = () => { setSpeaking(false); setPaused(false); };
+    utter.onerror = () => { setSpeaking(false); setPaused(false); };
+    window.speechSynthesis.speak(utter);
+    setSpeaking(true);
+    setPaused(false);
+  };
+
+  const togglePause = () => {
+    if (paused) {
+      window.speechSynthesis.resume();
+      setPaused(false);
+    } else {
+      window.speechSynthesis.pause();
+      setPaused(true);
+    }
+  };
+
+  const stop = () => {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+    setPaused(false);
+  };
+
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      {!speaking ? (
+        <button onClick={start} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+          <Volume2 size={14} /> Прослухати урок
+        </button>
+      ) : (
+        <>
+          <button onClick={togglePause} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+            {paused ? <Play size={14} /> : <Pause size={14} />} {paused ? "Продовжити" : "Пауза"}
+          </button>
+          <button onClick={stop} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+            <Square size={14} /> Зупинити
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* =========================================================================
    EXAMPLES + PRESENTATION — deeper per-lesson study material
    ========================================================================= */
@@ -14254,6 +14332,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
           <span>{course.title}</span>
         </div>
         <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
+        <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
         <JargonText key={lesson.id} text={lesson.theory} />
         <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
         <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
@@ -14275,6 +14354,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         <span>Урок {idx + 1} з {course.lessons.length}</span>
       </div>
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
+      <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
 
       <JargonText key={lesson.id} text={lesson.theory} />
       <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
