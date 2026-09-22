@@ -24,6 +24,7 @@ import { PYTHON_FULLPROJECT_LESSONS } from "./data/pythonFullProject.js";
 import { FRONTEND_LESSONS, FRONTEND_MAIN_MILESTONES, FRONTEND_CSS_MILESTONES, FRONTEND_JS_MILESTONES } from "./data/frontendLessons.js";
 import { TYPESCRIPT_LESSONS } from "./data/typescriptLessons.js";
 import { REACT_LESSONS } from "./data/reactLessons.js";
+import { TESTING_LESSONS } from "./data/testingLessons.js";
 import { SQL_LESSONS } from "./data/sqlLessons.js";
 import { BACKEND_LESSONS } from "./data/backendLessons.js";
 import { FULLSTACK_LESSONS } from "./data/fullstackLessons.js";
@@ -3103,6 +3104,7 @@ const COURSES = [
   { id: "sql", title: "SQL", subtitle: "реальна SQLite у браузері — власна база даних", lessons: SQL_LESSONS, status: "available", accent: "rose" },
   { id: "backend", title: "Backend", subtitle: "маршрути, middleware й автентифікація — реально виконуються", lessons: BACKEND_LESSONS, status: "available", accent: "orange" },
   { id: "fullstack", title: "Full Stack", subtitle: "git, shell і розгортання — реально виконуються", lessons: FULLSTACK_LESSONS, status: "available", accent: "stone" },
+  { id: "testing", title: "Тестування", subtitle: "unit-тести — той самий синтаксис, що й у Jest/Vitest", lessons: TESTING_LESSONS, status: "available", accent: "lime" },
 ];
 
 // Sidebar/Home show ONE "Python" entry (→ the hub), not all 16 sub-courses.
@@ -12709,6 +12711,12 @@ const TOOLS_BY_COURSE = {
     { name: "React Developer Tools", tag: "безкоштовно", url: "https://react.dev/learn/react-developer-tools", note: "розширення для DevTools — бачиш дерево компонентів" },
     { name: "react.dev", tag: "безкоштовно", url: "https://react.dev", note: "офіційна документація React" },
   ],
+  testing: [
+    { name: "Vitest", tag: "безкоштовно", url: "https://vitest.dev", note: "сучасний тест-раннер, той самий синтаксис it/expect" },
+    { name: "Jest", tag: "безкоштовно", url: "https://jestjs.io", note: "найпоширеніший тест-раннер для JS/React" },
+    { name: "React Testing Library", tag: "безкоштовно", url: "https://testing-library.com/react", note: "зручніші помічники для тестування React-компонентів" },
+    { name: "Node.js (nodejs.org)", tag: "безкоштовно", url: "https://nodejs.org", note: "потрібен для запуску Vitest/Jest локально" },
+  ],
   python: [
     { name: "python.org (локальна інсталяція)", tag: "безкоштовно", url: "https://www.python.org/downloads/", note: "офіційний інтерпретатор" },
     { name: "VS Code + розширення Python", tag: "безкоштовно", url: "https://code.visualstudio.com/", note: "" },
@@ -13692,6 +13700,7 @@ const ACCENT_MAP = {
   orange: { text: "text-orange-400", bg: "bg-orange-400", bgSoft: "bg-orange-950", border: "border-orange-800", ring: "ring-orange-400" },
   stone: { text: "text-stone-400", bg: "bg-stone-400", bgSoft: "bg-stone-800", border: "border-stone-700", ring: "ring-stone-400" },
   cyan: { text: "text-cyan-400", bg: "bg-cyan-400", bgSoft: "bg-cyan-950", border: "border-cyan-800", ring: "ring-cyan-400" },
+  lime: { text: "text-lime-400", bg: "bg-lime-400", bgSoft: "bg-lime-950", border: "border-lime-800", ring: "ring-lime-400" },
 };
 
 /* =========================================================================
