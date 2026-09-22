@@ -14112,9 +14112,9 @@ async function synthesizePiperWav(text) {
   // random variation per phoneme (lower = steadier, clearer articulation
   // at some cost to natural-sounding expressiveness, the right trade for
   // a "listen to the lesson" reading rather than expressive narration).
-  const lengthScale = config.inference.length_scale * 1.6;
-  const noiseScale = config.inference.noise_scale * 0.75;
-  const noiseW = config.inference.noise_w * 0.75;
+  const lengthScale = config.inference.length_scale * 2.0;
+  const noiseScale = config.inference.noise_scale * 0.35;
+  const noiseW = config.inference.noise_w * 0.4;
   const feeds = {
     input: new ort.Tensor("int64", BigInt64Array.from(ids.map(BigInt)), [1, ids.length]),
     input_lengths: new ort.Tensor("int64", BigInt64Array.from([BigInt(ids.length)])),
