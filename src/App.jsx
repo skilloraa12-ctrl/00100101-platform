@@ -14106,11 +14106,19 @@ async function synthesizePiperWav(text) {
     phonemizeForPiper(text),
   ]);
   const ids = phonemesToIds(phonemes, config.phoneme_id_map);
-  const { noise_scale, length_scale, noise_w } = config.inference;
+  // The model's own defaults (length_scale 1, noise_scale 0.667) read fast
+  // and slightly slurred for continuous educational text — length_scale
+  // scales playback duration (higher = slower), noise_scale/noise_w add
+  // random variation per phoneme (lower = steadier, clearer articulation
+  // at some cost to natural-sounding expressiveness, the right trade for
+  // a "listen to the lesson" reading rather than expressive narration).
+  const lengthScale = config.inference.length_scale * 1.6;
+  const noiseScale = config.inference.noise_scale * 0.75;
+  const noiseW = config.inference.noise_w * 0.75;
   const feeds = {
     input: new ort.Tensor("int64", BigInt64Array.from(ids.map(BigInt)), [1, ids.length]),
     input_lengths: new ort.Tensor("int64", BigInt64Array.from([BigInt(ids.length)])),
-    scales: new ort.Tensor("float32", Float32Array.from([noise_scale, length_scale, noise_w])),
+    scales: new ort.Tensor("float32", Float32Array.from([noiseScale, lengthScale, noiseW])),
   };
   const results = await session.run(feeds);
   const blob = pcmToWavBlob(results.output.data, config.audio.sample_rate);
