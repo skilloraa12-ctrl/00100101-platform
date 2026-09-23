@@ -13847,11 +13847,137 @@ const HTML_TYPE_ATTR_DEFS = {
   hidden: "поле, приховане від користувача — але його значення все одно відправляється на сервер.",
 };
 
+// Short definitions for every common HTML tag, keyed by tag name — used by
+// the bare "<tagname>" CODE_TERMS entry below (no attributes inside, e.g.
+// <fieldset>, <table>, </table>, <input/>). Kept separate from HTML_TYPE_ATTR_DEFS
+// (which explains *values* of the type attribute, not tags themselves).
+const TAG_DEFS = {
+  html: "Корінь усього документа — усі інші теги вкладені всередину нього.",
+  head: "Службова частина документа: title, meta, link, script — те, що НЕ показується прямо на сторінці.",
+  body: "Усе, що користувач бачить на сторінці, лежить усередині body.",
+  title: "Назва сторінки — показується у вкладці браузера та в результатах пошуку.",
+  meta: "Метадані сторінки (кодування, опис для пошуковика) — сам по собі нічого не показує.",
+  link: "Підключає зовнішній файл до сторінки, найчастіше CSS-стилі.",
+  style: "Стилі CSS прямо всередині HTML-документа.",
+  script: "Підключає чи містить JavaScript-код.",
+  header: "Вступна частина сторінки чи секції — зазвичай лого, назва, навігація.",
+  nav: "Блок навігаційних посилань — головне меню, хлібні крихти, пагінація.",
+  main: "Унікальний основний вміст сторінки — лише один <main> на документ.",
+  footer: "Завершальна частина сторінки чи секції — авторські права, контакти.",
+  section: "Тематичний розділ сторінки, зазвичай зі своїм заголовком.",
+  article: "Самодостатній блок вмісту, що має сенс окремо від сторінки.",
+  aside: "Вміст, побічно пов'язаний з основним — сайдбар, реклама.",
+  p: "Блок звичайного текстового абзацу.",
+  span: "Універсальний рядковий контейнер без семантики, для стилізації частини тексту.",
+  div: "Універсальний блоковий контейнер без семантики, для групування й стилізації.",
+  a: "Гіперпосилання на іншу сторінку, файл чи розділ — адреса задається атрибутом href.",
+  img: "Вставляє зображення на сторінку, самозакривний тег.",
+  ul: "Список без нумерації, елементи позначені маркерами.",
+  ol: "Список з автоматичною нумерацією елементів.",
+  li: "Один елемент маркованого чи нумерованого списку.",
+  dl: "Список пар термін-визначення (dt/dd).",
+  dt: "Термін у списку визначень dl — слово чи фраза, яку далі пояснює dd.",
+  dd: "Опис/визначення попереднього терміна dt у списку dl.",
+  table: "Створює таблицю для табличних даних.",
+  caption: "Заголовок/підпис усієї таблиці, перший дочірній елемент table.",
+  thead: "Група рядків-заголовків таблиці (усередині — tr із th).",
+  tbody: "Група основних рядків з даними таблиці (усередині — tr із td).",
+  tfoot: "Підсумковий рядок таблиці, наприклад загальна сума.",
+  tr: "Один рядок таблиці (table row).",
+  th: "Заголовна комірка таблиці (table header) — жирний текст, по центру за замовчуванням.",
+  td: "Звичайна комірка таблиці з даними (table data).",
+  colgroup: "Групує колонки таблиці, щоб задати їм спільний стиль через col.",
+  col: "Стиль (наприклад, ширина) одного стовпця таблиці всередині colgroup.",
+  form: "Контейнер для елементів вводу, що відправляються на сервер.",
+  input: "Універсальне поле вводу, тип задається атрибутом type (текст, чекбокс, радіокнопка тощо).",
+  label: "Підпис до поля форми, клік по label фокусує чи вмикає пов'язане поле.",
+  textarea: "Багаторядкове текстове поле вводу.",
+  select: "Випадний список — кожен варіант оформлюється тегом option.",
+  option: "Один варіант вибору всередині select.",
+  optgroup: "Групує кілька option під спільною підписаною категорією всередині select.",
+  button: "Кнопка для відправки форми, скидання чи довільної дії.",
+  fieldset: "Візуально й логічно групує кілька полів форми в один блок з рамкою.",
+  legend: "Підпис (назва) групи полів fieldset.",
+  figure: "Групує самодостатній контент (зображення, діаграму) з підписом figcaption.",
+  figcaption: "Підпис до вмісту figure.",
+  video: "Вбудовує відеофайл із власними елементами керування.",
+  audio: "Вбудовує аудіофайл із власними елементами керування.",
+  source: "Альтернативне джерело файлу в picture/audio/video — браузер обирає підтримуваний формат.",
+  track: "Субтитри чи текстова доріжка для video/audio.",
+  iframe: "Вбудовує іншу веб-сторінку всередину поточної.",
+  embed: "Вбудовує зовнішній плагін-контент; застаріле, зазвичай замість нього iframe/video/audio.",
+  picture: "Дає браузеру кілька варіантів зображення (через source), щоб обрати найкращий під екран.",
+  canvas: "Область для малювання графіки через JavaScript.",
+  svg: "Векторна графіка, що описується прямо в HTML-коді.",
+  code: "Позначає фрагмент коду — зазвичай моноширинним шрифтом.",
+  pre: "Зберігає пробіли й переноси рядків так, як написано в коді — не «з'їдає» форматування.",
+  blockquote: "Довга цитата з іншого джерела, зазвичай окремим блоком з відступом.",
+  q: "Коротка цитата прямо всередині рядка тексту (браузер сам додає лапки).",
+  cite: "Назва джерела цитати чи твору — автора, книги, статті.",
+  abbr: "Скорочення чи абревіатура; атрибут title показує повний варіант при наведенні.",
+  strong: "Важливий текст — зазвичай жирний, і семантично «важливий» для скрінрідера.",
+  em: "Виділений наголосом текст — зазвичай курсив, семантично «з наголосом» для скрінрідера.",
+  mark: "Підсвічений (як маркером) текст.",
+  small: "Дрібний текст — приписки, застереження, дрібний шрифт.",
+  del: "Видалений текст — зазвичай закреслений.",
+  ins: "Вставлений текст — зазвичай підкреслений.",
+  sub: "Підрядковий текст (нижче рядка), наприклад хімічні формули.",
+  sup: "Надрядковий текст (вище рядка), наприклад ступені чи виноски.",
+  br: "Примусовий перенос рядка всередині тексту.",
+  hr: "Горизонтальна лінія — тематичний розділювач вмісту.",
+  address: "Контактна інформація автора чи власника сторінки/статті.",
+  time: "Дата чи час, зрозумілі як людині, так і машині (атрибут datetime).",
+  data: "Зв'язує видимий текст із машинним значенням (атрибут value).",
+  output: "Показує результат обчислення чи дії користувача у формі.",
+  progress: "Індикатор прогресу виконання завдання.",
+  meter: "Індикатор виміряного значення в межах відомого діапазону.",
+  details: "Розкривний блок контенту, що ховається/показується по кліку.",
+  summary: "Видимий заголовок блоку details, клік по якому розкриває/ховає решту.",
+  dialog: "Модальне чи немодальне діалогове вікно.",
+  template: "Вміст, який браузер не показує одразу — шаблон для клонування через JavaScript.",
+  wbr: "Підказує можливе місце переносу довгого слова.",
+  area: "Клікабельна зона всередині картинки-карти (разом із map).",
+  map: "Картинка-карта з клікабельними зонами area.",
+  base: "Базова адреса для всіх відносних посилань на сторінці; одна на сторінку, у head.",
+  noscript: "Вміст, який покажеться, лише якщо в браузера вимкнено JavaScript.",
+};
+for (let lvl = 1; lvl <= 6; lvl++) {
+  TAG_DEFS[`h${lvl}`] = `Заголовок рівня ${lvl} з шести (h1 — найважливіший, h6 — найменш важливий). На сторінці має бути лише один h1.`;
+}
+
+// Attribute names that also mean something unrelated in OTHER courses (id
+// in SQL, for/type/value in JS) — only lit up on HTML-course lessons
+// (htmlOnly flag) to avoid a wrong popup showing on, say, a SQL lesson.
+const HTML_BARE_ATTR_TERMS = [
+  { re: /\bfor\b(?!=)/i, def: () => "for (усередині <label>) — значення має ТОЧНО збігатися з id потрібного поля, щоб підпис і поле були зв'язані." },
+  { re: /\bid\b(?!=)/i, def: () => 'id — унікальний ідентифікатор саме цього елемента на сторінці (не повторюється в інших тегах). Завдяки id його може «знайти» <label for="...">, CSS чи JavaScript.' },
+  { re: /\bname\b(?!=)/i, def: () => "name — ім'я поля, яке йде на сервер разом із його значенням при відправці форми. У радіокнопок ОДНАКОВИЙ name об'єднує їх у групу." },
+  { re: /\btype\b(?!=)/i, def: () => "type визначає тип поля input (текст, чекбокс, радіокнопка, кнопка тощо). Значення пишеться в лапках після знака =." },
+  { re: /\bvalue\b(?!=)/i, def: () => "value — те значення, яке реально відправиться на сервер, якщо саме це поле вибрано чи заповнено." },
+  { re: /\bcolspan\b(?!=)/i, def: () => "colspan — об'єднує комірку із сусідніми по ГОРИЗОНТАЛІ (кілька колонок в одну)." },
+  { re: /\browspan\b(?!=)/i, def: () => "rowspan — об'єднує комірку із сусідніми по ВЕРТИКАЛІ (кілька рядків в одну)." },
+  { re: /\bplaceholder\b(?!=)/i, def: () => "placeholder — сіра підказка всередині порожнього поля, яка зникає, щойно користувач починає друкувати." },
+  { re: /\brequired\b(?!=)/i, def: () => "required — робить поле обов'язковим: форма не відправиться, поки воно порожнє." },
+  { re: /\bdisabled\b(?!=)/i, def: () => "disabled — вимикає поле чи кнопку: користувач не може з ним взаємодіяти, і його значення НЕ відправляється з формою." },
+  { re: /\breadonly\b(?!=)/i, def: () => "readonly — поле можна прочитати й скопіювати, але не можна редагувати (на відміну від disabled, значення readonly-поля все одно відправляється з формою)." },
+  { re: /\bmultiple\b(?!=)/i, def: () => 'multiple — дозволяє обрати кілька варіантів одразу (у select чи input type="file").' },
+  { re: /\bselected\b(?!=)/i, def: () => "selected — робить option обраним у select одразу при завантаженні сторінки." },
+  { re: /\bhref\b(?!=)/i, def: () => "href — адреса, куди веде посилання <a>." },
+  { re: /\bsrc\b(?!=)/i, def: () => "src — джерело (файл чи URL) зображення, скрипта, відео чи iframe." },
+  { re: /\balt\b(?!=)/i, def: () => "alt — текстовий опис зображення: читає скрінрідер і показує браузер, якщо картинка не завантажилась." },
+  { re: /\baction\b(?!=)/i, def: () => "action (у формі <form>) — адреса, куди відправляються дані форми." },
+  { re: /\bmethod\b(?!=)/i, def: () => "method (у формі <form>) — HTTP-метод відправки даних, зазвичай GET або POST." },
+  { re: /\btabindex\b(?!=)/i, def: () => "tabindex — визначає порядок переходу між елементами клавішею Tab." },
+  { re: /\bhidden\b(?!=)/i, def: () => "hidden — повністю ховає елемент зі сторінки (і візуально, і для скрінрідера)." },
+];
+
 // Inline "code fragment" glossary — the same idea as JARGON_TERMS, but for
 // literal HTML syntax (tags/attributes) that shows up verbatim inside theory
 // text, e.g. <label for="..."> or type="checkbox">. Matched structurally via
 // regex (splitCodeTerms), not by exact string, so it lights up automatically
 // in every lesson's theory wherever that syntax appears — no per-lesson work.
+// Always-active entries below only match unambiguous syntax (quotes, angle
+// brackets) — never a bare word — so they're safe across every course.
 const CODE_TERMS = [
   {
     re: /<label\s+for="[^"]*">/i,
@@ -13900,16 +14026,26 @@ const CODE_TERMS = [
     re: /\balt="[^"]*"/i,
     def: () => "alt — текстовий опис зображення: читає скрінрідер і показує браузер, якщо картинка не завантажилась.",
   },
+  {
+    // Bare "<tagname>" / "</tagname>" / "<tagname/>" with NO attributes
+    // inside — e.g. <fieldset>, <table>, </table>. Tags WITH attributes
+    // (like <label for="...">) are matched by more specific entries above,
+    // which win the tie-break in splitCodeTerms since they're listed first.
+    re: new RegExp(`<\\/?(${Object.keys(TAG_DEFS).join("|")})\\s*\\/?>`, "i"),
+    def: (tag) => `Тег <${(tag || "").toLowerCase()}> — ${TAG_DEFS[(tag || "").toLowerCase()] || "стандартний HTML-тег."}`,
+  },
 ];
 
-// Scans text left-to-right for the earliest/longest CODE_TERMS match at each
-// point, splitting it into plain-text and matched-code segments.
-function splitCodeTerms(text) {
+// Scans text left-to-right for the earliest/longest match (among CODE_TERMS,
+// plus HTML_BARE_ATTR_TERMS when htmlOnly) at each point, splitting it into
+// plain-text and matched-code segments.
+function splitCodeTerms(text, htmlOnly) {
+  const entries = htmlOnly ? CODE_TERMS.concat(HTML_BARE_ATTR_TERMS) : CODE_TERMS;
   const parts = [];
   let i = 0;
   while (i < text.length) {
     let bestIdx = -1, bestLen = 0, bestEntry = null, bestCapture, bestRaw = "";
-    for (const entry of CODE_TERMS) {
+    for (const entry of entries) {
       const re = new RegExp(entry.re.source, "gi");
       re.lastIndex = i;
       const m = re.exec(text);
@@ -13979,8 +14115,8 @@ function JargonTerm({ token, entry }) {
 // fragments are pulled out first (they can contain their own words like
 // "for" or "type" that shouldn't separately match JARGON_TERMS), then the
 // remaining plain-text stretches are tokenized for word-level jargon as before.
-function JargonParagraph({ text }) {
-  const codeParts = splitCodeTerms(text);
+function JargonParagraph({ text, htmlOnly }) {
+  const codeParts = splitCodeTerms(text, htmlOnly);
   return (
     <>
       {codeParts.map((part, pi) => {
@@ -14017,14 +14153,14 @@ function JargonParagraph({ text }) {
 
 // Splits theory text into paragraphs (on blank lines) and marks jargon words
 // in each, without needing to hand-annotate every lesson's theory string.
-function JargonText({ text }) {
+function JargonText({ text, htmlOnly }) {
   if (!text) return null;
   const paragraphs = text.split(/\n\n+/);
   return (
     <>
       {paragraphs.map((para, i) => (
         <p key={i} className="text-stone-300 leading-relaxed mb-3">
-          <JargonParagraph text={para} />
+          <JargonParagraph text={para} htmlOnly={htmlOnly} />
         </p>
       ))}
     </>
@@ -14778,7 +14914,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
         <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
         <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
-        <JargonText key={lesson.id} text={lesson.theory} />
+        <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
         <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
         <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
         <button
@@ -14801,7 +14937,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
       <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
 
-      <JargonText key={lesson.id} text={lesson.theory} />
+      <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
       <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
 
       <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
