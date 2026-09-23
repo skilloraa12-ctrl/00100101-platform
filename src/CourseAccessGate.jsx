@@ -13,6 +13,9 @@ function MagicLinkForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [codeBusy, setCodeBusy] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -40,13 +43,53 @@ function MagicLinkForm() {
     else setSent(true);
   };
 
+  // Fallback for when tapping the link itself doesn't work (e.g. on iOS,
+  // Mail/Safari sometimes "opens" the link in the background to generate a
+  // link preview before the person actually taps it - that background
+  // request consumes the one-time link, so the real tap lands on an
+  // already-used link and bounces back to the login form). The same email
+  // also carries a 6-digit code that isn't affected by link prefetching, so
+  // typing it in here works even when the link itself doesn't.
+  const submitCode = async (e) => {
+    e.preventDefault();
+    setCodeError("");
+    setCodeBusy(true);
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
+    setCodeBusy(false);
+    if (verifyError) setCodeError("Код невірний або протермінований. Спробуй ще раз або надішли новий лист.");
+  };
+
   if (sent) {
     return (
       <div className="max-w-md">
         <h1 className="text-2xl font-semibold text-stone-100 mb-3">Перевір пошту</h1>
-        <p className="text-sm text-stone-400">
-          Надіслали посилання для входу на <span className="text-stone-200">{email}</span>. Відкрий його з цього ж пристрою й браузера.
+        <p className="text-sm text-stone-400 mb-5">
+          Надіслали лист на <span className="text-stone-200">{email}</span>. Відкрий посилання з цього ж пристрою й браузера.
         </p>
+        <div className="bg-stone-900 border border-stone-800 rounded-lg p-5">
+          <p className="text-sm text-stone-400 mb-3">
+            Посилання не спрацювало (буває в Safari/Пошті на iPhone)? Введи 6-значний код з того самого листа:
+          </p>
+          <form onSubmit={submitCode} className="flex gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="123456"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="flex-1 min-w-0 px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
+            />
+            <button
+              type="submit"
+              disabled={codeBusy || !code.trim()}
+              className="px-4 py-2 bg-amber-500 hover:opacity-90 text-stone-950 font-medium rounded-md text-sm disabled:opacity-60 shrink-0"
+            >
+              {codeBusy ? "…" : "Увійти"}
+            </button>
+          </form>
+          {codeError && <p className="text-sm text-red-400 mt-3">{codeError}</p>}
+        </div>
       </div>
     );
   }

@@ -6,6 +6,7 @@ import {
   Volume2, Pause, Square
 } from "lucide-react";
 import CourseAccessGate, { ProfileBar } from "./CourseAccessGate.jsx";
+import { supabase, APP_ID } from "./lib/supabaseClient.js";
 import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
 import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
 import { PYTHON_OOP_LESSONS } from "./data/pythonOOP.js";
@@ -13382,6 +13383,22 @@ async function saveProgress(p) {
   }
 }
 
+// Union-merges two progress snapshots (e.g. this device's localStorage copy
+// and the copy last synced to Supabase from another device) so signing in
+// on a new device never loses lessons completed elsewhere - XP/unlocked
+// achievements are recomputed from the merged completed lists rather than
+// taken from either side, since xp is always exactly completed-count * 20.
+function mergeProgress(a, b) {
+  const completed = {};
+  for (const course of new Set([...Object.keys(a.completed || {}), ...Object.keys(b.completed || {})])) {
+    completed[course] = Array.from(new Set([...(a.completed?.[course] || []), ...(b.completed?.[course] || [])]));
+  }
+  const total = Object.values(completed).reduce((sum, arr) => sum + arr.length, 0);
+  const merged = { completed, xp: total * 20, unlocked: [] };
+  merged.unlocked = computeUnlocked(merged);
+  return merged;
+}
+
 function computeUnlocked(progress) {
   const total = Object.values(progress.completed).reduce((a, arr) => a + arr.length, 0);
   const unlocked = [];
@@ -16346,11 +16363,68 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const userIdRef = useRef(null);
+  const progressSaveTimer = useRef(null);
 
   useEffect(() => {
     loadProgress().then((p) => { setProgress(p); setLoaded(true); });
     loadProject().then((p) => setProject(p));
   }, []);
+
+  // Progress used to live only in this browser's localStorage, so it never
+  // followed a learner to another device/browser. When signed in, pull down
+  // whatever's already saved for this account and merge it with what's
+  // local here (union of completed lessons), then push the merged result
+  // back up - this also covers a device that had local progress from before
+  // this sync existed, by uploading it on its next visit.
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+
+    const syncRemote = async (session) => {
+      if (!session) { userIdRef.current = null; return; }
+      userIdRef.current = session.user.id;
+      const { data, error } = await supabase
+        .from("course_progress")
+        .select("data")
+        .eq("user_id", session.user.id)
+        .eq("app_id", APP_ID)
+        .maybeSingle();
+      if (!active) return;
+      setProgress((local) => {
+        const merged = error || !data?.data ? local : mergeProgress(local, data.data);
+        saveProgress(merged);
+        supabase
+          .from("course_progress")
+          .upsert({ user_id: session.user.id, app_id: APP_ID, data: merged, updated_at: new Date().toISOString() })
+          .then(({ error: upsertError }) => { if (upsertError) console.error("Не вдалося синхронізувати прогрес", upsertError); });
+        return merged;
+      });
+    };
+
+    supabase.auth.getSession().then(({ data }) => syncRemote(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => syncRemote(session));
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Any later change to progress (finishing a lesson) gets pushed to
+  // Supabase too, debounced, so other devices see it on their next sign-in.
+  useEffect(() => {
+    if (!supabase || !loaded || !userIdRef.current) return;
+    if (progressSaveTimer.current) clearTimeout(progressSaveTimer.current);
+    const userId = userIdRef.current;
+    progressSaveTimer.current = setTimeout(() => {
+      supabase
+        .from("course_progress")
+        .upsert({ user_id: userId, app_id: APP_ID, data: progress, updated_at: new Date().toISOString() })
+        .then(({ error }) => { if (error) console.error("Не вдалося синхронізувати прогрес", error); });
+    }, 600);
+    return () => clearTimeout(progressSaveTimer.current);
+  }, [progress, loaded]);
 
   const handleCreateProject = useCallback((theme, siteName) => {
     const base = { themeId: theme.id, siteName, navLinks: theme.navLinks, blocks: {}, css: "", js: "" };
@@ -16425,12 +16499,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex">
+      {/* Dims and closes the off-canvas sidebar on tap outside, mobile only */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
       {/* Sidebar nav */}
       <aside className={`w-60 shrink-0 border-r border-stone-800 p-4 flex-col gap-1 fixed md:sticky top-0 h-screen overflow-y-auto bg-stone-950 z-40 ${sidebarOpen ? "flex" : "hidden md:flex"}`}>
-        <button onClick={goHome} className="mb-6 flex items-center justify-between">
+        <div onClick={goHome} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && goHome()} className="mb-6 flex items-center justify-between cursor-pointer">
           <Logo />
-          <button className="md:hidden" onClick={() => setSidebarOpen(false)}><X size={18} className="text-stone-500" /></button>
-        </button>
+          <button className="md:hidden" onClick={(e) => { e.stopPropagation(); setSidebarOpen(false); }}><X size={18} className="text-stone-500" /></button>
+        </div>
         <NavButton icon={HomeIcon} label="Головна" active={view === "home"} onClick={goHome} />
         <div className="text-xs uppercase tracking-wide text-stone-600 mt-4 mb-1 px-3">Курси</div>
         {NAV_COURSES.map((c) => (
