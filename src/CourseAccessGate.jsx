@@ -94,6 +94,98 @@ function NoAccessNotice({ email }) {
   );
 }
 
+// Small account strip for the "Мій прогрес" page: shows the signed-in
+// person's name/email with a way to set the name and sign out. Reuses the
+// same `profiles` table Designlab already has on this shared Supabase
+// project (keyed by user_id) — a person's display name is just a courtesy,
+// not an access boundary, so sharing it across the two platforms is fine.
+// Renders nothing when Supabase isn't configured or nobody is signed in
+// (which is expected now, since signing in only happens via a course).
+export function ProfileBar() {
+  const [state, setState] = useState({ status: supabase ? "loading" : "none", email: null, name: "" });
+  const [editing, setEditing] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+
+    const evaluate = async (session) => {
+      if (!session) {
+        if (active) setState({ status: "signedOut", email: null, name: "" });
+        return;
+      }
+      const { data } = await supabase.from("profiles").select("full_name").eq("user_id", session.user.id).maybeSingle();
+      if (!active) return;
+      setState({ status: "signedIn", email: session.user.email, name: data?.full_name || "" });
+    };
+
+    supabase.auth.getSession().then(({ data }) => evaluate(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => evaluate(session));
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (!supabase || state.status !== "signedIn") return null;
+
+  const startEdit = () => {
+    setNameInput(state.name);
+    setEditing(true);
+  };
+
+  const saveName = async () => {
+    setSaving(true);
+    const { data } = await supabase.auth.getSession();
+    const userId = data.session?.user?.id;
+    if (userId) {
+      await supabase.from("profiles").upsert({ user_id: userId, full_name: nameInput.trim() });
+      setState((s) => ({ ...s, name: nameInput.trim() }));
+    }
+    setSaving(false);
+    setEditing(false);
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-3 bg-stone-900 border border-stone-800 rounded-md px-4 py-3 mb-6">
+      <div className="min-w-0">
+        <div className="text-sm text-stone-200 truncate">{state.name || "Без імені"}</div>
+        <div className="text-xs text-stone-500 truncate">{state.email}</div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {editing ? (
+          <>
+            <input
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              placeholder="Ваше ім'я"
+              autoFocus
+              className="px-2 py-1.5 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm w-36 focus:outline-none focus:border-amber-500"
+            />
+            <button
+              onClick={saveName}
+              disabled={saving}
+              className="px-3 py-1.5 bg-amber-500 hover:opacity-90 text-stone-950 rounded-md text-xs font-medium disabled:opacity-60"
+            >
+              {saving ? "…" : "Зберегти"}
+            </button>
+          </>
+        ) : (
+          <button onClick={startEdit} className="px-3 py-1.5 border border-stone-700 hover:bg-stone-800 text-stone-300 rounded-md text-xs">
+            {state.name ? "Змінити ім'я" : "Додати ім'я"}
+          </button>
+        )}
+        <button onClick={() => supabase.auth.signOut()} className="px-3 py-1.5 border border-stone-700 hover:bg-stone-800 text-stone-300 rounded-md text-xs">
+          Вийти
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Wraps just the COURSE-STUDY content (a lesson) with an access check. When
 // Supabase isn't configured (no env vars) it renders children unchanged, so
 // local dev on course content never needs a Supabase project.

@@ -5,7 +5,7 @@ import {
   ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw,
   Volume2, Pause, Square
 } from "lucide-react";
-import CourseAccessGate from "./CourseAccessGate.jsx";
+import CourseAccessGate, { ProfileBar } from "./CourseAccessGate.jsx";
 import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
 import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
 import { PYTHON_OOP_LESSONS } from "./data/pythonOOP.js";
@@ -16226,6 +16226,7 @@ function ProgressPage({ progress }) {
   const total = Object.values(progress.completed).reduce((a, arr) => a + arr.length, 0);
   return (
     <div className="max-w-2xl">
+      <ProfileBar />
       <h1 className="text-2xl font-semibold text-stone-100 mb-1 flex items-center gap-2"><Trophy size={22} className="text-amber-400" /> Мій прогрес</h1>
       <p className="text-stone-500 text-sm mb-6">{total} уроків завершено · {progress.xp} XP</p>
 
