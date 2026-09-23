@@ -3,7 +3,7 @@ import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
   ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw,
-  Volume2, Pause, Square
+  Volume2, Pause, Square, List
 } from "lucide-react";
 import CourseAccessGate, { ProfileBar } from "./CourseAccessGate.jsx";
 import { supabase, APP_ID } from "./lib/supabaseClient.js";
@@ -15281,6 +15281,8 @@ function WhereToPractice({ courseId }) {
    ========================================================================= */
 
 function CoursePage({ course, lessonId, progress, onComplete, onNav, project, onPickServer }) {
+  const [lessonPickerOpen, setLessonPickerOpen] = useState(false);
+
   if (course.status === "planned") {
     return (
       <div className="max-w-2xl">
@@ -15309,41 +15311,73 @@ function CoursePage({ course, lessonId, progress, onComplete, onNav, project, on
   const lesson = course.lessons.find((l) => l.id === lessonId) || course.lessons[0];
   const accent = ACCENT_MAP[course.accent];
 
+  const lessonListItems = (onItemClick) =>
+    course.lessons.map((l, i) => {
+      const isDone = done.has(l.id);
+      const isActive = l.id === lesson.id;
+      return (
+        <button
+          key={l.id}
+          onClick={() => { onNav(course.id, l.id); onItemClick?.(); }}
+          className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-md text-sm ${
+            isActive ? "bg-stone-800 text-stone-100" : "text-stone-400 hover:bg-stone-900 hover:text-stone-200"
+          }`}
+        >
+          {isDone ? <CheckCircle size={14} className="text-emerald-400 shrink-0" /> : <Circle size={14} className="text-stone-700 shrink-0" />}
+          <span className="truncate">{String(i + 1).padStart(2, "0")}. {l.title}</span>
+        </button>
+      );
+    });
+
   return (
-    <div className="flex gap-8">
-      <div className="w-56 shrink-0 hidden md:block">
-        <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">{course.title} · {done.size}/{course.lessons.length}</div>
-        <div className="w-full h-1.5 bg-stone-800 rounded-full mb-4 overflow-hidden">
-          <div className={`h-full ${accent.bg}`} style={{ width: `${(done.size / course.lessons.length) * 100}%` }} />
+    <div>
+      {/* The lesson list below is hidden on mobile (no room for a permanent
+          side panel), so this is the only way on a phone to jump to a
+          specific past lesson or see which ones are done - without it,
+          the only navigation is Попередній/Наступний one at a time. */}
+      <button
+        onClick={() => setLessonPickerOpen(true)}
+        className="md:hidden mb-4 flex items-center gap-2 px-3 py-2 border border-stone-800 rounded-md text-sm text-stone-300 hover:bg-stone-900"
+      >
+        <List size={14} /> Уроки · {done.size}/{course.lessons.length}
+      </button>
+
+      {lessonPickerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 md:hidden" onClick={() => setLessonPickerOpen(false)}>
+          <div
+            className="absolute inset-x-0 bottom-0 max-h-[80vh] bg-stone-950 border-t border-stone-800 rounded-t-xl p-4 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs uppercase tracking-wide text-stone-500">{course.title} · {done.size}/{course.lessons.length}</div>
+              <button onClick={() => setLessonPickerOpen(false)}><X size={18} className="text-stone-500" /></button>
+            </div>
+            <div className="w-full h-1.5 bg-stone-800 rounded-full mb-4 overflow-hidden">
+              <div className={`h-full ${accent.bg}`} style={{ width: `${(done.size / course.lessons.length) * 100}%` }} />
+            </div>
+            <div className="space-y-0.5">{lessonListItems(() => setLessonPickerOpen(false))}</div>
+          </div>
         </div>
-        <div className="space-y-0.5">
-          {course.lessons.map((l, i) => {
-            const isDone = done.has(l.id);
-            const isActive = l.id === lesson.id;
-            return (
-              <button
-                key={l.id}
-                onClick={() => onNav(course.id, l.id)}
-                className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-md text-sm ${
-                  isActive ? "bg-stone-800 text-stone-100" : "text-stone-400 hover:bg-stone-900 hover:text-stone-200"
-                }`}
-              >
-                {isDone ? <CheckCircle size={14} className="text-emerald-400 shrink-0" /> : <Circle size={14} className="text-stone-700 shrink-0" />}
-                <span className="truncate">{String(i + 1).padStart(2, "0")}. {l.title}</span>
-              </button>
-            );
-          })}
+      )}
+
+      <div className="flex gap-8">
+        <div className="w-56 shrink-0 hidden md:block">
+          <div className="text-xs uppercase tracking-wide text-stone-500 mb-2">{course.title} · {done.size}/{course.lessons.length}</div>
+          <div className="w-full h-1.5 bg-stone-800 rounded-full mb-4 overflow-hidden">
+            <div className={`h-full ${accent.bg}`} style={{ width: `${(done.size / course.lessons.length) * 100}%` }} />
+          </div>
+          <div className="space-y-0.5">{lessonListItems()}</div>
         </div>
+        <LessonView
+          course={course}
+          lesson={lesson}
+          isDone={done.has(lesson.id)}
+          onComplete={onComplete}
+          onNav={onNav}
+          project={project}
+          onPickServer={onPickServer}
+        />
       </div>
-      <LessonView
-        course={course}
-        lesson={lesson}
-        isDone={done.has(lesson.id)}
-        onComplete={onComplete}
-        onNav={onNav}
-        project={project}
-        onPickServer={onPickServer}
-      />
     </div>
   );
 }
@@ -16484,8 +16518,14 @@ export default function App() {
   const goHome = () => setView("home");
   const goCourse = (cId, lId) => {
     const c = COURSES.find((x) => x.id === cId);
+    // Without an explicit lId (e.g. clicking the course in the sidebar),
+    // resume at the first not-yet-completed lesson instead of always
+    // restarting from lesson 1 - otherwise reopening a course you're 27
+    // lessons into means clicking "Наступний" 27 times to get back.
+    const done = new Set(progress.completed[cId] || []);
+    const resumeLesson = c?.lessons.find((l) => !done.has(l.id));
     setCourseId(cId);
-    setLessonId(lId || c.lessons[0]?.id);
+    setLessonId(lId || resumeLesson?.id || c?.lessons[0]?.id);
     setView("course");
     setSidebarOpen(false);
   };
