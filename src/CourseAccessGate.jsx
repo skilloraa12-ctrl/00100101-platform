@@ -62,7 +62,19 @@ function MagicLinkForm() {
     e.preventDefault();
     setCodeError("");
     setCodeBusy(true);
-    const { error: verifyError } = await supabase.auth.verifyOtp({ email: codeEmail, token: code.trim(), type: "email" });
+    const trimmed = code.trim();
+    // The email template carries BOTH a link and this code, and Supabase
+    // records the underlying token as type "magiclink" whenever the
+    // template includes {{ .ConfirmationURL }} (regardless of {{ .Token }}
+    // also being present) - "email" is the SDK's recommended type for OTP
+    // verification generally, but doesn't match that stored type, so it's
+    // tried first and "magiclink" is the fallback rather than the other way
+    // around, in case a future template change ever makes "email" the
+    // correct one again.
+    let { error: verifyError } = await supabase.auth.verifyOtp({ email: codeEmail, token: trimmed, type: "email" });
+    if (verifyError) {
+      ({ error: verifyError } = await supabase.auth.verifyOtp({ email: codeEmail, token: trimmed, type: "magiclink" }));
+    }
     setCodeBusy(false);
     if (verifyError) setCodeError("Код невірний або протермінований. Спробуй ще раз або надішли новий лист.");
   };
