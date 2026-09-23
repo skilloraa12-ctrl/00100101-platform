@@ -18,12 +18,25 @@ function MagicLinkForm() {
     e.preventDefault();
     setError("");
     setBusy(true);
+    // Checked BEFORE requesting the magic link: without this, anyone who
+    // exists in auth.users (e.g. invited on a different platform sharing
+    // this Supabase project) would still receive a sign-in email for THIS
+    // app, even with zero course_access grant here.
+    const { data: allowed, error: rpcError } = await supabase.rpc("has_course_access", {
+      check_email: email,
+      check_app_id: APP_ID,
+    });
+    if (rpcError || !allowed) {
+      setBusy(false);
+      setError("Доступу немає. Зверніться до адміністратора.");
+      return;
+    }
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: window.location.href, shouldCreateUser: false },
     });
     setBusy(false);
-    if (otpError) setError("Цей email ще не запрошено на курс. Зверніться до адміністратора.");
+    if (otpError) setError("Доступу немає. Зверніться до адміністратора.");
     else setSent(true);
   };
 
@@ -68,9 +81,9 @@ function MagicLinkForm() {
 function NoAccessNotice({ email }) {
   return (
     <div className="max-w-md">
-      <h1 className="text-2xl font-semibold text-stone-100 mb-3">Доступ ще не надано</h1>
+      <h1 className="text-2xl font-semibold text-stone-100 mb-3">Доступу немає</h1>
       <p className="text-sm text-stone-400 mb-1">{email}</p>
-      <p className="text-sm text-stone-500 mb-5">Цей акаунт існує, але ще не має доступу саме до цього курсу. Зверніться до адміністратора.</p>
+      <p className="text-sm text-stone-500 mb-5">Зверніться до адміністратора.</p>
       <button
         onClick={() => supabase.auth.signOut()}
         className="px-4 py-2 border border-stone-700 hover:bg-stone-800 text-stone-300 rounded-md text-sm"
