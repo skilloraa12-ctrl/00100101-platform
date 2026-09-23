@@ -13,6 +13,8 @@ function MagicLinkForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showCodeForm, setShowCodeForm] = useState(false);
+  const [codeEmail, setCodeEmail] = useState("");
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [codeBusy, setCodeBusy] = useState(false);
@@ -50,73 +52,99 @@ function MagicLinkForm() {
   // already-used link and bounces back to the login form). The same email
   // also carries a 6-digit code that isn't affected by link prefetching, so
   // typing it in here works even when the link itself doesn't.
+  //
+  // This form is intentionally NOT gated behind "just sent a link in this
+  // page load" (sent === true) - if the link bounced the person back to
+  // this page, or they reopened the site later, that in-memory state is
+  // already gone even though the code from the email is still valid, so
+  // there'd otherwise be nowhere left to type it in.
   const submitCode = async (e) => {
     e.preventDefault();
     setCodeError("");
     setCodeBusy(true);
-    const { error: verifyError } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email: codeEmail, token: code.trim(), type: "email" });
     setCodeBusy(false);
     if (verifyError) setCodeError("Код невірний або протермінований. Спробуй ще раз або надішли новий лист.");
   };
 
-  if (sent) {
-    return (
-      <div className="max-w-md">
-        <h1 className="text-2xl font-semibold text-stone-100 mb-3">Перевір пошту</h1>
-        <p className="text-sm text-stone-400 mb-5">
-          Надіслали лист на <span className="text-stone-200">{email}</span>. Відкрий посилання з цього ж пристрою й браузера.
-        </p>
-        <div className="bg-stone-900 border border-stone-800 rounded-lg p-5">
-          <p className="text-sm text-stone-400 mb-3">
-            Посилання не спрацювало (буває в Safari/Пошті на iPhone)? Введи 6-значний код з того самого листа:
-          </p>
-          <form onSubmit={submitCode} className="flex gap-2">
-            <input
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              placeholder="123456"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="flex-1 min-w-0 px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
-            />
-            <button
-              type="submit"
-              disabled={codeBusy || !code.trim()}
-              className="px-4 py-2 bg-amber-500 hover:opacity-90 text-stone-950 font-medium rounded-md text-sm disabled:opacity-60 shrink-0"
-            >
-              {codeBusy ? "…" : "Увійти"}
-            </button>
-          </form>
-          {codeError && <p className="text-sm text-red-400 mt-3">{codeError}</p>}
-        </div>
-      </div>
-    );
-  }
+  const openCodeForm = () => {
+    if (!codeEmail) setCodeEmail(email);
+    setShowCodeForm(true);
+  };
 
   return (
     <div className="max-w-md">
       <h1 className="text-2xl font-semibold text-stone-100 mb-3">Увійти</h1>
-      <p className="text-sm text-stone-400 mb-5">Вхід без пароля: введи пошту, ми надішлемо посилання для входу.</p>
-      <form onSubmit={submit} className="bg-stone-900 border border-stone-800 rounded-lg p-5">
-        <input
-          type="email"
-          required
-          autoFocus
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-3 px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
-        />
-        {error && <p className="text-sm text-red-400 mb-3">{error}</p>}
-        <button
-          type="submit"
-          disabled={busy}
-          className="px-4 py-2.5 bg-amber-500 hover:opacity-90 text-stone-950 font-medium rounded-md text-sm disabled:opacity-60"
-        >
-          {busy ? "Надсилаємо…" : "Надіслати посилання"}
+      {sent ? (
+        <p className="text-sm text-stone-400 mb-5">
+          Надіслали лист на <span className="text-stone-200">{email}</span>. Відкрий посилання з цього ж пристрою й браузера.
+        </p>
+      ) : (
+        <p className="text-sm text-stone-400 mb-5">Вхід без пароля: введи пошту, ми надішлемо посилання для входу.</p>
+      )}
+
+      {!sent && (
+        <form onSubmit={submit} className="bg-stone-900 border border-stone-800 rounded-lg p-5">
+          <input
+            type="email"
+            required
+            autoFocus
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full mb-3 px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
+          />
+          {error && <p className="text-sm text-red-400 mb-3">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy}
+            className="px-4 py-2.5 bg-amber-500 hover:opacity-90 text-stone-950 font-medium rounded-md text-sm disabled:opacity-60"
+          >
+            {busy ? "Надсилаємо…" : "Надіслати посилання"}
+          </button>
+        </form>
+      )}
+
+      {!showCodeForm ? (
+        <button onClick={openCodeForm} className="mt-4 text-sm text-stone-400 hover:text-amber-400 underline underline-offset-2">
+          Вже отримав(-ла) код з листа? Ввести його
         </button>
-      </form>
+      ) : (
+        <div className="mt-4 bg-stone-900 border border-stone-800 rounded-lg p-5">
+          <p className="text-sm text-stone-400 mb-3">
+            Посилання не спрацювало (буває в Safari/Пошті на iPhone)? Введи пошту й 6-значний код з листа:
+          </p>
+          <form onSubmit={submitCode} className="space-y-2">
+            <input
+              type="email"
+              required
+              placeholder="Email"
+              value={codeEmail}
+              onChange={(e) => setCodeEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
+            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="123456"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="flex-1 min-w-0 px-3 py-2 bg-stone-950 border border-stone-700 rounded-md text-stone-100 text-sm focus:outline-none focus:border-amber-500"
+              />
+              <button
+                type="submit"
+                disabled={codeBusy || !code.trim() || !codeEmail.trim()}
+                className="px-4 py-2 bg-amber-500 hover:opacity-90 text-stone-950 font-medium rounded-md text-sm disabled:opacity-60 shrink-0"
+              >
+                {codeBusy ? "…" : "Увійти"}
+              </button>
+            </div>
+          </form>
+          {codeError && <p className="text-sm text-red-400 mt-3">{codeError}</p>}
+        </div>
+      )}
     </div>
   );
 }
