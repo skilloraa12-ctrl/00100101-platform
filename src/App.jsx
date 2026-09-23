@@ -16391,8 +16391,13 @@ export default function App() {
         .eq("app_id", APP_ID)
         .maybeSingle();
       if (!active) return;
+      // A failed fetch must never be treated as "no remote progress yet" -
+      // doing so would let the upsert below overwrite real cloud data with
+      // whatever's only local on this device (e.g. nothing, on a fresh
+      // device). Only proceed once the fetch is known to have succeeded.
+      if (error) { console.error("Не вдалося завантажити прогрес", error); return; }
       setProgress((local) => {
-        const merged = error || !data?.data ? local : mergeProgress(local, data.data);
+        const merged = data?.data ? mergeProgress(local, data.data) : local;
         saveProgress(merged);
         supabase
           .from("course_progress")
