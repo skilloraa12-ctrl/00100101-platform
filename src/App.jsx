@@ -4477,6 +4477,37 @@ const TERM_PAGES_V2 = {
     ],
     related: ["input", "button", "label", "JS події"],
   },
+  input: {
+    badge: "HTML",
+    title: "<input>",
+    whatIsIt: 'Універсальний елемент поля вводу — його поведінка повністю залежить від атрибута type (text, password, checkbox, radio, file тощо). Без type поводиться як type="text" за замовчуванням.',
+    useCases: ["будь-яке поле вводу в формі", "базовий елемент для всіх типів (text, email, checkbox...)", "передача даних форми на сервер за атрибутом name"],
+    syntax: `<input type="text" name="username" value="">`,
+    attributes: [
+      { name: "type", desc: "визначає вид поля: text, password, checkbox, radio, file, number..." },
+      { name: "name", desc: "ключ, під яким значення потрапить у дані форми" },
+      { name: "value", desc: "поточне/початкове значення поля" },
+      { name: "required", desc: "поле обов'язкове для заповнення" },
+      { name: "disabled", desc: "блокує поле — воно не відправляється разом з формою" },
+    ],
+    example: `<form id="f">
+  <input type="text" name="username" placeholder="Логін">
+  <button type="submit">OK</button>
+</form>
+<p id="out"></p>
+<script>
+  document.getElementById('f').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    document.getElementById('out').textContent = "username = " + data.get('username');
+  });
+<\/script>`,
+    pitfalls: [
+      "Немає атрибута name — значення поля просто не потрапить у дані форми при відправці.",
+      "input — void-елемент (без закриваючого тега): <input></input> вважається помилкою розмітки.",
+    ],
+    related: ["text", "checkbox", "radio", "form"],
+  },
   text: {
     badge: "HTML",
     title: '<input type="text">',
@@ -4694,6 +4725,34 @@ const TERM_PAGES_V2 = {
       "select виглядає майже неможливо стилізувати повністю через CSS — для складного дизайну часто роблять кастомний випадний список на div.",
     ],
     related: ["option", "label", "form"],
+  },
+  option: {
+    badge: "HTML",
+    title: "<option>",
+    whatIsIt: "Один варіант вибору всередині <select> (або <datalist>). Текст між тегами — те, що бачить користувач; атрибут value — те, що реально відправляється у формі при виборі цього варіанту.",
+    useCases: ["варіант у випадному списку select", "підказка у datalist", "варіант у групі optgroup"],
+    syntax: `<option value="kyiv">Київ</option>`,
+    attributes: [
+      { name: "value", desc: "значення, яке відправляється при виборі цього варіанту" },
+      { name: "selected", desc: "варіант обраний за замовчуванням" },
+      { name: "disabled", desc: "варіант показано, але вибрати його не можна" },
+    ],
+    example: `<select id="city">
+  <option value="" selected disabled>Обери місто</option>
+  <option value="kyiv">Київ</option>
+  <option value="lviv">Львів</option>
+</select>
+<p id="out"></p>
+<script>
+  document.getElementById('city').onchange = (e) => {
+    document.getElementById('out').textContent = "Обрано: " + e.target.value;
+  };
+<\/script>`,
+    pitfalls: [
+      "Забутий value — відправиться текст усередині option, а не очікуване службове значення.",
+      "Кілька option із selected одразу — реально застосується лише останній, це джерело плутанини.",
+    ],
+    related: ["select", "optgroup", "form"],
   },
   textarea: {
     badge: "HTML",
