@@ -5,6 +5,7 @@ import {
   ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw,
   Volume2, Pause, Square
 } from "lucide-react";
+import CourseAccessGate from "./CourseAccessGate.jsx";
 import { ENGLISH_LESSONS } from "./data/englishForIT/index.js";
 import { PYTHON_CORE_LESSONS } from "./data/pythonCore.js";
 import { PYTHON_OOP_LESSONS } from "./data/pythonOOP.js";
@@ -16462,7 +16463,11 @@ export default function App() {
         <main className="flex-1 p-4 md:p-8">
           {view === "home" && <Home progress={progress} onGo={(id) => (id === "english" || id === "ukrainian" ? goPage(id) : id === "python" ? goPage("pythonhub") : goCourse(id))} />}
           {view === "pythonhub" && <PythonHubPage progress={progress} onGo={goCourse} />}
-          {view === "course" && <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} project={project} onPickServer={handlePickServer} />}
+          {view === "course" && (
+            <CourseAccessGate>
+              <CoursePage course={course} lessonId={lessonId} progress={progress} onComplete={handleComplete} onNav={goCourse} project={project} onPickServer={handlePickServer} />
+            </CourseAccessGate>
+          )}
           {view === "myproject" && (project.themeId
             ? <MyProjectPage project={project} progress={progress} onReset={handleResetProject} onGoLesson={(cId, lId) => goCourse(cId, lId)} />
             : <ProjectSetup onCreate={handleCreateProject} />)}
