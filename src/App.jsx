@@ -942,7 +942,7 @@ const HTML_LESSONS = [
     id: "html-28",
     title: "Радіокнопки і чекбокси",
     theory:
-      "Радіокнопки (type=\"radio\") з ОДНАКОВИМ атрибутом name утворюють групу — можна вибрати лише ОДНУ з них. Чекбокси (type=\"checkbox\") незалежні одна від одної — можна відмітити будь-яку кількість. Обом типам потрібен унікальний id, пов'язаний з <label for=\"...\"> — саме так клік по тексту підпису теж вмикає поле.\n\nСаме name — і ЛИШЕ name — зв'язує радіокнопки в групу. Їхнє розташування в коді (сусідні теги чи розкидані по різних частинах форми) не має жодного значення для браузера; має значення лише однаковий текст у name. Це часто плутає новачків: id обов'язково РІЗНИЙ для кожної кнопки (інакше зламається зв'язок з label), а name — навпаки, ОДНАКОВИЙ для всієї групи.\n\nvalue кожної радіокнопки — це те значення, яке реально піде на сервер, якщо саме цю кнопку обрано. Якщо не вказати value, за замовчуванням надсилається слово \"on\" — тому в реальних формах value майже завжди пишуть явно.\n\nКоли фокус стоїть на одній радіокнопці з групи, стрілки клавіатури (вгору/вниз чи вліво/вправо) переключають вибір на сусідні кнопки ТІЄЇ Ж групи автоматично — це вбудована поведінка браузера, яка працює лише завдяки правильному спільному name, без жодного JavaScript.",
+      "Радіокнопки (type=\"radio\") з ОДНАКОВИМ атрибутом name утворюють групу — можна вибрати лише ОДНУ з них. Чекбокси (type=\"checkbox\") незалежні одна від одної — можна відмітити будь-яку кількість. Обом типам потрібен унікальний id, пов'язаний з <label for=\"...\"> — саме так клік по тексту підпису теж вмикає поле.\n\nСаме name — і ЛИШЕ name — зв'язує радіокнопки в групу. Їхнє розташування в коді (сусідні теги чи розкидані по різних частинах форми) не має жодного значення для браузера; має значення лише однаковий текст у name. Це часто плутає новачків: id обов'язково РІЗНИЙ для кожної кнопки (інакше зламається зв'язок з label), а name — навпаки, ОДНАКОВИЙ для всієї групи.\n\nvalue кожної радіокнопки — це те значення, яке реально піде на сервер, якщо саме цю кнопку обрано. Якщо не вказати value, за замовчуванням надсилається слово \"on\" — тому в реальних формах value майже завжди пишуть явно.\n\nЩе одна корисна деталь — керування клавіатурою. Коли фокус (клавіатурний курсор) стоїть саме на одній із радіокнопок групи — наприклад, користувач щойно клікнув на неї чи перейшов туди клавішею Tab, — далі можна перемикати вибір стрілками, без миші. Стрілка вниз чи вправо вмикає НАСТУПНУ радіокнопку тієї самої групи (з тим самим name) і одразу вимикає попередню; стрілка вгору чи вліво — навпаки, вмикає попередню. Це відбувається повністю автоматично, без жодного рядка JavaScript: браузер сам «розуміє», які радіокнопки в одній групі, бо бачить у них спільний name.\n\nУ чекбоксів такої поведінки НЕМАЄ. Кожен чекбокс — окрема незалежна кнопка, стрілки на нього не діють. Увімкнути чи вимкнути чекбокс із клавіатури можна лише клавішею Пробіл (Space), коли фокус стоїть саме на ньому.",
     examples: [
       { title: "Радіокнопка з label", code: `<input type="radio" id="basic" name="plan" value="basic">\n<label for="basic">Базовий</label>`, explain: "Клік по слову «Базовий» теж вибере цю радіокнопку завдяки for/id." },
       { title: "Група з трьох радіокнопок", code: `<input type="radio" id="s" name="size" value="s"><label for="s">S</label>\n<input type="radio" id="m" name="size" value="m"><label for="m">M</label>\n<input type="radio" id="l" name="size" value="l"><label for="l">L</label>`, explain: "Однаковий name=\"size\" робить усі три взаємовиключними — обрати можна лише одну." },
@@ -13827,6 +13827,132 @@ const JARGON_TERMS = [
   { stem: "хлібн", label: "хлібні крихти", def: "Breadcrumbs — рядок навігації вгорі сторінки, що показує шлях від головної сторінки до поточної: «Головна / Електроніка / Ноутбуки». Кожна частина — окреме клікабельне посилання назад на той рівень. Назва — метафора з казки «Гензель і Гретель», де діти лишали крихти хліба, щоб знайти дорогу назад." },
 ];
 
+// Explains what a specific value of the HTML "type" attribute means, so the
+// popup can say something concrete ("checkbox" -> independent toggle) rather
+// than just the generic definition of the attribute itself.
+const HTML_TYPE_ATTR_DEFS = {
+  checkbox: "цей input стає чекбоксом — незалежним прапорцем, який можна вмикати чи вимикати окремо від інших.",
+  radio: "цей input стає радіокнопкою — частиною групи (об'єднаної однаковим name), де можна вибрати лише ОДИН варіант.",
+  text: "звичайне однорядкове текстове поле для довільного тексту.",
+  email: "текстове поле, у якому браузер додатково перевіряє, що введено схоже на email-адресу.",
+  number: "поле лише для чисел, часто зі стрілочками +/- для зміни значення.",
+  submit: "кнопка, яка відправляє форму на сервер.",
+  button: "звичайна кнопка без вбудованої дії — власну поведінку задають через JavaScript.",
+  reset: "кнопка, яка скидає всі поля форми до початкових значень.",
+  search: "текстове поле для пошуку.",
+  file: "поле для вибору файлу з пристрою користувача.",
+  password: "текстове поле, де введені символи приховуються крапками чи зірочками.",
+  tel: "текстове поле для номера телефону.",
+  date: "поле для вибору дати — браузер зазвичай показує календар.",
+  hidden: "поле, приховане від користувача — але його значення все одно відправляється на сервер.",
+};
+
+// Inline "code fragment" glossary — the same idea as JARGON_TERMS, but for
+// literal HTML syntax (tags/attributes) that shows up verbatim inside theory
+// text, e.g. <label for="..."> or type="checkbox">. Matched structurally via
+// regex (splitCodeTerms), not by exact string, so it lights up automatically
+// in every lesson's theory wherever that syntax appears — no per-lesson work.
+const CODE_TERMS = [
+  {
+    re: /<label\s+for="[^"]*">/i,
+    def: () => "Тег <label> — підпис поля форми. Атрибут for усередині нього містить id того input, з яким цей підпис зв'язаний: клік по тексту підпису тоді теж активує (фокусує чи вмикає) саме це поле.",
+  },
+  {
+    re: /type="([a-zA-Zа-яіїєґ]*)"/i,
+    def: (val) => {
+      const known = HTML_TYPE_ATTR_DEFS[(val || "").toLowerCase()];
+      return known ? `Атрибут type визначає тип поля. Тут type="${val}" — ${known}` : `Атрибут type визначає тип поля input (текст, чекбокс, радіокнопка, кнопка тощо). Тут значення — "${val}".`;
+    },
+  },
+  {
+    re: /\bfor="[^"]*"/i,
+    def: () => "Атрибут for (усередині <label>) — значення має ТОЧНО збігатися з id потрібного поля, щоб підпис і поле були зв'язані.",
+  },
+  {
+    re: /\bid="[^"]*"/i,
+    def: () => 'id — унікальний ідентифікатор саме цього елемента на сторінці (не повторюється в інших тегах). Завдяки id його може «знайти» <label for="...">, CSS чи JavaScript.',
+  },
+  {
+    re: /\bname="[^"]*"/i,
+    def: () => "name — ім'я поля, яке йде на сервер разом із його значенням при відправці форми. У радіокнопок ОДНАКОВИЙ name об'єднує їх у групу.",
+  },
+  {
+    re: /\bvalue="[^"]*"/i,
+    def: () => "value — те значення, яке реально відправиться на сервер, якщо саме це поле вибрано чи заповнено.",
+  },
+  {
+    re: /\bplaceholder="[^"]*"/i,
+    def: () => "placeholder — сіра підказка всередині порожнього поля, яка зникає, щойно користувач починає друкувати.",
+  },
+  {
+    re: /\bchecked\b(?!=)/i,
+    def: () => "checked — робить чекбокс чи радіокнопку відміченою одразу при завантаженні сторінки, без жодних дій користувача.",
+  },
+  {
+    re: /\bhref="[^"]*"/i,
+    def: () => "href — адреса, куди веде посилання <a>.",
+  },
+  {
+    re: /\bsrc="[^"]*"/i,
+    def: () => "src — джерело (файл чи URL) зображення, скрипта, відео чи iframe.",
+  },
+  {
+    re: /\balt="[^"]*"/i,
+    def: () => "alt — текстовий опис зображення: читає скрінрідер і показує браузер, якщо картинка не завантажилась.",
+  },
+];
+
+// Scans text left-to-right for the earliest/longest CODE_TERMS match at each
+// point, splitting it into plain-text and matched-code segments.
+function splitCodeTerms(text) {
+  const parts = [];
+  let i = 0;
+  while (i < text.length) {
+    let bestIdx = -1, bestLen = 0, bestEntry = null, bestCapture, bestRaw = "";
+    for (const entry of CODE_TERMS) {
+      const re = new RegExp(entry.re.source, "gi");
+      re.lastIndex = i;
+      const m = re.exec(text);
+      if (m && (bestIdx === -1 || m.index < bestIdx || (m.index === bestIdx && m[0].length > bestLen))) {
+        bestIdx = m.index;
+        bestLen = m[0].length;
+        bestEntry = entry;
+        bestCapture = m[1];
+        bestRaw = m[0];
+      }
+    }
+    if (bestIdx === -1) {
+      parts.push({ type: "text", value: text.slice(i) });
+      break;
+    }
+    if (bestIdx > i) parts.push({ type: "text", value: text.slice(i, bestIdx) });
+    parts.push({ type: "code", raw: bestRaw, entry: bestEntry, capture: bestCapture });
+    i = bestIdx + bestLen;
+  }
+  return parts;
+}
+
+function CodeTerm({ raw, entry, capture }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="font-mono text-[0.92em] text-cyan-400 border-b border-dotted border-cyan-600/70 hover:text-cyan-300 hover:border-cyan-400"
+      >
+        {raw}
+        <sup>†</sup>
+      </button>
+      {open && (
+        <span className="absolute z-30 left-0 top-full mt-1.5 w-72 bg-stone-800 border border-stone-700 rounded-md p-3 text-xs text-stone-200 leading-relaxed shadow-xl normal-case font-sans">
+          <strong className="text-cyan-400 font-mono">{raw}</strong> — {entry.def(capture)}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function JargonTerm({ token, entry }) {
   const [open, setOpen] = useState(false);
   return (
@@ -13848,26 +13974,40 @@ function JargonTerm({ token, entry }) {
   );
 }
 
-// Marks known jargon words within a single paragraph of text.
+// Marks known jargon words AND inline HTML code fragments (<label for="...">,
+// type="checkbox", id="...", ...) within a single paragraph of text. Code
+// fragments are pulled out first (they can contain their own words like
+// "for" or "type" that shouldn't separately match JARGON_TERMS), then the
+// remaining plain-text stretches are tokenized for word-level jargon as before.
 function JargonParagraph({ text }) {
-  const tokens = text.split(/(\s+)/);
+  const codeParts = splitCodeTerms(text);
   return (
     <>
-      {tokens.map((tok, i) => {
-        if (!tok || /^\s+$/.test(tok)) return tok;
-        const lead = tok.match(/^[«"'(]*/)[0];
-        const trail = tok.match(/[.,!?:;"»')]*$/)[0];
-        const core = tok.slice(lead.length, tok.length - trail.length || undefined);
-        const lower = core.toLowerCase();
-        const entry = JARGON_TERMS.filter((t) => lower.startsWith(t.stem) && lower.length <= t.stem.length + 6).sort(
-          (a, b) => b.stem.length - a.stem.length
-        )[0];
-        if (!entry || !core) return <Fragment key={i}>{tok}</Fragment>;
+      {codeParts.map((part, pi) => {
+        if (part.type === "code") {
+          return <CodeTerm key={`c${pi}`} raw={part.raw} entry={part.entry} capture={part.capture} />;
+        }
+        const tokens = part.value.split(/(\s+)/);
         return (
-          <Fragment key={i}>
-            {lead}
-            <JargonTerm token={core} entry={entry} />
-            {trail}
+          <Fragment key={`t${pi}`}>
+            {tokens.map((tok, i) => {
+              if (!tok || /^\s+$/.test(tok)) return tok;
+              const lead = tok.match(/^[«"'(]*/)[0];
+              const trail = tok.match(/[.,!?:;"»')]*$/)[0];
+              const core = tok.slice(lead.length, tok.length - trail.length || undefined);
+              const lower = core.toLowerCase();
+              const entry = JARGON_TERMS.filter((t) => lower.startsWith(t.stem) && lower.length <= t.stem.length + 6).sort(
+                (a, b) => b.stem.length - a.stem.length
+              )[0];
+              if (!entry || !core) return <Fragment key={`${pi}-${i}`}>{tok}</Fragment>;
+              return (
+                <Fragment key={`${pi}-${i}`}>
+                  {lead}
+                  <JargonTerm token={core} entry={entry} />
+                  {trail}
+                </Fragment>
+              );
+            })}
           </Fragment>
         );
       })}
