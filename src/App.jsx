@@ -15285,8 +15285,18 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       {lesson.type === "html" && (
         <div className="mb-8">
           {!mentorOpen && (
-            <button onClick={() => setMentorOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
-              <MessageCircle size={14} /> Запитати про урок
+            <button
+              onClick={() => setMentorOpen(true)}
+              className={`group flex items-center gap-3 w-full sm:w-auto px-4 py-3 ${accent.bg} hover:opacity-90 text-stone-950 font-medium rounded-lg text-sm shadow-lg shadow-amber-500/10 transition`}
+            >
+              <span className="relative flex items-center justify-center w-8 h-8 rounded-full bg-stone-950/15">
+                <MessageCircle size={18} />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-stone-950/0 group-hover:animate-none animate-pulse" />
+              </span>
+              <span className="text-left">
+                <span className="block">Запитати про урок</span>
+                <span className="block text-xs font-normal opacity-80">Чат-бот відповість, якщо щось незрозуміло</span>
+              </span>
             </button>
           )}
           {mentorOpen && (
