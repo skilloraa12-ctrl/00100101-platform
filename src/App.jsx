@@ -3,7 +3,7 @@ import {
   Home as HomeIcon, BookOpen, Library, Hash, Globe, Languages, Trophy,
   Search, Play, RotateCcw, CheckCircle2, XCircle, Lightbulb, ChevronRight,
   ChevronLeft, Circle, CheckCircle, Menu, X, Terminal, Code2, Flame, Star, Info, ExternalLink, Server, Layout, RefreshCw,
-  Volume2, Pause, Square, List
+  Volume2, Pause, Square, List, MessageCircle
 } from "lucide-react";
 import CourseAccessGate, { ProfileBar } from "./CourseAccessGate.jsx";
 import { supabase, APP_ID } from "./lib/supabaseClient.js";
@@ -31,6 +31,8 @@ import { TESTING_LESSONS } from "./data/testingLessons.js";
 import { SQL_LESSONS } from "./data/sqlLessons.js";
 import { BACKEND_LESSONS } from "./data/backendLessons.js";
 import { FULLSTACK_LESSONS } from "./data/fullstackLessons.js";
+import LessonReel from "./LessonReel.jsx";
+import LessonMentor from "./LessonMentor.jsx";
 
 /* =========================================================================
    DATA LAYER
@@ -14746,6 +14748,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
   const [sqlResult, setSqlResult] = useState(null);
   const [reactLoading, setReactLoading] = useState(false);
   const [reactError, setReactError] = useState(null);
+  const [mentorOpen, setMentorOpen] = useState(false);
   const iframeRef = useRef(null);
   const listenerRef = useRef(null);
 
@@ -14760,6 +14763,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
     setSqlError(null);
     setSqlResult(null);
     setReactError(null);
+    setMentorOpen(false);
   }, [lesson.id]);
 
   useEffect(() => {
@@ -14991,6 +14995,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
         <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
         <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
+        {lesson.type === "html" && <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />}
         <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
         <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
         <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
@@ -15013,6 +15018,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       </div>
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
       <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
+      {lesson.type === "html" && <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />}
 
       <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
       <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
@@ -15275,6 +15281,26 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
           )}
         </div>
       </div>
+
+      {lesson.type === "html" && (
+        <div className="mb-8">
+          {!mentorOpen && (
+            <button onClick={() => setMentorOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-700 rounded-md text-sm text-stone-300 hover:bg-stone-900">
+              <MessageCircle size={14} /> Запитати про урок
+            </button>
+          )}
+          {mentorOpen && (
+            <LessonMentor
+              key={`mentor-${lesson.id}`}
+              lesson={lesson}
+              prev={prev}
+              next={next}
+              checkResult={result}
+              onClose={() => setMentorOpen(false)}
+            />
+          )}
+        </div>
+      )}
 
       <WhereToPractice courseId={course.id} />
 
