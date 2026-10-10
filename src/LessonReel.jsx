@@ -27,7 +27,7 @@ const FOCUS_RULES = [
   { id: 'link', words: ['посилан', 'гіперпосилан', 'href', 'лінк', 'anchor'] },
   { id: 'form', words: ['форм', 'поле вводу', 'input', 'textarea', 'checkbox', 'radio'] },
   { id: 'list', words: ['списк', 'перелік', ' ul', ' ol', '<li', 'масив', '.append(', 'витягування ціни', 'повний розбір: кілька', 'очищення всіх зібраних', 'фільтрація за ціною', 'сортування результатів', 'фільтрація задач', 'пошук прострочених'] },
-  { id: 'table', words: ['таблиц', 'колонк', '<table', '<tr', '<td', 'colspan', 'rowspan', 'group by', 'order by', 'select where', 'where:', 'join', 'union', 'підзапит', 'primary key', 'foreign key', 'транзакці', 'case when', 'обмеженн', 'unique,', 'перед insert', 'grid для', 'список визначень'] },
+  { id: 'table', words: ['таблиц', 'колонк', '<table', '<tr', '<td', 'colspan', 'rowspan', 'group by', 'order by', 'select where', 'where:', 'join', 'union', 'підзапит', 'primary key', 'foreign key', 'транзакці', 'case when', 'обмеженн', 'unique,', 'перед insert', 'grid для', 'список визначень', 'видалення рядка'] },
   { id: 'header', words: ['заголов', 'шапк', 'навігац', 'меню', 'логотип', 'h1', 'h2', 'h3'] },
   { id: 'footer', words: ['підвал', 'footer', 'контакти сайту'] },
   { id: 'domain', words: ['домен', 'адрес', 'url', 'сервер', 'хостинг', 'браузер', 'клієнт', 'http'] },
