@@ -14995,7 +14995,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
         <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
         <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
-        {lesson.type === "html" && <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />}
+        <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />
         <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
         <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
         <PresentationBlock key={`p-${lesson.id}`} slides={lesson.presentation} />
@@ -15018,7 +15018,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
       </div>
       <h1 className="text-2xl font-semibold text-stone-100 mb-4">{lesson.title}</h1>
       <SpeakButton key={`speak-${lesson.id}`} text={lessonSpeechText(lesson)} />
-      {lesson.type === "html" && <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />}
+      <LessonReel key={`reel-${lesson.id}`} lesson={lesson} />
 
       <JargonText key={lesson.id} text={lesson.theory} htmlOnly={lesson.type === "html"} />
       <p className="text-xs text-stone-600 mb-5">* — незрозуміле слово? Натисни на нього — з'явиться пояснення простими словами.</p>
@@ -15282,8 +15282,7 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
         </div>
       </div>
 
-      {lesson.type === "html" && (
-        <div className="mb-8">
+      <div className="mb-8">
           {!mentorOpen && (
             <button
               onClick={() => setMentorOpen(true)}
@@ -15310,7 +15309,6 @@ function LessonView({ course, lesson, isDone, onComplete, onNav, project, onPick
             />
           )}
         </div>
-      )}
 
       <WhereToPractice courseId={course.id} />
 
