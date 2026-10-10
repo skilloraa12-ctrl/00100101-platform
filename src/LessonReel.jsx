@@ -31,6 +31,7 @@ const FOCUS_RULES = [
   { id: 'header', words: ['заголов', 'шапк', 'навігац', 'меню', 'логотип', 'h1', 'h2', 'h3'] },
   { id: 'footer', words: ['підвал', 'footer', 'контакти сайту'] },
   { id: 'domain', words: ['домен', 'адрес', 'url', 'сервер', 'хостинг', 'браузер', 'клієнт', 'http'] },
+  { id: 'file-link', words: ['style.css', 'script.js', 'link rel', 'index.html', "зв'язати файли", 'три файли', 'підключення файл'] },
   // Поняття, спільні для Python/JS/SQL/Backend-курсів — щоб огляд пояснював
   // суть уроку, а не показував одну й ту саму картинку для всього не-HTML.
   { id: 'function', words: ['функці', 'def ', 'function', 'метод(', 'виклик функці', 'параметр', 'аргумент', 'return '] },
@@ -341,6 +342,25 @@ function CodeMockup({ focus }) {
         <path d="M 74 105 L 86 105 M 80 99 L 88 105 L 80 111" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         <rect x="20" y="196" width="160" height="34" rx="4" fill="#292524" opacity="0.5" />
         <text x="18" y="217" fontFamily="monospace" fontSize="8" fill="#a8a29e">підключає готовий код ззовні</text>
+      </Frame>
+    )
+  }
+  if (focus === 'file-link') {
+    return (
+      <Frame>
+        <rect x="20" y="50" width="48" height="34" rx="4" fill="#292524" stroke="#fbbf24" strokeWidth="1.5" />
+        <text x="28" y="71" fontFamily="monospace" fontSize="9" fill="#fbbf24">.html</text>
+        <rect x="20" y="96" width="48" height="34" rx="4" fill="#292524" stroke="#4ade80" strokeWidth="1.5" />
+        <text x="32" y="117" fontFamily="monospace" fontSize="9" fill="#4ade80">.css</text>
+        <rect x="20" y="142" width="48" height="34" rx="4" fill="#292524" stroke="#60a5fa" strokeWidth="1.5" />
+        <text x="34" y="163" fontFamily="monospace" fontSize="9" fill="#60a5fa">.js</text>
+        <path d="M 70 67 L 98 100" stroke="#fbbf24" strokeWidth="2" />
+        <path d="M 70 113 L 98 108" stroke="#4ade80" strokeWidth="2" />
+        <path d="M 70 159 L 98 118" stroke="#60a5fa" strokeWidth="2" />
+        <rect x="100" y="70" width="76" height="76" rx="10" fill="#1c1917" stroke="#a8a29e" strokeWidth="2" />
+        <text x="114" y="113" fontFamily="monospace" fontSize="11" fill="#e7e5e4">сайт</text>
+        <rect x="20" y="196" width="160" height="34" rx="4" fill="#292524" opacity="0.5" />
+        <text x="24" y="217" fontFamily="monospace" fontSize="8" fill="#a8a29e">три файли → одна сторінка</text>
       </Frame>
     )
   }
