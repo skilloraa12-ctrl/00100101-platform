@@ -122,6 +122,12 @@ def bi(ua, en, tag="span"):
     return f'<{tag} lang="uk">{ua}</{tag}><{tag} lang="en">{en}</{tag}>'
 
 
+import base64
+
+def b64(path):
+    return "data:image/jpeg;base64," + base64.b64encode(path.read_bytes()).decode()
+
+
 def page(v):
     shots = DIST / v["id"] / "shots"
     have = {p.stem for p in shots.glob("*.jpg")}
@@ -136,7 +142,7 @@ def page(v):
             cap = SHOT_NAMES.get(p)
             cap_html = f'<h4>{bi(*cap)}</h4>' if cap and len(prefixes) > 1 else ""
             gal += f'<div class="shotset">{cap_html}<div class="devs">' + "".join(
-                f'<figure class="d-{d}"><a href="shots/{p}-{d}.jpg"><img src="shots/{p}-{d}.jpg" alt="{te} — {de}" loading="lazy"></a><figcaption>{bi(du, de)}</figcaption></figure>'
+                f'<figure class="d-{d}"><img src="{b64(shots / f"{p}-{d}.jpg")}" alt="{te} — {de}"><figcaption>{bi(du, de)}</figcaption></figure>'
                 for d, du, de in DEV) + "</div></div>"
         body.append(f"""<section id="{key}"><div class="s-h"><span class="num">{i:02d}</span><h2>{bi(tu, te)}</h2></div>
 <div class="wn"><div class="was"><span class="lbl">{bi("Було", "Before")}</span><p>{bi(wu, we)}</p></div><div class="now"><span class="lbl">{bi("Стало", "Now")}</span><p>{bi(nu, ne)}</p></div></div>{gal}</section>""")
@@ -150,9 +156,7 @@ def page(v):
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{v['fonts']}&display=swap">
 <style>
 /* Layout: one long deck; table of contents, then one block per app section with 3 device screenshots */
-:root{{--acc:#1e62d0;--bg:#f4f7fb;--surface:#ffffff;--fg:#10212f;--muted:#536679;--line:#d7e2ec;--red:#b42318;--now:#e6eefb;--font:"{v['font_name']}",system-ui,sans-serif}}
-@media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{--bg:#0f1520;--surface:#162030;--fg:#e8eef5;--muted:#9fb0c2;--line:#26344a;--now:#17294a;--acc:#6ea0f0;color-scheme:dark}}}}
-:root[data-theme="dark"]{{--bg:#0f1520;--surface:#162030;--fg:#e8eef5;--muted:#9fb0c2;--line:#26344a;--now:#17294a;--acc:#6ea0f0;color-scheme:dark}}
+:root{{color-scheme:light;--acc:#1e62d0;--bg:#f4f7fb;--surface:#ffffff;--fg:#10212f;--muted:#536679;--line:#d7e2ec;--red:#b42318;--now:#e6eefb;--font:"{v['font_name']}",system-ui,sans-serif}}
 *{{box-sizing:border-box}}
 body{{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.55}}
 html:not(.en) [lang="en"]{{display:none!important}} html.en [lang="uk"]{{display:none!important}}
@@ -227,6 +231,9 @@ def readme(v):
     return f"""ALLERGY WORKFLOW: ВАРІАНТ {v['num']} З 3, «{v['ua'].upper()}»
 (Variant {v['num']} of 3: {v['en']})
 ================================================================
+
+СПОЧАТКУ: розпакуйте архів (правою кнопкою на zip > «Витягти все…»).
+Якщо відкривати файли прямо з архіву, живі макети можуть не працювати.
 
 ЩО ВІДКРИВАТИ
   *-UA.pptx / *-EN.pptx Презентація для показу (PowerPoint), українською та англійською.
