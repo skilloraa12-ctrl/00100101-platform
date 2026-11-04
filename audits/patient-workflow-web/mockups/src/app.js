@@ -603,6 +603,7 @@ document.addEventListener("submit", e => {
   const f = e.target.dataset.form;
   if (f === "login") {
     const er = {}; if (!(S.f.username || "").trim()) er.username = "Type your username."; if (!S.f.password) er.password = "Type your password.";
+    if (!Object.keys(er).length && (S.f.username.trim().toLowerCase() !== "admin" || S.f.password !== "Demo2026!")) er.password = "Wrong username or password. Check CAPS LOCK and try again.";
     S.err = er; if (Object.keys(er).length) { render(true); return; }
     S.f.password = ""; go("dashboard"); toast("Welcome back, Admin User.");
   } else if (f === "np") {

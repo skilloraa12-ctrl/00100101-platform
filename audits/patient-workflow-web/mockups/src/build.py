@@ -262,8 +262,10 @@ footer a{{color:var(--acc);font-weight:700}}
 """
 
 
-for v in VARIANTS:
-    for dev, label, _, _ in DEVICES:
-        (OUT / f"{v['id']}-{dev}.html").write_text(mockup(v, dev, label), encoding="utf-8")
-    (OUT / f"presentation-{v['id']}.html").write_text(presentation(v), encoding="utf-8")
-    print("built", v["id"])
+if __name__ == "__main__":
+    for v in VARIANTS:
+        d = OUT / "dist" / v["id"]
+        d.mkdir(parents=True, exist_ok=True)
+        for dev, label, _, _ in DEVICES:
+            (d / f"mockup-{dev}.html").write_text(mockup(v, dev, label), encoding="utf-8")
+        print("built mockups", v["id"])
