@@ -1,0 +1,202 @@
+<title>Аудит Allergy Workflow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, a sticky filter bar, and a wide table that scrolls inside its own box */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#17202b; --muted:#5b6675; --line:#dfe3e9;
+  --accent:#1f5fae; --crit:#b42318; --crit-bg:#fdecea; --high:#b54708; --high-bg:#fef4e6;
+  --mid:#175cd3; --mid-bg:#eaf1fd; --low:#3f6b4a; --low-bg:#ecf5ee;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1419; --surface:#161c23; --fg:#e6e9ee; --muted:#9aa5b4; --line:#2a333e;
+  --accent:#6fa6ec; --crit:#ff8a7a; --crit-bg:#3a1d1a; --high:#f5b062; --high-bg:#36281a;
+  --mid:#8db6f5; --mid-bg:#1b2840; --low:#8cc79a; --low-bg:#1b2c20; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#161c23; --fg:#e6e9ee; --muted:#9aa5b4; --line:#2a333e;
+  --accent:#6fa6ec; --crit:#ff8a7a; --crit-bg:#3a1d1a; --high:#f5b062; --high-bg:#36281a;
+  --mid:#8db6f5; --mid-bg:#1b2840; --low:#8cc79a; --low-bg:#1b2c20; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:28px}
+h1{font-size:30px;line-height:1.2;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:20px;margin:0 0 12px;text-wrap:balance}
+p{margin:0;max-width:72ch}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.lede{color:var(--muted);font-size:16px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:13px}
+.meta code,td code{font-family:var(--mono);font-size:12.5px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
+.stat b{font-size:28px;font-variant-numeric:tabular-nums}
+.stat.crit b{color:var(--crit)} .stat.high b{color:var(--high)} .stat.mid b{color:var(--mid)} .stat.low b{color:var(--low)}
+.stat span{color:var(--muted);font-size:13px}
+.callout{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--crit);border-radius:8px;padding:16px 18px;display:grid;gap:8px}
+.callout ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--line)}
+.bar button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 14px;cursor:pointer}
+.bar button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.bar button:focus-visible,.bar input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar input{font:inherit;font-size:14px;flex:1 1 200px;min-width:0;border:1px solid var(--line);border-radius:8px;padding:7px 12px;background:var(--surface);color:var(--fg)}
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0}
+td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;width:44px}
+td.where{width:190px;color:var(--muted);word-break:break-word}
+td.sev{width:110px}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill.crit{color:var(--crit);background:var(--crit-bg)} .pill.high{color:var(--high);background:var(--high-bg)}
+.pill.mid{color:var(--mid);background:var(--mid-bg)} .pill.low{color:var(--low);background:var(--low-bg)}
+td strong{display:block;margin-bottom:2px}
+.area{font-size:12px;color:var(--muted)}
+.section{display:grid;gap:12px}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:6px;align-content:start}
+.card h3{margin:0;font-size:16px}
+.card p{color:var(--muted);font-size:14px}
+ol.plan{margin:0;padding-left:22px;display:grid;gap:8px;max-width:80ch}
+.empty{padding:24px;color:var(--muted);text-align:center}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <div class="eyebrow">Аудит коду · patient-workflow-web · 04.11.2026</div>
+    <h1>Allergy Workflow: що виправити перед тим, як віддавати техніку</h1>
+    <p class="lede">Переглянуто весь проєкт із zip-архіву (Python FastAPI, PostgreSQL, Jinja-шаблони; 207 файлів, з них <code>app/main.py</code> займає 9 423 рядки). Код не змінювався. Окремо в кінці є зауваження до скрінів із зустрічі: вони зняті з нинішньої системи (Admin Console, Allergy CRM).</p>
+    <div class="meta"><span>Стек: FastAPI · SQLAlchemy · Alembic · Jinja2 · ванільний JS/CSS</span><span>Тести: 35 файлів</span><span>Перевірки: pyflakes, <code>node --check</code></span></div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="callout">
+    <strong>Найголовніше, коротко</strong>
+    <ul>
+      <li><b>Технік зараз не може працювати так, як просить замовник.</b> Він не бачить пацієнтів свого лікаря, а до імунотерапії його не пускає код.</li>
+      <li><b>Згода пацієнта (consent) лише попереджає і нічого не блокує.</b> Імунотерапію можна почати без підписаної згоди. Електронного підпису пацієнта або опікуна в програмі немає.</li>
+      <li><b>Видалення та інші небезпечні дії майже скрізь виконуються без підтвердження.</b> Скасування тесту техніком одразу видаляє пацієнта з бази.</li>
+      <li><b>Безпека входу:</b> немає ліміту спроб, сесія живе 14 днів, демо-паролі лежать у коді, а логіни й паролі передавалися в месенджері.</li>
+    </ul>
+  </div>
+
+  <div class="bar" role="toolbar" aria-label="Фільтр">
+    <button type="button" data-f="all" aria-pressed="true">Усі</button>
+    <button type="button" data-f="crit" aria-pressed="false">Критично</button>
+    <button type="button" data-f="high" aria-pressed="false">Високо</button>
+    <button type="button" data-f="mid" aria-pressed="false">Середньо</button>
+    <button type="button" data-f="low" aria-pressed="false">Низько</button>
+    <input id="q" type="search" placeholder="Пошук: технік, consent, пароль…" aria-label="Пошук по таблиці">
+  </div>
+
+  <section class="section">
+    <h2>Таблиця помилок</h2>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>#</th><th>Пріоритет</th><th>Що не так</th><th>Чому це погано</th><th>Як виправити</th><th>Де в коді</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden>Нічого не знайдено за цим фільтром.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Зауваження до скрінів зустрічі (нинішня система Allergy CRM)</h2>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>#</th><th>Пріоритет</th><th>Що видно на скріні</th><th>Чому це погано</th><th>Що зробити в новій версії</th></tr></thead>
+        <tbody id="screens"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Що обов'язково буде в новому дизайні (це видно в 3 презентаціях)</h2>
+    <p class="meta"><a href="https://claude.ai/artifact/2UERr4yoma5gt9QMtoM6v3">1. Сучасний, але простий</a> <a href="https://claude.ai/artifact/NSS5EFNLjVKM2RBVGVYaKY">2. Сучасний, легший</a> <a href="https://claude.ai/artifact/2feHSJD6SySQHiZcoxzgSZ">3. Максимально просто</a></p>
+    <div class="cols">
+      <div class="card"><h3>Підтвердження на весь екран</h3><p>Кожне «Видалити», «Зберегти», «Підписати», «Скасувати» та «Ввести дозу» відкриває вікно на білому фоні з червоним питанням «Ви дійсно…?». Кнопки «Так» і «Ні» великі. Для видалення людина ще й вписує слово DELETE.</p></div>
+      <div class="card"><h3>Знак «?» біля кожного поля</h3><p>Наводиш курсор або торкаєшся і бачиш, навіщо це поле, що туди писати, і приклад. Тексти підказок лежать в одному словнику, тож їх легко правити.</p></div>
+      <div class="card"><h3>Розділ «Навчання»</h3><p>Короткі уроки на кшталт «Як провести тест» чи «Як ввести ін'єкцію». Кнопка «Покажи мені» підсвічує потрібну кнопку на справжньому екрані, а пройдені уроки позначаються галочкою.</p></div>
+      <div class="card"><h3>Підсвічений наступний крок</h3><p>Як просив партнер: наступна дія завжди одна, велика і кольорова. Решта кнопок дрібніші й сірі, тому випадково натиснути не те важко.</p></div>
+      <div class="card"><h3>Технік обирає лікаря і бачить лише його пацієнтів</h3><p>Це перший екран після входу. Далі всі списки показують пацієнтів тільки цього лікаря.</p></div>
+      <div class="card"><h3>Захист концентрації</h3><p>Кожен флакон має свій колір. Якщо технік переходить на сильніший флакон або збільшує дозу, з'являється червоне попередження і чекбокс «Я перевірив колір етикетки».</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Рекомендований порядок робіт</h2>
+    <ol class="plan">
+      <li>Безпека (пункти 6–9): змінити всі паролі, вимкнути демо-акаунти, додати ліміт спроб входу та автовихід. Це день роботи.</li>
+      <li>Права техніка (пункти 1–2): вибір лікаря, список пацієнтів цього лікаря, окреме право «внести ін'єкцію».</li>
+      <li>Згода (пункти 3–4): електронний підпис, опікун для неповнолітніх, блокування старту імунотерапії без згоди.</li>
+      <li>Єдине вікно підтвердження, підказки «?» і розділ «Навчання» в обраному варіанті дизайну.</li>
+      <li>Перевірка доз і концентрацій та межі введення мм (пункти 5 і 13).</li>
+      <li>Технічний борг: розбити <code>main.py</code>, полагодити міграцію, винести нагадування в окрему задачу.</li>
+      <li>Записати ТЗ: зараз вимоги існують лише на словах, і це головна причина, чому продукт «не вийшов».</li>
+    </ol>
+  </section>
+</div>
+
+<script>
+const ISSUES = [
+ ["crit","Технік","Технік не бачить пацієнтів обраного лікаря","Для техніка фільтр пацієнтів захардкоджений як <code>Patient.id == -1</code>, тобто він не бачить нікого. Доступ є лише до одного пацієнта, якого технік щойно створив у цій сесії. Замовник хоче, щоб технік обрав лікаря і працював з усіма його пацієнтами.","Після входу технік обирає лікаря (тільки з тих, до кого він прив'язаний). Вибір зберігається в сесії, а фільтр стає <code>Patient.doctor == обраний_лікар</code>. Те саме правило треба додати в <code>can_access_patient</code> і <code>can_write_patient</code>. Кожну зміну лікаря записувати в audit.","app/main.py:1106, 1132, 1147"],
+ ["crit","Технік · Імунотерапія","Технік не може внести ін'єкцію","<code>can_start_immunotherapy</code> пускає лише Admin, Doctor і Doctor Specialist. Збереження імунотерапії вимагає саме цієї перевірки. А за словами партнера, ін'єкції робить технік, і це «тонке місце».","Розділити права на «почати курс або змінити склад флаконів» (лікар) і «записати ін'єкцію в активному курсі» (технік). Технік бачить лише рядки ін'єкцій і нічого не змінює в складі.","app/main.py:1384, 8106–8110"],
+ ["crit","Згода","Згода (consent) не блокує старт імунотерапії","Код прямо каже: «IT start is currently allowed with this warning». Отже лікування можна почати без підписаної згоди, а це юридичний ризик для клініки.","Не давати офіційно стартувати імунотерапію без статусу <code>consented</code> і прикріпленого підписаного документа. Для Admin лишити override з обов'язковою причиною та записом в audit.","app/consent.py:26–33"],
+ ["crit","Згода","Згода — це заглушка: немає підпису пацієнта на екрані","Партнер сам називає її заглушкою, і на неї вже скаржились. Зараз можна лише завантажити файл і поставити статус. Підписати на планшеті неможливо, а для неповнолітніх немає полів опікуна.","Зробити екран згоди з повним текстом, полем для підпису пальцем або стилусом, ПІБ підписанта та полем «ким доводиться пацієнту». Якщо пацієнту менше 18 років, поле «Опікун» обов'язкове. Згенерувати PDF і заблокувати його від змін.","app/consent.py, templates/_patient_consent.html"],
+ ["crit","Імунотерапія","Слабкий захист від неправильної концентрації або дози","Обсяг обмежений лише 0–1.00 мл. Немає червоного стоп-екрана, коли технік переходить на сильніший флакон або різко підвищує дозу порівняно з минулим разом. Помилка тут означає ризик анафілаксії.","Перед збереженням ін'єкції порівнювати її з попередньою. Якщо флакон сильніший або доза зросла більше, ніж дозволяє протокол, показувати червоне вікно з кольором флакона, вимагати чекбокс «Перевірив етикетку» і записувати це в audit.","app/numeric_validation.py:20–22, app/main.py (builder)"],
+ ["crit","Безпека","Демо-паролі в коді, на TEST увімкнено демо-акаунти","<code>admin123</code>, <code>tech123</code> та інші лежать у коді. На Render TEST увімкнено <code>SEED_DEMO_USERS=true</code>, і всі 5 акаунтів отримують один спільний пароль. Логін і пароль адміна передавалися в Telegram.","Змінити всі паролі просто зараз. Вимкнути <code>SEED_DEMO_USERS</code> скрізь, крім локальної машини. Кожному користувачу дати окремий акаунт і змушувати змінити пароль при першому вході.","app/bootstrap.py:31–37, 242–278; render.yaml"],
+ ["crit","Безпека","Немає ліміту спроб входу","На <code>/login</code> пароль можна підбирати без обмежень. Невдалі спроби лише пишуться в audit.","Після 5 невдалих спроб блокувати на 15 хвилин (по логіну та IP). Для Admin увімкнути 2FA.","app/main.py:4285–4305"],
+ ["crit","Безпека · HIPAA","Сесія живе 14 днів і не закінчується, коли людина відійшла","<code>SessionMiddleware</code> працює без <code>max_age</code>, тож стоїть стандартний термін у 14 днів. Комп'ютер у клініці лишається залогіненим, і відкриту картку пацієнта може побачити будь-хто. HIPAA вимагає автоматичного виходу.","Поставити <code>max_age</code> на 8–12 годин і автовихід після 15 хвилин без дій (зберігати в сесії час останньої дії). За хвилину до виходу показувати попередження.","app/main.py:282–287"],
+ ["crit","База даних","Стара міграція падає при повному прогоні, «Gate B: NOT READY»","Власна документація каже, що повний прогін міграцій падає на <code>20261014_01</code>, а резервна копія та відновлення не відрепетирувані. Нову базу «з нуля» не підняти, і відновлення з бекапу не гарантоване.","Полагодити міграцію або зробити новий baseline. Провести репетицію бекапу та відновлення бази разом із файлами. Тільки після цього виходити на продакшн.","docs/remediation-block0-baseline.md:18, 96–120; HANDOFF.md:308"],
+ ["high","Підтвердження","Небезпечні дії майже без підтвердження","У всьому проєкті лише 3 стандартні браузерні <code>confirm()</code>. Архівування алергенів, відключення мапінгу, відв'язування лікаря від клініки, деактивація акаунта, скидання пароля, зміна статусу та скасування тесту виконуються одним кліком. Для неуважного користувача це гарантовані помилки.","Зробити один компонент підтвердження (білий фон, червоне питання, великі «Так» і «Ні»). Підключати його атрибутом <code>data-confirm=\"…\"</code> на будь-якій кнопці. Для видалення вимагати ввести слово DELETE.","app/static/app.js:865; templates/provider_profile.html:86; templates/settings.html:206"],
+ ["high","Технік","«Скасувати тест» фізично видаляє пацієнта","<code>db.delete(patient)</code> спрацьовує без підтвердження. Якщо технік уже ввів ПІБ і дату народження та помилково натиснув «Скасувати», дані зникнуть назавжди.","Показувати вікно підтвердження. Замість видалення робити м'яке видалення (archive) з можливістю відновити впродовж 24 годин.","app/main.py:6633–6647"],
+ ["high","Введення даних","Межа реакції 1000 мм","Поле прийме 33 замість 3, і система порахує це як важку реакцію. У HTML-полів немає <code>max</code>. Шкіра не дає пухирів у 1 метр, тож межа не ловить помилок.","Жорстка межа близько 30 мм. Якщо введено більше 15 мм, перепитувати червоним вікном «Ви впевнені? Зазвичай реакція до 15 мм». Додати <code>max</code> і кнопки + та − на полях.","app/numeric_validation.py:17; templates/patient_detail.html:435–453"],
+ ["high","Навчання","Немає жодної підказки «?» біля полів","У шаблонах немає системи підказок. Терміни на кшталт «Corrected mm», «Vial Set», «Epi-Pen Y/N», «Negative Glycerin» незрозумілі новому працівнику.","Компонент <code>?</code> із текстом зі словника <code>help_texts</code>. На кожному полі пояснювати, навіщо воно, що вписати, і давати приклад.","app/templates/*.html"],
+ ["high","Навчання","Немає розділу «Навчання»","Новий технік не має як навчитися, окрім як питати інших. Партнер каже, що «технік найрозумніший серед слабко розвинених», тож навчання обов'язкове.","Сторінка <code>/training</code> з уроками за ролями. Кнопка «Покажи мені» підсвічує потрібну кнопку на екрані. Відмічати пройдені уроки, а адмін бачить, хто що пройшов.","новий модуль"],
+ ["high","Технік","На екрані техніка «Recent Physicians» береться з усієї бази","Список будується з 20 останніх пацієнтів системи, а не з лікарів, до яких прив'язаний технік. Технік бачить чужих лікарів і клініки та може почати тест не там.","Показувати лише лікарів, прив'язаних до акаунта техніка.","app/main.py:6484–6507"],
+ ["high","Ролі","Doctor Specialist бачить усіх непризначених пацієнтів усіх лікарів","Фільтр показує пацієнтів, у яких <code>assigned_specialist_name IS NULL</code>, з будь-якої практики. Слово <code>admin</code> у тій самій умові не має ефекту, бо admin обробляється раніше.","Підтвердити із замовником, чи так задумано. Якщо ні, обмежити список практиками, до яких прив'язаний спеціаліст. Мертву умову прибрати.","app/main.py:1108–1116"],
+ ["high","Нагадування","Нагадування крутяться всередині веб-сервера","Цикл раз на 15 хвилин живе в процесі сайту. На безкоштовному Render сайт засинає, і нагадування не надходять. Якщо запустити кілька процесів, нагадування дублюються.","Винести нагадування в окрему задачу за розкладом (Render Cron Job), а в базі тримати блокування від дублів.","app/main.py:1711–1734"],
+ ["high","Процес","Немає ТЗ, вимоги існують лише на словах","Партнер: «Не давали, все на словах». Через це роль техніка, згода та імунотерапія зроблені інакше, ніж хоче замовник.","Записати короткий ТЗ по ролях із переліком екранів, хто що бачить і що блокує. Узгодити із замовником до початку нових робіт.","—"],
+ ["high","Репозиторій","Остання робота може бути не в zip","HANDOFF пише, що Block 3 зроблено на гілці <code>codex/clinical-integrity-remediation</code> «local only: no push». Zip зроблено з <code>main</code>.","Попросити партнера запушити всі локальні гілки і прислати актуальний <code>git log</code>.","HANDOFF.md:313–315"],
+ ["mid","Інтерфейс","Settings відкривається в новій вкладці","<code>target=\"_blank\"</code> у меню. Неуважний користувач губить вкладки і працює в двох одночасно.","Відкривати в тій самій вкладці.","templates/base.html:31"],
+ ["mid","Інтерфейс","Сповіщення вискакує поверх кожної сторінки","Модальне вікно з'являється на будь-якому екрані, поки є непрочитане сповіщення, і перекриває роботу.","Показувати лічильник на дзвіночку. Модальне вікно лишити тільки для термінових подій.","templates/base.html:58–77"],
+ ["mid","Інтерфейс","Помилка старту тесту веде на окрему сторінку","Якщо технік не обрав клініку, сервер повертає сторінку помилки 400, і технік губить свої дані у формі.","Перевіряти поля прямо у формі, показувати червоний текст під полем і зберігати введене.","app/main.py:6577–6590"],
+ ["mid","Планшет","Слабка адаптивність","На 4 384 рядки CSS припадає лише 11 правил <code>@media</code> і 21 <code>!important</code>. README каже про роботу з планшета, але дрібні кнопки та таблиці на планшеті незручні.","У новому дизайні робити кнопки не менше 48 px і розкладку під планшет у першу чергу.","app/static/app.css"],
+ ["mid","Код","<code>main.py</code> займає 9 423 рядки","Усі маршрути, бізнес-логіка та друк в одному файлі. Будь-яка правка ризикована, нова людина в ньому губиться. Документація сама відкладає це на потім.","Розбити на роутери: auth, patients, tests, reports, immunotherapy, settings. Логіку винести в <code>app/services</code>.","app/main.py"],
+ ["mid","Експорт","XLSM-експорт працює лише на Windows","Експорт використовує Excel COM, тож на сервері Render (Linux) не працює.","Лишити як локальний інструмент або замінити веб-друком форм, який уже частково є.","app/excel_export.py; README"],
+ ["mid","Документи","Звіт тільки в DOCX, без підписаного PDF","DOCX можна змінити після підпису. Попередній перегляд робить LibreOffice на сервері, а це повільно і ризиковано.","Генерувати PDF із вбудованим підписом і хешем. DOCX лишити лише як чернетку.","docs/NEXT_BLOCK_DEFERRED.md"],
+ ["mid","Хостинг","Free-план Render","Безкоштовна база видаляється через 30 днів, сайт засинає. Для показу замовнику це прийнятно, для роботи ні.","Для реальної роботи використати <code>render.stable.yaml</code> (платний план з диском) і бекапи.","render.yaml"],
+ ["low","Код","Невикористані змінні та імпорти","pyflakes знайшов 12 зайвих імпортів, 4 невикористані змінні та подвійний імпорт <code>AllergyTest</code>.","Прибрати й додати <code>ruff</code> у CI.","app/main.py:8177; app/numeric_validation.py:68; app/excel_export.py:190–191; app/seed.py:17"],
+ ["low","Безпека","PBKDF2 зі 120 000 ітерацій","OWASP 2023 рекомендує 600 000 ітерацій для PBKDF2-SHA256 або перехід на argon2.","Перейти на argon2id і перехешовувати пароль при наступному вході.","app/security.py:22–25"],
+ ["low","Вхід","Немає «показати пароль» і «забули пароль»","Люди з низькою комп'ютерною грамотністю часто помиляються в паролі, а відновити його можна лише через адміна.","Додати іконку «око» в полі пароля і запит на скидання через адміна.","templates/login.html"],
+ ["low","Мова","Інтерфейс лише англійською, з медичним жаргоном","Підписи на кшталт «Corrected mm» чи «Disable mapping» незрозумілі новачку.","Писати простими словами, з поясненням у «?». За потреби додати другу мову.","app/templates/*"]
+];
+const SCREENS = [
+ ["crit","Згоду 13-річної пацієнтки (2013 р. н.) підписано іменем «Roger Herrera». У списку є окремий пацієнт HERRERA, ROGER, а поле «Relationship to Patient» порожнє.","Схоже, до згоди прикріпився підпис іншого пацієнта. Неповнолітня не може підписати сама, а підпис опікуна має бути з вказаним ступенем родинного зв'язку. Юридично такий документ недійсний.","Підпис ставиться лише в момент згоди на тому ж екрані. Для пацієнтів до 18 років поля «Опікун» і «Ким доводиться» обов'язкові. Ім'я підписанта звіряється з карткою."],
+ ["crit","У шкалі реакцій 3–5 мм позначено як «Not clinically significant», але пацієнтку з 3 мм на Maple та Oak рахують як «2 positive» і пропонують імунотерапію.","Одна сторінка суперечить сама собі. Лікування призначається на реакцію, яку звіт називає незначущою.","Узгодити поріг з лікарем і використовувати одне правило у шкалі, звіті та згоді. У коді цього проєкту поріг 3 мм (<code>HISTAMINE_PASS_THRESHOLD_MM</code>)."],
+ ["high","Positive Histamine Control введено як «Y», а не в міліметрах.","Без числа неможливо перевірити, чи правильно поставлено тест (QC), і звіт пише «Quality Control Verified» без підстав.","Гістамін вводиться лише числом у мм. Доки він нижче порогу, решта таблиці заблокована (у цьому проєкті так і зроблено)."],
+ ["high","Алергени до лікування записано рядком через кому: «3 Maple Mix, Oak, Eastern Mix, Walnut, Black…».","Коми є всередині назв (Oak, Eastern; Walnut, Black), тому не зрозуміло, скільки алергенів. Ще й «3» з номера рядка потрапило в назву.","Показувати списком: один алерген на рядок, з реакцією в мм."],
+ ["high","У таблиці Reports на кожному рядку 5 маленьких кольорових кнопок, і червона «Refusal» стоїть поруч із «Consent».","Легко натиснути «Відмова» замість «Згода».","Одна велика кнопка «Відкрити», а документи всередині картки. Відмова лише через вікно підтвердження."],
+ ["mid","У списку пацієнтів є «OMNGCMNC, JBMNVJGVJGV».","Немає перевірки імені, тож тестове сміття потрапляє в робочі дані.","Перевіряти ім'я (лише літери, дефіс, апостроф) і попереджати про ймовірний дубль."],
+ ["mid","Два бокові меню одне біля одного (Admin Console і Allergy CRM).","Неуважний користувач не розуміє, яке меню головне.","Одне меню, а в ньому лише те, що потрібно цій ролі."],
+ ["mid","Скріни з реальними іменами та датами народження пацієнтів передавалися в Telegram.","Це медичні дані (PHI). За HIPAA їх не можна пересилати в месенджерах.","Для показів використовувати тестових пацієнтів, а скріни з реальними даними видалити з чатів."]
+];
+const LABEL={crit:"Критично",high:"Високо",mid:"Середньо",low:"Низько"};
+const rows=document.getElementById("rows"), empty=document.getElementById("empty");
+ISSUES.forEach((r,i)=>{const tr=document.createElement("tr");tr.dataset.sev=r[0];
+ tr.innerHTML=`<td class="n">${i+1}</td><td class="sev"><span class="pill ${r[0]}">${LABEL[r[0]]}</span><div class="area">${r[1]}</div></td><td><strong>${r[2]}</strong></td><td>${r[3]}</td><td>${r[4]}</td><td class="where"><code>${r[5]}</code></td>`;rows.appendChild(tr)});
+const sc=document.getElementById("screens");
+SCREENS.forEach((r,i)=>{const tr=document.createElement("tr");tr.innerHTML=`<td class="n">S${i+1}</td><td class="sev"><span class="pill ${r[0]}">${LABEL[r[0]]}</span></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>`;sc.appendChild(tr)});
+const counts={crit:0,high:0,mid:0,low:0};ISSUES.forEach(r=>counts[r[0]]++);
+document.getElementById("stats").innerHTML=Object.keys(counts).map(k=>`<div class="stat ${k}"><b>${counts[k]}</b><span>${LABEL[k]}</span></div>`).join("");
+let f="all";const q=document.getElementById("q");
+function apply(){const t=q.value.trim().toLowerCase();let n=0;[...rows.children].forEach(tr=>{const ok=(f==="all"||tr.dataset.sev===f)&&(!t||tr.textContent.toLowerCase().includes(t));tr.hidden=!ok;if(ok)n++});empty.hidden=n>0}
+document.querySelectorAll(".bar button").forEach(b=>b.addEventListener("click",()=>{f=b.dataset.f;document.querySelectorAll(".bar button").forEach(x=>x.setAttribute("aria-pressed",x===b));apply()}));
+q.addEventListener("input",apply);
+</script>
