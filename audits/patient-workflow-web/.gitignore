@@ -1,2 +1,4 @@
 mockups/dist/*.zip
+mockups/dist/*/*.pptx
+mockups/dist/*/*.pdf
 mockups/src/__pycache__/
